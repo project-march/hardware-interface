@@ -25,6 +25,7 @@ public:
   void actuateRad(float targetPositionRad);
 
   float getAngleRad();
+  float getTorque();
   float getTemperature();
 
   std::string getName();

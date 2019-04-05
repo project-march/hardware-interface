@@ -32,6 +32,7 @@ void IMotionCube::mapMisoPDOs()
   PDOmap pdoMapMISO = PDOmap();
   pdoMapMISO.addObject(IMCObjectName::StatusWord);      // Compulsory!
   pdoMapMISO.addObject(IMCObjectName::ActualPosition);  // Compulsory!
+  pdoMapMISO.addObject(IMCObjectName::ActualTorque);
   pdoMapMISO.addObject(IMCObjectName::DCLinkVoltage);
   pdoMapMISO.addObject(IMCObjectName::DetailedErrorRegister);
   this->misoByteOffsets = pdoMapMISO.map(this->slaveIndex, dataDirection::miso);
@@ -166,6 +167,15 @@ float IMotionCube::getAngleRad()
   ROS_ASSERT_MSG(this->misoByteOffsets.count(IMCObjectName::ActualPosition) == 1, "ActualPosition not defined in PDO "
                                                                                   "mapping, so can't get angle");
   return this->encoder.getAngleRad(this->misoByteOffsets[IMCObjectName::ActualPosition]);
+}
+
+float IMotionCube::getTorque()
+{
+    ROS_ASSERT_MSG(this->misoByteOffsets.count(IMCObjectName::ActualTorque) == 1, "ActualTorque not defined in PDO "
+                                                                                    "mapping, so can't get angle");
+    union bit16 return_byte = get_input_bit16(this->slaveIndex, this->misoByteOffsets[IMCObjectName::ActualTorque]);
+    ROS_DEBUG("Encoder read (Torque): %d", return_byte.i);
+    return return_byte.i;
 }
 
 uint16 IMotionCube::getStatusWord()

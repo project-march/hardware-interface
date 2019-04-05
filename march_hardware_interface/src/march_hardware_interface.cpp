@@ -125,6 +125,7 @@ void MarchHardwareInterface::read()
   {
     joint_position_[i] = marchRobot.getJoint(joint_names_[i]).getAngleRad();
     ROS_DEBUG("Joint %s: read position %f", joint_names_[i].c_str(), joint_position_[i]);
+    joint_effort_[i] = marchRobot.getJoint(joint_names_[i]).getTorque();
   }
 }
 

@@ -49,6 +49,16 @@ float Joint::getAngleRad()
   return this->iMotionCube.getAngleRad();
 }
 
+float Joint::getTorque()
+{
+    if (!hasIMotionCube())
+    {
+        ROS_WARN("Joint %s has no iMotionCube", this->name.c_str());
+        return -1;
+    }
+    return this->iMotionCube.getTorque();
+}
+
 float Joint::getTemperature()
 {
   if (!hasTemperatureGES())
