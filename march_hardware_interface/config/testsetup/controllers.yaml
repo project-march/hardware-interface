@@ -5,6 +5,8 @@ march:
       publish_rate: 50
     trajectory:
       testjoint:
-        type: position_controllers/JointTrajectoryController
+        type: effort_controllers/JointTrajectoryController
         joints:
           - test_joint
+        gains: # Required because we're controlling an effort interface
+          test_joint: {p: 100000, i: 10000, d: 1, i_clamp: 10, publish_state: true, antiwindup: true}

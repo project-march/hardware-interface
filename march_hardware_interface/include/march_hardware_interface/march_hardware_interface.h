@@ -22,6 +22,8 @@ using joint_limits_interface::JointLimits;
 using joint_limits_interface::SoftJointLimits;
 using joint_limits_interface::PositionJointSoftLimitsHandle;
 using joint_limits_interface::PositionJointSoftLimitsInterface;
+using joint_limits_interface::EffortJointSoftLimitsHandle;
+using joint_limits_interface::EffortJointSoftLimitsInterface;
 
 namespace march_hardware_interface
 {
@@ -64,6 +66,7 @@ protected:
   ros::Duration elapsed_time_;
   PositionJointInterface positionJointInterface;
   PositionJointSoftLimitsInterface positionJointSoftLimitsInterface;
+ EffortJointSoftLimitsInterface effortJointSoftLimitsInterface;
   double loop_hz_;
   boost::shared_ptr<controller_manager::ControllerManager> controller_manager_;
   double p_error_, v_error_, e_error_;

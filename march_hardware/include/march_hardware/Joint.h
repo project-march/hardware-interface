@@ -23,6 +23,7 @@ public:
 
   void initialize(int ecatCycleTime);
   void actuateRad(float targetPositionRad);
+  void actuateCurrent(float targetCurrentRad);
 
   float getAngleRad();
   float getTorque();

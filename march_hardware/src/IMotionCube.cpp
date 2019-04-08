@@ -45,6 +45,7 @@ void IMotionCube::mapMosiPDOs()
   PDOmap pdoMapMOSI = PDOmap();
   pdoMapMOSI.addObject(IMCObjectName::ControlWord);  // Compulsory!
   pdoMapMOSI.addObject(IMCObjectName::TargetPosition);
+  pdoMapMOSI.addObject(IMCObjectName::TargetCurrent);
   this->mosiByteOffsets = pdoMapMOSI.map(this->slaveIndex, dataDirection::mosi);
 }
 
@@ -67,7 +68,7 @@ void IMotionCube::writeInitialSettings(uint8 ecatCycleTime)
   bool success = true;
   // sdo_bit32(slaveIndex, address, subindex, value);
   // mode of operation
-  success &= sdo_bit8(slaveIndex, 0x6060, 0, 8);
+  success &= sdo_bit8(slaveIndex, 0x6060, 0, 10);
 
   // position dimension index
   success &= sdo_bit8(slaveIndex, 0x608A, 0, 1);
@@ -103,6 +104,27 @@ void IMotionCube::actuateRad(float targetRad)
     return;
   }
   this->actuateIU(this->encoder.RadtoIU(targetRad));
+}
+
+void IMotionCube::actuateCurrent(float targetCurrent)
+{
+  ROS_ASSERT_MSG(targetCurrent < 10000, "Current of %f is too high.", targetCurrent);
+
+  union bit16 targetCurrentStruct;
+  targetCurrentStruct.i = targetCurrent;
+
+  if (this->mosiByteOffsets.count(IMCObjectName::TargetCurrent) != 1)
+  {
+    ROS_WARN("TargetCurrent not defined in PDO mapping, so can't do actuateIU");
+    return;
+  }
+
+  int targetCurrentLocation = this->mosiByteOffsets[IMCObjectName::TargetCurrent];
+
+  ROS_DEBUG("Trying to actuate slave %d, soem location %d with targetcurrent%i", this->slaveIndex,
+            targetCurrentLocation, targetCurrentStruct.i);
+
+  set_output_bit16(this->slaveIndex, targetCurrentLocation, targetCurrentStruct);
 }
 
 void IMotionCube::actuateRadFixedSpeed(float targetRad, float radPerSec)
@@ -171,11 +193,11 @@ float IMotionCube::getAngleRad()
 
 float IMotionCube::getTorque()
 {
-    ROS_ASSERT_MSG(this->misoByteOffsets.count(IMCObjectName::ActualTorque) == 1, "ActualTorque not defined in PDO "
-                                                                                    "mapping, so can't get angle");
-    union bit16 return_byte = get_input_bit16(this->slaveIndex, this->misoByteOffsets[IMCObjectName::ActualTorque]);
-    ROS_DEBUG("Encoder read (Torque): %d", return_byte.i);
-    return return_byte.i;
+  ROS_ASSERT_MSG(this->misoByteOffsets.count(IMCObjectName::ActualTorque) == 1, "ActualTorque not defined in PDO "
+                                                                                "mapping, so can't get angle");
+  union bit16 return_byte = get_input_bit16(this->slaveIndex, this->misoByteOffsets[IMCObjectName::ActualTorque]);
+  ROS_DEBUG("Encoder read (Torque): %d", return_byte.i);
+  return return_byte.i;
 }
 
 uint16 IMotionCube::getStatusWord()
@@ -427,6 +449,7 @@ bool IMotionCube::goToOperationEnabled()
   if (this->encoder.isValidTargetPositionIU(angleRead))
   {
     this->actuateIU(angleRead);
+    this->actuateCurrent(0);
   }
   else
   {

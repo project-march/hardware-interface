@@ -65,6 +65,9 @@ void MarchHardwareInterface::init()
     // Create position joint interface
     JointHandle jointPositionHandle(jointStateHandle, &joint_position_command_[i]);
 
+    // Create effort joint interface
+    JointHandle jointEffortHandle(jointStateHandle, &joint_effort_command_[i]);
+
     // Retrieve joint (soft) limits from the parameter server
     JointLimits limits;
     getJointLimits(joint.getName(), nh_, limits);
@@ -74,8 +77,11 @@ void MarchHardwareInterface::init()
     // Create joint limit interface
     PositionJointSoftLimitsHandle jointLimitsHandle(jointPositionHandle, limits, softLimits);
     positionJointSoftLimitsInterface.registerHandle(jointLimitsHandle);
-
     position_joint_interface_.registerHandle(jointPositionHandle);
+
+    EffortJointSoftLimitsHandle effortLimitsHandle(jointEffortHandle, limits, softLimits);
+    effortJointSoftLimitsInterface.registerHandle(effortLimitsHandle);
+    effort_joint_interface_.registerHandle(jointEffortHandle);
 
     // Set the first target as the current position
     this->read();
@@ -96,10 +102,6 @@ void MarchHardwareInterface::init()
     // Create velocity joint interface
     JointHandle jointVelocityHandle(jointStateHandle, &joint_velocity_command_[i]);
     velocity_joint_interface_.registerHandle(jointVelocityHandle);
-
-    // Create effort joint interface
-    JointHandle jointEffortHandle(jointStateHandle, &joint_effort_command_[i]);
-    effort_joint_interface_.registerHandle(jointEffortHandle);
 
     // Enable high voltage on the IMC
     joint.getIMotionCube().goToOperationEnabled();
@@ -131,13 +133,20 @@ void MarchHardwareInterface::read()
 
 void MarchHardwareInterface::write(ros::Duration elapsed_time)
 {
+  ROS_INFO_THROTTLE(0.1, "Before limits: Trying to actuate joint %s, to %lf rad, %f speed, %f effort.",
+                    joint_names_[0].c_str(), joint_position_command_[0], joint_velocity_command_[0],
+                    joint_effort_command_[0]);
   positionJointSoftLimitsInterface.enforceLimits(elapsed_time);
+  effortJointSoftLimitsInterface.enforceLimits(elapsed_time);
 
   for (int i = 0; i < num_joints_; i++)
   {
-    ROS_DEBUG("After limits: Trying to actuate joint %s, to %lf rad, %f speed, %f effort.", joint_names_[i].c_str(),
-              joint_position_command_[i], joint_velocity_command_[i], joint_effort_command_[i]);
-    marchRobot.getJoint(joint_names_[i]).actuateRad(static_cast<float>(joint_position_command_[i]));
+    ROS_INFO_THROTTLE(0.1, "After limits: Trying to actuate joint %s, to %lf rad, %f speed, %f effort.",
+                      joint_names_[i].c_str(), joint_position_command_[i], joint_velocity_command_[i],
+                      joint_effort_command_[i]);
+    //    marchRobot.getJoint(joint_names_[i]).actuateRad(static_cast<float>(joint_position_command_[i]));
+        marchRobot.getJoint(joint_names_[i]).actuateCurrent(static_cast<float>(joint_effort_command_[i]));
+//    marchRobot.getJoint(joint_names_[i]).actuateCurrent(0);
   }
 }
 }  // namespace march_hardware_interface

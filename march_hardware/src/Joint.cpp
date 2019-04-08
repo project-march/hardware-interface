@@ -39,6 +39,12 @@ void Joint::actuateRad(float targetPositionRad)
   this->iMotionCube.actuateRad(targetPositionRad);
 }
 
+void Joint::actuateCurrent(float targetCurrent)
+{
+  // TODO(BaCo) check that the position is allowed and does not exceed (torque) limits.
+  this->iMotionCube.actuateCurrent(targetCurrent);
+}
+
 float Joint::getAngleRad()
 {
   if (!hasIMotionCube())
@@ -51,12 +57,12 @@ float Joint::getAngleRad()
 
 float Joint::getTorque()
 {
-    if (!hasIMotionCube())
-    {
-        ROS_WARN("Joint %s has no iMotionCube", this->name.c_str());
-        return -1;
-    }
-    return this->iMotionCube.getTorque();
+  if (!hasIMotionCube())
+  {
+    ROS_WARN("Joint %s has no iMotionCube", this->name.c_str());
+    return -1;
+  }
+  return this->iMotionCube.getTorque();
 }
 
 float Joint::getTemperature()
