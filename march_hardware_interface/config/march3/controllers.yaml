@@ -5,7 +5,7 @@ march:
       publish_rate: 50
     trajectory:
       full_exoskeleton:
-        type: position_controllers/JointTrajectoryController
+        type: effort_controllers/JointTrajectoryController
         joints:
           - right_hip
           - left_hip
@@ -13,3 +13,10 @@ march:
           - left_knee
           - right_ankle
           - left_ankle
+        gains: # Required because we're controlling an effort interface
+          right_hip: {p: 100000, i: 10000, d: 1, i_clamp: 10, publish_state: true, antiwindup: true}
+          left_hip: {p: 100000, i: 10000, d: 1, i_clamp: 10, publish_state: true, antiwindup: true}
+          right_knee: {p: 100000, i: 10000, d: 1, i_clamp: 10, publish_state: true, antiwindup: true}
+          left_knee: {p: 100000, i: 10000, d: 1, i_clamp: 10, publish_state: true, antiwindup: true}
+          right_ankle: {p: 100000, i: 10000, d: 1, i_clamp: 10, publish_state: true, antiwindup: true}
+          left_ankle: {p: 100000, i: 10000, d: 1, i_clamp: 10, publish_state: true, antiwindup: true}

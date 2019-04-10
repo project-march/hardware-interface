@@ -10,7 +10,10 @@ joint_limits:
     soft_lower_limit: -0.2
     soft_upper_limit: 1.75
     k_position: 10.0
-    k_velocity: 10.0
+    k_velocity: 25000
+
+    has_effort_limits: true
+    max_effort: 10000.0
 
   right_hip:
     has_position_limits: true
@@ -23,7 +26,10 @@ joint_limits:
     soft_lower_limit: -0.2
     soft_upper_limit: 1.75
     k_position: 10.0
-    k_velocity: 10.0
+    k_velocity: 25000
+
+    has_effort_limits: true
+    max_effort: 10000.0
 
   left_knee:
     has_position_limits: true
@@ -36,7 +42,10 @@ joint_limits:
     soft_lower_limit: -0.18
     soft_upper_limit: 1.75
     k_position: 10.0
-    k_velocity: 10.0
+    k_velocity: 25000
+
+    has_effort_limits: true
+    max_effort: 10000.0
 
   right_knee:
     has_position_limits: true
@@ -49,7 +58,10 @@ joint_limits:
     soft_lower_limit: -0.18
     soft_upper_limit: 1.75
     k_position: 10.0
-    k_velocity: 10.0
+    k_velocity: 25000
+
+    has_effort_limits: true
+    max_effort: 10000.0
 
   right_ankle:
     has_position_limits: true
@@ -62,7 +74,10 @@ joint_limits:
     soft_lower_limit: -0.32
     soft_upper_limit: 0.25
     k_position: 10.0
-    k_velocity: 10.0
+    k_velocity: 25000
+
+    has_effort_limits: true
+    max_effort: 10000.0
 
   left_ankle:
     has_position_limits: true
@@ -75,5 +90,8 @@ joint_limits:
     soft_lower_limit: -0.35
     soft_upper_limit: 0.293
     k_position: 10.0
-    k_velocity: 10.0
+    k_velocity: 25000
+
+    has_effort_limits: true
+    max_effort: 10000.0
 

@@ -145,8 +145,8 @@ void MarchHardwareInterface::write(ros::Duration elapsed_time)
                       joint_names_[i].c_str(), joint_position_command_[i], joint_velocity_command_[i],
                       joint_effort_command_[i]);
     //    marchRobot.getJoint(joint_names_[i]).actuateRad(static_cast<float>(joint_position_command_[i]));
-        marchRobot.getJoint(joint_names_[i]).actuateCurrent(static_cast<float>(joint_effort_command_[i]));
-//    marchRobot.getJoint(joint_names_[i]).actuateCurrent(0);
+    marchRobot.getJoint(joint_names_[i]).actuateCurrent(static_cast<float>(joint_effort_command_[i]));
+    //    marchRobot.getJoint(joint_names_[i]).actuateCurrent(0);
   }
 }
 }  // namespace march_hardware_interface
