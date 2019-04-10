@@ -18,5 +18,5 @@ march:
           left_hip: {p: 1000, i: 100, d: 1, i_clamp: 10, publish_state: true, antiwindup: true}
           right_knee: {p: 1000, i: 100, d: 1, i_clamp: 10, publish_state: true, antiwindup: true}
           left_knee: {p: 1000, i: 100, d: 1, i_clamp: 10, publish_state: true, antiwindup: true}
-          right_ankle: {p: 1000, i: 100, d: 1, i_clamp: 10, publish_state: true, antiwindup: true}
-          left_ankle: {p: 1000, i: 100, d: 1, i_clamp: 10, publish_state: true, antiwindup: true}
+          right_ankle: {p: 100, i: 10, d: 1, i_clamp: 10, publish_state: true, antiwindup: true}
+          left_ankle: {p: 100, i: 10, d: 1, i_clamp: 10, publish_state: true, antiwindup: true}
