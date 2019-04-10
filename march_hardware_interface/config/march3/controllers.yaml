@@ -14,9 +14,9 @@ march:
           - right_ankle
           - left_ankle
         gains: # Required because we're controlling an effort interface
-          right_hip: {p: 1000, i: 100, d: 1, i_clamp: 10, publish_state: true, antiwindup: true}
-          left_hip: {p: 1000, i: 100, d: 1, i_clamp: 10, publish_state: true, antiwindup: true}
-          right_knee: {p: 1000, i: 100, d: 1, i_clamp: 10, publish_state: true, antiwindup: true}
-          left_knee: {p: 1000, i: 100, d: 1, i_clamp: 10, publish_state: true, antiwindup: true}
-          right_ankle: {p: 100, i: 10, d: 1, i_clamp: 10, publish_state: true, antiwindup: true}
-          left_ankle: {p: 100, i: 10, d: 1, i_clamp: 10, publish_state: true, antiwindup: true}
+          right_hip: {p: 50000, i: 5000, d: 5000, i_clamp: 10, publish_state: true, antiwindup: true}
+          left_hip: {p: 50000, i: 5000, d: 5000, i_clamp: 10, publish_state: true, antiwindup: true}
+          right_knee: {p: 50000, i: 5000, d: 5000, i_clamp: 10, publish_state: true, antiwindup: true}
+          left_knee: {p: 50000, i: 5000, d: 5000, i_clamp: 10, publish_state: true, antiwindup: true}
+          right_ankle: {p: 5000, i: 500, d: 5000, i_clamp: 10, publish_state: true, antiwindup: true}
+          left_ankle: {p: 5000, i: 500, d: 5000, i_clamp: 10, publish_state: true, antiwindup: true}
