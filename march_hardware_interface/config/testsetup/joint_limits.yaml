@@ -7,10 +7,10 @@ joint_limits:
     max_velocity: 0.4
 
     has_soft_limits: true
-#    soft_lower_limit: -0.04
-#    soft_upper_limit: 1.75
-    soft_lower_limit: 0.5
-    soft_upper_limit: 1
+    soft_lower_limit: -0.04
+    soft_upper_limit: 1.75
+#    soft_lower_limit: 0.5
+#    soft_upper_limit: 1
     k_position: 10.0
     k_velocity: 25000
 
