@@ -2,7 +2,7 @@ march:
   controller:
     state:
       type: joint_state_controller/JointStateController
-      publish_rate: 50
+      publish_rate: 200
     trajectory:
       testjoint:
         type: effort_controllers/JointTrajectoryController
