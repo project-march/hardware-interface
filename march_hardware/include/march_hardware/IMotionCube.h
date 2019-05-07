@@ -16,7 +16,13 @@ namespace march4cpp
 class IMotionCube : public Slave
 {
 public:
-  explicit IMotionCube(int slaveIndex, Encoder encoder);
+    enum ActuateMode : int
+    {
+        position_mode,
+        torque_mode,
+    };
+
+  explicit IMotionCube(int slaveIndex, Encoder encoder, std::string actuationMode);
 
   IMotionCube()
   {
@@ -25,11 +31,7 @@ public:
 
   ~IMotionCube() = default;
 
-  enum ActuateMode : int
-  {
-    position_mode,
-    torque,
-  };
+
 
   void writeInitialSDOs(int ecatCycleTime) override;
 
@@ -44,6 +46,7 @@ public:
 
   void actuateRad(float targetRad);
   void actuateCurrent(float targetCurrent);
+  void actuateTarget(float target);
 
   void actuateRadFixedSpeed(float targetRad, float radPerSec);
 
@@ -79,7 +82,7 @@ private:
 
   bool get_bit(uint16 value, int index);
 
-  ActuateMode actuatemode;
+  ActuateMode actuateMode;
 };
 
 }  // namespace march4cpp
