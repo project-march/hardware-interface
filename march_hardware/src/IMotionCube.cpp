@@ -10,11 +10,11 @@
 
 namespace march4cpp
 {
-IMotionCube::IMotionCube(int slaveIndex, Encoder encoder, std::string& actuationmode) : Slave(slaveIndex)
+IMotionCube::IMotionCube(int slaveIndex, Encoder encoder, std::string actuationmode) : Slave(slaveIndex)
 {
   this->encoder = encoder;
   this->encoder.setSlaveIndex(this->slaveIndex);
-  actuationMode = ActuationMode(actuationmode);
+  this->actuationMode = ActuationMode(actuationmode);
 }
 
 void IMotionCube::writeInitialSDOs(int ecatCycleTime)
@@ -191,7 +191,7 @@ void IMotionCube::actuateTarget(float target) {
         this->actuateRad(target);
     }
 
-    if(this->actuationMode == ActuationMode::){
+    if(this->actuationMode == ActuationMode::torque_mode){
         this->actuateRad(target);
     }
 }

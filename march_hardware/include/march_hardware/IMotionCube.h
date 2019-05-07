@@ -31,7 +31,7 @@ private:
   ActuationMode actuationMode;
 
 public:
-  explicit IMotionCube(int slaveIndex, Encoder encoder, std::string& actuationMode);
+  explicit IMotionCube(int slaveIndex, Encoder encoder, std::string actuationMode);
 
   IMotionCube()
   {

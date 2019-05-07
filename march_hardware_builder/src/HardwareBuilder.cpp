@@ -99,7 +99,8 @@ march4cpp::IMotionCube HardwareBuilder::createIMotionCube(YAML::Node iMotionCube
 
   YAML::Node encoderConfig = iMotionCubeConfig["encoder"];
   int slaveIndex = iMotionCubeConfig["slaveIndex"].as<int>();
-  return march4cpp::IMotionCube(slaveIndex, this->createEncoder(encoderConfig));
+  std::string actuationMode = iMotionCubeConfig["actuationMode"].as<std::string>();
+  return march4cpp::IMotionCube(slaveIndex, this->createEncoder(encoderConfig),actuationMode);
 }
 
 march4cpp::Encoder HardwareBuilder::createEncoder(YAML::Node EncoderConfig)

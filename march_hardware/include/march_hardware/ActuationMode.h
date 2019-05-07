@@ -41,7 +41,7 @@ public:
 
     bool operator!=(ActuationMode::Value a) const
     {
-      return value != a.value;
+      return value != a;
     }
 
 private:
