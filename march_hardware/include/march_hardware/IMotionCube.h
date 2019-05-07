@@ -15,20 +15,6 @@ namespace march4cpp
 {
 class IMotionCube : public Slave
 {
-private:
-  Encoder encoder;
-  void actuateIU(int iu);
-
-  std::map<IMCObjectName, int> misoByteOffsets;
-  std::map<IMCObjectName, int> mosiByteOffsets;
-  void mapMisoPDOs();
-  void mapMosiPDOs();
-  void validateMisoPDOs();
-  void validateMosiPDOs();
-  void writeInitialSettings(uint8 ecatCycleTime);
-
-  bool get_bit(uint16 value, int index);
-
 public:
   explicit IMotionCube(int slaveIndex, Encoder encoder);
 
@@ -38,6 +24,12 @@ public:
   }
 
   ~IMotionCube() = default;
+
+  enum ActuateMode : int
+  {
+    position_mode,
+    torque,
+  };
 
   void writeInitialSDOs(int ecatCycleTime) override;
 
@@ -72,6 +64,22 @@ public:
     return os << "slaveIndex: " << iMotionCube.slaveIndex << ", "
               << "encoder: " << iMotionCube.encoder;
   }
+
+private:
+  Encoder encoder;
+  void actuateIU(int iu);
+
+  std::map<IMCObjectName, int> misoByteOffsets;
+  std::map<IMCObjectName, int> mosiByteOffsets;
+  void mapMisoPDOs();
+  void mapMosiPDOs();
+  void validateMisoPDOs();
+  void validateMosiPDOs();
+  void writeInitialSettings(uint8 ecatCycleTime);
+
+  bool get_bit(uint16 value, int index);
+
+  ActuateMode actuatemode;
 };
 
 }  // namespace march4cpp
