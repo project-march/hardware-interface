@@ -5,7 +5,7 @@
 #include <joint_limits_interface/joint_limits.h>
 #include <joint_limits_interface/joint_limits_urdf.h>
 #include <joint_limits_interface/joint_limits_rosparam.h>
-
+#include <march_hardware/ActuationMode.h>
 #include <march_hardware/MarchRobot.h>
 
 #include <march_hardware_interface/march_hardware_interface.h>
@@ -144,8 +144,17 @@ void MarchHardwareInterface::write(ros::Duration elapsed_time)
     ROS_INFO_THROTTLE(0.1, "After limits: Trying to actuate joint %s, to %lf rad, %f speed, %f effort.",
                       joint_names_[i].c_str(), joint_position_command_[i], joint_velocity_command_[i],
                       joint_effort_command_[i]);
+
+      march4cpp::Joint singlejoint = marchRobot.getJoint(joint_names_[i]);
+
+      if (singlejoint.getActuationMode() == ActuationMode::position_mode){
+          singlejoint.actuateRad(static_cast<float>(joint_position_command_[i]));
+      }
     //    marchRobot.getJoint(joint_names_[i]).actuateRad(static_cast<float>(joint_position_command_[i]));
-    marchRobot.getJoint(joint_names_[i]).actuateCurrent(static_cast<float>(joint_effort_command_[i]));
+
+      if (singlejoint.getActuationMode() == ActuationMode::torque_mode){
+          singlejoint.actuateCurrent(static_cast<float>(joint_effort_command_[i]));
+      }
     //    marchRobot.getJoint(joint_names_[i]).actuateCurrent(0);
   }
 }

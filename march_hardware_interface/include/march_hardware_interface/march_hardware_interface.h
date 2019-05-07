@@ -12,7 +12,7 @@
 #include <boost/scoped_ptr.hpp>
 #include <ros/ros.h>
 #include <march_hardware_interface/march_hardware.h>
-
+#include <march_hardware/ActuationMode.h>
 #include <march_hardware_builder/HardwareBuilder.h>
 
 #include <march_hardware/MarchRobot.h>

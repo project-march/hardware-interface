@@ -5,10 +5,11 @@
 
 namespace march4cpp
 {
-Joint::Joint(std::string name, TemperatureGES temperatureGES, IMotionCube iMotionCube)
+Joint::Joint(std::string name, TemperatureGES temperatureGES, IMotionCube iMotionCube, std::string actuationmode)
   : temperatureGES(temperatureGES), iMotionCube(iMotionCube)
 {
   this->name = std::move(name);
+  this->actuationMode = ActuationMode(actuationmode);
 }
 
 Joint::Joint(std::string name, TemperatureGES temperatureGES) : temperatureGES(temperatureGES)
@@ -43,6 +44,11 @@ void Joint::actuateCurrent(float targetCurrent)
 {
   // TODO(BaCo) check that the position is allowed and does not exceed (torque) limits.
   this->iMotionCube.actuateCurrent(targetCurrent);
+}
+
+int Joint::getActuationMode()
+{
+    return this->actuationMode.getValue();
 }
 
 float Joint::getAngleRad()

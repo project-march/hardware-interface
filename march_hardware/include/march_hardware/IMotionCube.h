@@ -31,7 +31,7 @@ private:
   ActuationMode actuationMode;
 
 public:
-  explicit IMotionCube(int slaveIndex, Encoder encoder, std::string actuationMode);
+  explicit IMotionCube(int slaveIndex, Encoder encoder);
 
   IMotionCube()
   {
@@ -53,7 +53,6 @@ public:
 
   void actuateRad(float targetRad);
   void actuateCurrent(float targetCurrent);
-  void actuateTarget(float target);
 
   void actuateRadFixedSpeed(float targetRad, float radPerSec);
 

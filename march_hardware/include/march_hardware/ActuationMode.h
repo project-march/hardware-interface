@@ -33,6 +33,13 @@ public:
     }
   }
 
+  int getValue(){
+      return value;
+  }
+
+    int toModeNumber(){
+
+  }
 
     bool operator==(ActuationMode::Value a) const
     {

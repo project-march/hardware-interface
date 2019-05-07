@@ -6,6 +6,8 @@
 
 #include <march_hardware/IMotionCube.h>
 #include <march_hardware/TemperatureGES.h>
+#include <march_hardware/ActuationMode.h>
+
 namespace march4cpp
 {
 class Joint
@@ -13,17 +15,19 @@ class Joint
 private:
   std::string name;
   IMotionCube iMotionCube;
+  ActuationMode actuationMode;
   TemperatureGES temperatureGES;
 
 public:
   // TODO(Tim) pass by reference or pointer instead of making copy
-  Joint(std::string name, TemperatureGES temperatureGES, IMotionCube iMotionCube);
+  Joint(std::string name, TemperatureGES temperatureGES, IMotionCube iMotionCube, std::string actuationmode);
   Joint(std::string name, TemperatureGES temperatureGES);
   Joint(std::string name, IMotionCube iMotionCube);
 
   void initialize(int ecatCycleTime);
   void actuateRad(float targetPositionRad);
   void actuateCurrent(float targetCurrentRad);
+  int getActuationMode();
 
   float getAngleRad();
   float getTorque();
