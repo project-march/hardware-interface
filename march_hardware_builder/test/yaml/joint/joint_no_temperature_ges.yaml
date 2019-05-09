@@ -1,3 +1,4 @@
+actuationMode: "torque_mode"
 imotioncube:
   slaveIndex: 10
   encoder:

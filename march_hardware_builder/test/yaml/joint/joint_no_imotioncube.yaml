@@ -1,3 +1,5 @@
+actuationMode: "torque_mode"
+
 temperatureges:
   slaveIndex: 1
   byteOffset: 2
