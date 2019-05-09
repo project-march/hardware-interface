@@ -26,7 +26,7 @@ private:
   void mapMosiPDOs();
   void validateMisoPDOs();
   void validateMosiPDOs();
-  void writeInitialSettings(uint8 ecatCycleTime);
+  void writeInitialSettings(uint8 ecatCycleTime, uint8_t modeofOp);
   bool get_bit(uint16 value, int index);
   ActuationMode actuationMode;
 
@@ -40,7 +40,7 @@ public:
 
   ~IMotionCube() = default;
 
-  void writeInitialSDOs(int ecatCycleTime) override;
+  void writeInitialSDOs(int ecatCycleTime, ActuationMode actuationmode);
 
   float getAngleRad();
   float getTorque();

@@ -16,13 +16,14 @@ IMotionCube::IMotionCube(int slaveIndex, Encoder encoder) : Slave(slaveIndex)
   this->encoder.setSlaveIndex(this->slaveIndex);
 }
 
-void IMotionCube::writeInitialSDOs(int ecatCycleTime)
+void IMotionCube::writeInitialSDOs(int ecatCycleTime, ActuationMode mode)
 {
   mapMisoPDOs();
   mapMosiPDOs();
   validateMisoPDOs();
   validateMosiPDOs();
-  writeInitialSettings(ecatCycleTime);
+  this->actuationMode = mode;
+  writeInitialSettings(ecatCycleTime, this->actuationMode.toModeNumber());
 }
 
 // Map Process Data Object (PDO) for by sending SDOs to the IMC
@@ -63,12 +64,12 @@ void IMotionCube::validateMosiPDOs()
 }
 
 // Set configuration parameters to the IMC
-void IMotionCube::writeInitialSettings(uint8 ecatCycleTime)
+void IMotionCube::writeInitialSettings(uint8 ecatCycleTime, u_int8_t modeofOp)
 {
   bool success = true;
   // sdo_bit32(slaveIndex, address, subindex, value);
   // mode of operation
-  success &= sdo_bit8(slaveIndex, 0x6060, 0, 10);
+  success &= sdo_bit8(slaveIndex, 0x6060, 0, modeofOp);
 
   // position dimension index
   success &= sdo_bit8(slaveIndex, 0x608A, 0, 1);
@@ -183,7 +184,6 @@ void IMotionCube::actuateIU(int targetIU)
             targetPositionLocation, targetPosition.i);
   set_output_bit32(this->slaveIndex, targetPositionLocation, targetPosition);
 }
-
 
 float IMotionCube::getAngleRad()
 {
