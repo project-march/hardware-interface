@@ -6,10 +6,9 @@
 namespace march4cpp
 {
 Joint::Joint(std::string name, TemperatureGES temperatureGES, IMotionCube iMotionCube, std::string actuationmode)
-  : temperatureGES(temperatureGES), iMotionCube(iMotionCube)
+  : temperatureGES(temperatureGES), iMotionCube(iMotionCube), actuationMode(ActuationMode(actuationmode))
 {
   this->name = std::move(name);
-  this->actuationMode = ActuationMode(actuationmode);
 }
 
 Joint::Joint(std::string name, TemperatureGES temperatureGES) : temperatureGES(temperatureGES)
@@ -26,7 +25,7 @@ void Joint::initialize(int ecatCycleTime)
 {
   if (hasIMotionCube())
   {
-    iMotionCube.writeInitialSDOs(ecatCycleTime);
+    iMotionCube.writeInitialSDOs(ecatCycleTime, this->actuationMode);
   }
   if (hasTemperatureGES())
   {

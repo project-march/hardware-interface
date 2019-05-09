@@ -3,6 +3,7 @@ testsetup:
   ecatCycleTime: 4
   joints:
     - test_joint:
+        actuationMode: torque_mode
         imotioncube:
           slaveIndex: 1
           encoder:

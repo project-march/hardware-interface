@@ -60,6 +60,8 @@ march4cpp::Joint HardwareBuilder::createJoint(YAML::Node jointConfig, std::strin
   bool hasTemperatureGes = false;
   this->validateRequiredKeysExist(jointConfig, this->JOINT_REQUIRED_KEYS, "joint");
 
+  std::string actuationMode = jointConfig["actuationMode"].as<std::string>();
+
   if (jointConfig["imotioncube"].Type() == YAML::NodeType::Undefined)
   {
     ROS_WARN("Joint %s does not have a configuration for an IMotionCube", jointName.c_str());
@@ -84,7 +86,7 @@ march4cpp::Joint HardwareBuilder::createJoint(YAML::Node jointConfig, std::strin
                  "Joint %s has no IMotionCube and no TemperatureGES. Please check its purpose.", jointName.c_str());
   if (hasTemperatureGes && hasIMotionCube)
   {
-    return march4cpp::Joint(jointName, temperatureGes, imc);
+    return march4cpp::Joint(jointName, temperatureGes, imc, actuationMode);
   }
   if (hasTemperatureGes)
   {
@@ -99,8 +101,7 @@ march4cpp::IMotionCube HardwareBuilder::createIMotionCube(YAML::Node iMotionCube
 
   YAML::Node encoderConfig = iMotionCubeConfig["encoder"];
   int slaveIndex = iMotionCubeConfig["slaveIndex"].as<int>();
-  std::string actuationMode = iMotionCubeConfig["actuationMode"].as<std::string>();
-  return march4cpp::IMotionCube(slaveIndex, this->createEncoder(encoderConfig),actuationMode);
+  return march4cpp::IMotionCube(slaveIndex, this->createEncoder(encoderConfig));
 }
 
 march4cpp::Encoder HardwareBuilder::createEncoder(YAML::Node EncoderConfig)

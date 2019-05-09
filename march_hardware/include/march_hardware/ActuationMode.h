@@ -33,23 +33,32 @@ public:
     }
   }
 
-  int getValue(){
-      return value;
+  int toModeNumber()
+  {
+    if (value == position_mode)
+    {
+      return 8;
+    }
+    if (value == torque_mode)
+    {
+      return 10;
+    }
   }
 
-    int toModeNumber(){
-
+  int getValue()
+  {
+    return value;
   }
 
-    bool operator==(ActuationMode::Value a) const
-    {
-      return value == a;
-    }
+  bool operator==(ActuationMode::Value a) const
+  {
+    return value == a;
+  }
 
-    bool operator!=(ActuationMode::Value a) const
-    {
-      return value != a;
-    }
+  bool operator!=(ActuationMode::Value a) const
+  {
+    return value != a;
+  }
 
 private:
   Value value;
