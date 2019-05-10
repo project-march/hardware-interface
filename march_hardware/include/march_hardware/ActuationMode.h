@@ -46,8 +46,7 @@ public:
     }
   }
 
-  int getValue()
-  {
+  int getValue() const {
     return value;
   }
 
@@ -61,8 +60,7 @@ public:
     return value != a;
   }
 
-    inline const char* toString()
-    {
+    std::string toString() const {
         switch (this->value)
         {
             case torque:   return "torque";
