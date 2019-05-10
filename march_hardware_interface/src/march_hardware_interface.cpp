@@ -147,13 +147,13 @@ void MarchHardwareInterface::write(ros::Duration elapsed_time)
 
     march4cpp::Joint singleJoint = marchRobot.getJoint(joint_names_[i]);
 
-    if (singleJoint.getActuationMode() == ActuationMode::position_mode)
+    if (singleJoint.getActuationMode() == ActuationMode::position)
     {
       singleJoint.actuateRad(static_cast<float>(joint_position_command_[i]));
     }
     //    marchRobot.getJoint(joint_names_[i]).actuateRad(static_cast<float>(joint_position_command_[i]));
 
-    if (singleJoint.getActuationMode() == ActuationMode::torque_mode)
+    if (singleJoint.getActuationMode() == ActuationMode::torque)
     {
       singleJoint.actuateCurrent(static_cast<float>(joint_effort_command_[i]));
     }

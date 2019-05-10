@@ -1,4 +1,4 @@
-actuationMode: torque_mode
+actuationMode: torque
 
 imotioncube:
   slaveIndex: 2

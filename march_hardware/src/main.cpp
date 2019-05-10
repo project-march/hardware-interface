@@ -22,7 +22,7 @@ int main(int argc, char** argv)
   // TODO(ISHA, MARTIJN) double-check these numbers.
   march4cpp::Encoder enc = march4cpp::Encoder(16, 37961, 59649, 39717, 0.05);
   march4cpp::IMotionCube imc = march4cpp::IMotionCube(2, enc);
-  march4cpp::Joint temp = march4cpp::Joint("test_joint", temperatureGES, imc, "torque_mode");
+  march4cpp::Joint temp = march4cpp::Joint("test_joint", temperatureGES, imc, "torque");
 
   std::vector<march4cpp::Joint> jointList;
   jointList.push_back(temp);

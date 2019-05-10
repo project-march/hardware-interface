@@ -42,7 +42,7 @@ TEST_F(JointTest, ValidJointHip)
   march4cpp::IMotionCube actualIMotionCube = march4cpp::IMotionCube(2, actualEncoder);
   march4cpp::TemperatureGES actualTemperatureGes = march4cpp::TemperatureGES(1, 2);
   march4cpp::Joint actualJoint =
-      march4cpp::Joint("test_joint_hip", actualTemperatureGes, actualIMotionCube, "torque_mode");
+      march4cpp::Joint("test_joint_hip", actualTemperatureGes, actualIMotionCube, "torque");
 
   ASSERT_EQ("test_joint_hip", actualJoint.getName());
   ASSERT_EQ(actualJoint, createdJoint);
@@ -60,7 +60,7 @@ TEST_F(JointTest, ValidJointAnkle)
   march4cpp::TemperatureGES actualTemperatureGes = march4cpp::TemperatureGES(10, 6);
 
   march4cpp::Joint actualJoint =
-      march4cpp::Joint("test_joint_ankle", actualTemperatureGes, actualIMotionCube, "torque_mode");
+      march4cpp::Joint("test_joint_ankle", actualTemperatureGes, actualIMotionCube, "torque");
   ASSERT_EQ("test_joint_ankle", actualJoint.getName());
   ASSERT_EQ(actualJoint, createdJoint);
 }

@@ -10,36 +10,36 @@ class ActuationMode
 public:
   enum Value : int
   {
-    position_mode,
-    torque_mode,
+    position,
+    torque,
   };
 
   ActuationMode() = default;
 
   explicit ActuationMode(const std::string& actuationMode)
   {
-    if (actuationMode == "position_mode")
+    if (actuationMode == "position")
     {
-      this->value = position_mode;
+      this->value = position;
     }
-    else if (actuationMode == "torque_mode")
+    else if (actuationMode == "torque")
     {
-      this->value = torque_mode;
+      this->value = torque;
     }
     else
     {
       ROS_ASSERT_MSG(false, "Unknown actuation mode %s, setting to position mode", actuationMode.c_str());
-      this->value = ActuationMode::position_mode;
+      this->value = ActuationMode::position;
     }
   }
 
   int toModeNumber()
   {
-    if (value == position_mode)
+    if (value == position)
     {
       return 8;
     }
-    if (value == torque_mode)
+    if (value == torque)
     {
       return 10;
     }
@@ -59,6 +59,16 @@ public:
   {
     return value != a;
   }
+
+    inline const char* toString()
+    {
+        switch (this->value)
+        {
+            case torque:   return "torque";
+            case position:   return "position";
+            default:      return "[Unknown ActuationMode]";
+        }
+    }
 
 private:
   Value value;

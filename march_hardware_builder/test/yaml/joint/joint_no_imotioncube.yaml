@@ -1,4 +1,4 @@
-actuationMode: "torque_mode"
+actuationMode: "torque"
 
 temperatureges:
   slaveIndex: 1
