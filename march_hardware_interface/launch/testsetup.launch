@@ -3,8 +3,6 @@
     <rosparam file="$(find march_hardware_interface)/config/testsetup/controllers.yaml" command="load"/>
     <rosparam file="$(find march_hardware_interface)/config/testsetup/joint_limits.yaml" command="load"/>
 
-    <rosparam param="pid/publish_state">true</rosparam>
-
     <include file="$(find march_description)/launch/load_test_joint_description.launch"/>
 
 
