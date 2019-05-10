@@ -21,7 +21,8 @@ private:
 
 public:
   // TODO(Tim) pass by reference or pointer instead of making copy
-  Joint(std::string name, bool allowActuation, TemperatureGES temperatureGES, IMotionCube iMotionCube, std::string actuationmode);
+  Joint(std::string name, bool allowActuation, TemperatureGES temperatureGES, IMotionCube iMotionCube,
+                std::string actuationmode);
   Joint(std::string name, bool allowActuation, TemperatureGES temperatureGES);
   Joint(std::string name, bool allowActuation, IMotionCube iMotionCube);
 
@@ -58,7 +59,7 @@ public:
   friend ::std::ostream& operator<<(std::ostream& os, const Joint& joint)
   {
     return os << "name: " << joint.name << ", "
-              << "allowActuation: " << joint.allowActuation<< ", "
+              << "allowActuation: " << joint.allowActuation << ", "
               << "imotioncube: " << joint.iMotionCube << ","
               << "temperatureges: " << joint.temperatureGES;
   }

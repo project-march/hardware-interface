@@ -58,8 +58,10 @@ TEST_F(JointTest, ValidNotActuated)
   march4cpp::Encoder actualEncoder = march4cpp::Encoder(16, 22134, 43436, 24515, 0.05);
   march4cpp::IMotionCube actualIMotionCube = march4cpp::IMotionCube(2, actualEncoder);
   march4cpp::TemperatureGES actualTemperatureGes = march4cpp::TemperatureGES(1, 2);
-  march4cpp::Joint actualJoint = march4cpp::Joint("test_joint_hip", false, actualTemperatureGes, actualIMotionCube);
-  march4cpp::Joint actualJointWrong = march4cpp::Joint("test_joint_hip", true, actualTemperatureGes, actualIMotionCube);
+  march4cpp::Joint actualJoint = march4cpp::Joint("test_joint_hip", false, actualTemperatureGes, actualIMotionCube,
+          "position");
+  march4cpp::Joint actualJointWrong = march4cpp::Joint("test_joint_hip", true, actualTemperatureGes,
+          actualIMotionCube,"position");
 
   ASSERT_EQ("test_joint_hip", actualJoint.getName());
   ASSERT_FALSE(actualJoint.canActuate());
