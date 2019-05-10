@@ -99,6 +99,9 @@ void IMotionCube::writeInitialSettings(uint8 ecatCycleTime, u_int8_t modeofOp)
 
 void IMotionCube::actuateRad(float targetRad)
 {
+  ROS_ASSERT_MSG(this->actuationMode == ActuationMode::position, "trying to actuate current, while actuationmode = "
+                                                               "%s ",
+                 this->actuationMode.toString());
   if (std::abs(targetRad - this->getAngleRad()) > 0.2)
   {
     ROS_ERROR("Target %f exceeds max difference of 0.2 from current %f", targetRad, this->getAngleRad());
