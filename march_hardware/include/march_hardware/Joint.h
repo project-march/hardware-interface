@@ -14,9 +14,16 @@ class Joint
 {
 private:
   std::string name;
+  //TODO(bart) review this comment if it still makes sense
+  /**
+   * An explicit difference is made between allowActuation and actuationMode, since the situation can occur that
+   * controllers want to be tested for example to see how it responds to error. For the sake of safety an explicit
+   * statement in the .yaml will indicate what can be expected.
+   */
   bool allowActuation;
-  IMotionCube iMotionCube;
   ActuationMode actuationMode;
+
+  IMotionCube iMotionCube;
   TemperatureGES temperatureGES;
 
 public:
@@ -48,7 +55,7 @@ public:
   friend bool operator==(const Joint& lhs, const Joint& rhs)
   {
     return lhs.name == rhs.name && lhs.iMotionCube == rhs.iMotionCube && lhs.temperatureGES == rhs.temperatureGES &&
-           lhs.allowActuation == rhs.allowActuation;
+           lhs.allowActuation == rhs.allowActuation && lhs.actuationMode.getValue() == rhs.actuationMode.getValue();
   }
 
   friend bool operator!=(const Joint& lhs, const Joint& rhs)
@@ -59,6 +66,7 @@ public:
   friend ::std::ostream& operator<<(std::ostream& os, const Joint& joint)
   {
     return os << "name: " << joint.name << ", "
+            << "ActuationMode: " << joint.actuationMode.toString() << ", "
               << "allowActuation: " << joint.allowActuation << ", "
               << "imotioncube: " << joint.iMotionCube << ","
               << "temperatureges: " << joint.temperatureGES;
