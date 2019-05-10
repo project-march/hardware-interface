@@ -109,6 +109,10 @@ void IMotionCube::actuateRad(float targetRad)
 
 void IMotionCube::actuateCurrent(float targetCurrent)
 {
+  ROS_ASSERT_MSG(this->actuationMode == ActuationMode::torque, "trying to actuate current, while actuationmode = "
+                                                               "%s ",
+                 this->actuationMode.toString());
+
   ROS_ASSERT_MSG(targetCurrent < 10000, "Current of %f is too high.", targetCurrent);
 
   union bit16 targetCurrentStruct;
