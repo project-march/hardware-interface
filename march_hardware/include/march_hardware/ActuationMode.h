@@ -12,6 +12,7 @@ public:
   {
     position,
     torque,
+    unknown,
   };
 
   ActuationMode() = default;
@@ -29,7 +30,7 @@ public:
     else
     {
       ROS_ASSERT_MSG(false, "Unknown actuation mode %s, setting to position mode", actuationMode.c_str());
-      this->value = ActuationMode::position;
+      this->value = ActuationMode::unknown;
     }
   }
 
@@ -71,7 +72,7 @@ public:
     }
 
 private:
-  Value value;
+  Value value = unknown;
 };
 
 #endif  // MARCH_HARDWARE_INTERFACE_ACTUATIONMODE_H
