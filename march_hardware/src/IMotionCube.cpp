@@ -64,7 +64,7 @@ void IMotionCube::validateMosiPDOs()
 }
 
 // Set configuration parameters to the IMC
-void IMotionCube::writeInitialSettings(uint8 ecatCycleTime, u_int8_t modeofOp)
+void IMotionCube::writeInitialSettings(uint8 ecatCycleTime, uint8_t modeofOp)
 {
   bool success = true;
   // sdo_bit32(slaveIndex, address, subindex, value);
@@ -101,7 +101,7 @@ void IMotionCube::actuateRad(float targetRad)
 {
   ROS_ASSERT_MSG(this->actuationMode == ActuationMode::position, "trying to actuate current, while actuationmode = "
                                                                "%s ",
-                 this->actuationMode.toString());
+                 this->actuationMode.toString().c_str());
   if (std::abs(targetRad - this->getAngleRad()) > 0.2)
   {
     ROS_ERROR("Target %f exceeds max difference of 0.2 from current %f", targetRad, this->getAngleRad());
@@ -114,7 +114,7 @@ void IMotionCube::actuateCurrent(float targetCurrent)
 {
   ROS_ASSERT_MSG(this->actuationMode == ActuationMode::torque, "trying to actuate current, while actuationmode = "
                                                                "%s ",
-                 this->actuationMode.toString());
+                 this->actuationMode.toString().c_str());
 
   ROS_ASSERT_MSG(targetCurrent < 10000, "Current of %f is too high.", targetCurrent);
 
