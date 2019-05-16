@@ -16,6 +16,13 @@ IMotionCube::IMotionCube(int slaveIndex, Encoder encoder) : Slave(slaveIndex)
   this->encoder.setSlaveIndex(this->slaveIndex);
 }
 
+IMotionCube::IMotionCube(int slaveIndex, Encoder encoder, ActuationMode actuationmode) : Slave(slaveIndex)
+{
+  this->encoder = encoder;
+  this->encoder.setSlaveIndex(this->slaveIndex);
+  this->actuationMode = actuationmode;
+}
+
 void IMotionCube::writeInitialSDOs(int ecatCycleTime, ActuationMode mode)
 {
   mapMisoPDOs();

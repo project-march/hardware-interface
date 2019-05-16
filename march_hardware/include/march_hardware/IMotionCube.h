@@ -32,6 +32,7 @@ private:
 
 public:
   explicit IMotionCube(int slaveIndex, Encoder encoder);
+  explicit IMotionCube(int slaveIndex, Encoder encoder, ActuationMode actuationmode);
 
   IMotionCube()
   {
