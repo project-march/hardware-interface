@@ -65,7 +65,7 @@ public:
         {
             case torque:   return "torque";
             case position:   return "position";
-            default:      return "unknown ActuationMode";
+            default:      return "unknown";
         }
     }
 
