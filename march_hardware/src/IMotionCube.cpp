@@ -107,7 +107,7 @@ void IMotionCube::writeInitialSettings(uint8 ecatCycleTime, uint8_t modeofOp)
 void IMotionCube::actuateRad(float targetRad)
 {
   ROS_ASSERT_MSG(this->actuationMode == ActuationMode::position, "trying to actuate current, while actuationmode = "
-                                                               "%s ",
+                                                               "%s",
                  this->actuationMode.toString().c_str());
   if (std::abs(targetRad - this->getAngleRad()) > 0.2)
   {
@@ -120,7 +120,7 @@ void IMotionCube::actuateRad(float targetRad)
 void IMotionCube::actuateCurrent(float targetCurrent)
 {
   ROS_ASSERT_MSG(this->actuationMode == ActuationMode::torque, "trying to actuate current, while actuationmode = "
-                                                               "%s ",
+                                                               "%s",
                  this->actuationMode.toString().c_str());
 
   ROS_ASSERT_MSG(targetCurrent < 10000, "Current of %f is too high.", targetCurrent);
