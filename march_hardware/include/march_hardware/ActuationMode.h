@@ -29,7 +29,7 @@ public:
     }
     else
     {
-//      ROS_ASSERT_MSG(false, "Unknown actuation mode %s, setting to unknown mode", actuationMode.c_str());
+      //      ROS_ASSERT_MSG(false, "Unknown actuation mode %s, setting to unknown mode", actuationMode.c_str());
       this->value = ActuationMode::unknown;
     }
   }
@@ -46,7 +46,8 @@ public:
     }
   }
 
-  int getValue() const {
+  int getValue() const
+  {
     return value;
   }
 
@@ -60,14 +61,18 @@ public:
     return value != a;
   }
 
-    std::string toString() const {
-        switch (this->value)
-        {
-            case torque:   return "torque";
-            case position:   return "position";
-            default:      return "unknown";
-        }
+  std::string toString() const
+  {
+    switch (this->value)
+    {
+      case torque:
+        return "torque";
+      case position:
+        return "position";
+      default:
+        return "unknown";
     }
+  }
 
 private:
   Value value = unknown;

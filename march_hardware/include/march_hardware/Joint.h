@@ -14,7 +14,7 @@ class Joint
 {
 private:
   std::string name;
-  //TODO(bart) review this comment if it still makes sense
+  // TODO(bart) review this comment if it still makes sense
   /**
    * An explicit difference is made between allowActuation and actuationMode, since the situation can occur that
    * controllers want to be tested for example to see how it responds to error. For the sake of safety an explicit
