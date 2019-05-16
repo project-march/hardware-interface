@@ -54,5 +54,22 @@ TEST_F(IMotionCubeTest, NoSlaveIndexConstructorGetIndex)
 TEST_F(IMotionCubeTest, NoActuationMode)
 {
     march4cpp::IMotionCube imc = march4cpp::IMotionCube(1, encoder);
-    ASSERT_DEATH(imc.actuateRad(1), "trying to actuate current, while actuationmode = unknown");
+    ASSERT_DEATH(imc.actuateRad(1), "trying to actuate rad, while actuationmode = unknown");
+}
+
+TEST_F(IMotionCubeTest, ActuationModeTorqueImotionCubeActuateRad)
+{
+    march4cpp::Encoder actualEncoder = march4cpp::Encoder(20, 3, 40000, 5, 0.05);
+    ActuationMode actuationMode("torque");
+    march4cpp::IMotionCube imc = march4cpp::IMotionCube(10, actualEncoder, actuationMode);
+    ASSERT_DEATH(imc.actuateRad(1), "trying to actuate rad, while actuationmode = torque");
+
+}
+
+TEST_F(IMotionCubeTest, ActuationModePositionJointActuateCurrent)
+{
+    march4cpp::Encoder actualEncoder = march4cpp::Encoder(20, 3, 40000, 5, 0.05);
+    ActuationMode actuationMode("position");
+    march4cpp::IMotionCube imc = march4cpp::IMotionCube(10, actualEncoder, actuationMode);
+    ASSERT_DEATH(imc.actuateCurrent(1), "trying to actuate current, while actuationmode = position");
 }

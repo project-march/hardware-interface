@@ -116,7 +116,7 @@ TEST_F(JointTest, ActuationModeTorqueJointActuateRad)
     march4cpp::Joint torqueJoint =
             march4cpp::Joint("test_joint_ankle", true, actualTemperatureGes, actualIMotionCube, "torque");
 
-    ASSERT_DEATH(torqueJoint.actuateRad(1), "trying to actuate current, while actuationmode = torque");
+    ASSERT_DEATH(torqueJoint.actuateRad(1), "trying to actuate rad, while actuationmode = torque");
 
 }
 

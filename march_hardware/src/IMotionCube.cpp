@@ -106,7 +106,7 @@ void IMotionCube::writeInitialSettings(uint8 ecatCycleTime, uint8_t modeofOp)
 
 void IMotionCube::actuateRad(float targetRad)
 {
-  ROS_ASSERT_MSG(this->actuationMode == ActuationMode::position, "trying to actuate current, while actuationmode = "
+  ROS_ASSERT_MSG(this->actuationMode == ActuationMode::position, "trying to actuate rad, while actuationmode = "
                                                                "%s",
                  this->actuationMode.toString().c_str());
   if (std::abs(targetRad - this->getAngleRad()) > 0.2)
