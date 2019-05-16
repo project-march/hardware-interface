@@ -29,7 +29,7 @@ public:
     }
     else
     {
-      ROS_ASSERT_MSG(false, "Unknown actuation mode %s, setting to position mode", actuationMode.c_str());
+//      ROS_ASSERT_MSG(false, "Unknown actuation mode %s, setting to unknown mode", actuationMode.c_str());
       this->value = ActuationMode::unknown;
     }
   }

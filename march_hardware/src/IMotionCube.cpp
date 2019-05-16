@@ -10,17 +10,10 @@
 
 namespace march4cpp
 {
-IMotionCube::IMotionCube(int slaveIndex, Encoder encoder) : Slave(slaveIndex)
+IMotionCube::IMotionCube(int slaveIndex, Encoder encoder) : Slave(slaveIndex), actuationMode("unknown")
 {
   this->encoder = encoder;
   this->encoder.setSlaveIndex(this->slaveIndex);
-}
-
-IMotionCube::IMotionCube(int slaveIndex, Encoder encoder, ActuationMode actuationmode) : Slave(slaveIndex)
-{
-  this->encoder = encoder;
-  this->encoder.setSlaveIndex(this->slaveIndex);
-  this->actuationMode = actuationmode;
 }
 
 void IMotionCube::writeInitialSDOs(int ecatCycleTime, ActuationMode mode)
@@ -29,7 +22,6 @@ void IMotionCube::writeInitialSDOs(int ecatCycleTime, ActuationMode mode)
   mapMosiPDOs();
   validateMisoPDOs();
   validateMosiPDOs();
-  this->actuationMode = mode;
   writeInitialSettings(ecatCycleTime, this->actuationMode.toModeNumber());
 }
 
