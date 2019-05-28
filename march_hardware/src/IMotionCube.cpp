@@ -22,6 +22,7 @@ void IMotionCube::writeInitialSDOs(int ecatCycleTime, ActuationMode mode)
   mapMosiPDOs();
   validateMisoPDOs();
   validateMosiPDOs();
+  this->actuationMode = mode;
   writeInitialSettings(ecatCycleTime, this->actuationMode.toModeNumber());
 }
 
