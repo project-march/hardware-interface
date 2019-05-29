@@ -46,6 +46,8 @@ void MarchHardwareInterface::init()
   nh_.getParam("/march/hardware_interface/joints", joint_names_);
   num_joints_ = joint_names_.size();
 
+  this->contlist_client = new ContListClient("/march/controller_manager/list_controllers", true);
+
   // Resize vectors
   joint_position_.resize(num_joints_);
   joint_velocity_.resize(num_joints_);
@@ -60,7 +62,7 @@ void MarchHardwareInterface::init()
   this->read();
   for (int i = 0; i < num_joints_; ++i)
   {
-      ROS_INFO("Joint %s: first read position: %f", joint_names_[i].c_str(), joint_position_[i]);
+    ROS_INFO("Joint %s: first read position: %f", joint_names_[i].c_str(), joint_position_[i]);
   }
 
   // Initialize interfaces for each joint
@@ -114,8 +116,8 @@ void MarchHardwareInterface::init()
     velocity_joint_interface_.registerHandle(jointVelocityHandle);
 
     // Create march_state interface
-    MarchTemperatureSensorHandle marchTemperatureSensorHandle(
-            joint_names_[i], &joint_temperature_[i], &joint_temperature_variance_[i]);
+    MarchTemperatureSensorHandle marchTemperatureSensorHandle(joint_names_[i], &joint_temperature_[i],
+                                                              &joint_temperature_variance_[i]);
     march_state_interface.registerHandle(marchTemperatureSensorHandle);
 
     // Enable high voltage on the IMC
@@ -151,7 +153,7 @@ void MarchHardwareInterface::read(ros::Duration elapsed_time)
     joint_temperature_[i] = marchRobot.getJoint(joint_names_[i]).getTemperature();
 
     // Get velocity from encoder position
-    float joint_velocity = (joint_position_[i] - oldPosition) * 1/elapsed_time.toSec();
+    float joint_velocity = (joint_position_[i] - oldPosition) * 1 / elapsed_time.toSec();
 
     // Apply exponential smoothing to velocity obtained from encoder with alpha=0.2
     joint_velocity_[i] = filters::exponentialSmoothing(joint_velocity, joint_velocity_[i], 0.2);
@@ -170,22 +172,23 @@ void MarchHardwareInterface::write(ros::Duration elapsed_time)
   effortJointSoftLimitsInterface.enforceLimits(elapsed_time);
 
   for (int i = 0; i < num_joints_; i++)
-  {  march4cpp::Joint singleJoint = marchRobot.getJoint(joint_names_[i]);
+  {
+    march4cpp::Joint singleJoint = marchRobot.getJoint(joint_names_[i]);
     if (marchRobot.getJoint(joint_names_[i]).canActuate())
     {
       ROS_DEBUG("After limits: Trying to actuate joint %s, to %lf rad, %f speed, %f effort.", joint_names_[i].c_str(),
                 joint_position_command_[i], joint_velocity_command_[i], joint_effort_command_[i]);
 
       if (singleJoint.getActuationMode() == ActuationMode::position)
-    {
-      singleJoint.actuateRad(static_cast<float>(joint_position_command_[i]));
-    }
-    //    marchRobot.getJoint(joint_names_[i]).actuateRad(static_cast<float>(joint_position_command_[i]));
+      {
+        singleJoint.actuateRad(static_cast<float>(joint_position_command_[i]));
+      }
+      //    marchRobot.getJoint(joint_names_[i]).actuateRad(static_cast<float>(joint_position_command_[i]));
 
-    if (singleJoint.getActuationMode() == ActuationMode::torque)
-    {
-      singleJoint.actuateCurrent(static_cast<float>(joint_effort_command_[i]));
-    }
+      if (singleJoint.getActuationMode() == ActuationMode::torque)
+      {
+        singleJoint.actuateCurrent(static_cast<float>(joint_effort_command_[i]));
+      }
     }
   }
 }

@@ -20,6 +20,12 @@
 
 #include <march_hardware/MarchRobot.h>
 
+#include <actionlib/client/simple_action_client.h>
+#include <controller_manager_msgs/ListControllers.h>
+
+typedef actionlib::SimpleActionClient<controller_manager_msgs::ListControllers> ContListClient;
+typedef actionlib::SimpleActionClient<controller_manager_msgs::ListControllers> ContListClient;
+
 using namespace hardware_interface;
 using joint_limits_interface::JointLimits;
 using joint_limits_interface::SoftJointLimits;
@@ -41,7 +47,7 @@ static const double VELOCITY_STEP_FACTOR = 10;
 class MarchHardwareInterface : public march_hardware_interface::MarchHardware
 {
 public:
-  MarchHardwareInterface(ros::NodeHandle &nh, AllowedRobot robotName);
+  MarchHardwareInterface(ros::NodeHandle& nh, AllowedRobot robotName);
   ~MarchHardwareInterface();
 
   /**
@@ -69,10 +75,11 @@ protected:
   ros::Duration elapsed_time_;
   PositionJointInterface positionJointInterface;
   PositionJointSoftLimitsInterface positionJointSoftLimitsInterface;
- EffortJointSoftLimitsInterface effortJointSoftLimitsInterface;
+  EffortJointSoftLimitsInterface effortJointSoftLimitsInterface;
   double loop_hz_;
   boost::shared_ptr<controller_manager::ControllerManager> controller_manager_;
   double p_error_, v_error_, e_error_;
+  ContListClient *contlist_client;
 };
 }
 
