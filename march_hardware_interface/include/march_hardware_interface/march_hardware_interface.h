@@ -23,8 +23,8 @@
 #include <actionlib/client/simple_action_client.h>
 #include <controller_manager_msgs/ListControllers.h>
 
-typedef actionlib::SimpleActionClient<controller_manager_msgs::ListControllers> ContListClient;
-typedef actionlib::SimpleActionClient<controller_manager_msgs::ListControllers> ContListClient;
+//typedef actionlib::SimpleActionClient<controller_manager_msgs::ListControllers> ContListClient;
+//typedef actionlib::SimpleActionClient<controller_manager_msgs::ListControllers> ContListClient;
 
 using namespace hardware_interface;
 using joint_limits_interface::JointLimits;
@@ -79,7 +79,7 @@ protected:
   double loop_hz_;
   boost::shared_ptr<controller_manager::ControllerManager> controller_manager_;
   double p_error_, v_error_, e_error_;
-  ContListClient *contlist_client;
+//  ContListClient *contlist_client;
 };
 }
 

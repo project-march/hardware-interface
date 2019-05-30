@@ -46,7 +46,7 @@ void MarchHardwareInterface::init()
   nh_.getParam("/march/hardware_interface/joints", joint_names_);
   num_joints_ = joint_names_.size();
 
-  this->contlist_client = new ContListClient("/march/controller_manager/list_controllers", true);
+//  this->contlist_client = new ContListClient("/march/controller_manager/list_controllers", true);
 
   // Resize vectors
   joint_position_.resize(num_joints_);
