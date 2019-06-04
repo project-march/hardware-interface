@@ -458,8 +458,13 @@ bool IMotionCube::goToOperationEnabled()
   //  If the encoder is functioning correctly, move the joint to its current position. Otherwise shutdown
   if (this->encoder.isValidTargetPositionIU(angleRead))
   {
-    this->actuateIU(angleRead);
-    this->actuateCurrent(0);
+      if(this->actuationMode == ActuationMode::position){
+          this->actuateIU(angleRead);
+      }
+
+      else if(this->actuationMode == ActuationMode::torque){
+          this->actuateCurrent(0);
+      }
   }
   else
   {
