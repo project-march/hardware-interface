@@ -67,6 +67,7 @@ std::map<enum IMCObjectName, int> PDOmap::map(int slaveIndex, enum dataDirection
     sdo_bit32(slaveIndex, reg, counter,
               this->combineAddressLength(nextObject.second.address, nextObject.second.length));
     this->byteOffsets[nextObject.first] = byteOffset;
+    sdo_bit32(slaveIndex, reg, 0, counter);
     byteOffset += nextObject.second.length / 8;
     sizeleft -= nextObject.second.length;
     // Check if this was the last object of the list
