@@ -93,7 +93,7 @@ march4cpp::Joint HardwareBuilder::createJoint(YAML::Node jointConfig, std::strin
   {
     return march4cpp::Joint(jointName, allowActuation, temperatureGes);
   }
-  return march4cpp::Joint(jointName, allowActuation, imc);
+  return march4cpp::Joint(jointName, allowActuation, imc, actuationMode);
 }
 
 march4cpp::IMotionCube HardwareBuilder::createIMotionCube(YAML::Node iMotionCubeConfig)
