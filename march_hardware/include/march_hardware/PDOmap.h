@@ -2,39 +2,21 @@
 #ifndef MARCH4CPP__PDOMAP_H
 #define MARCH4CPP__PDOMAP_H
 
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
+#include <queue>
+#include <find>
 
 #include <ros/ros.h>
 
 #include <march_hardware/EtherCAT/EthercatSDO.h>
 
-namespace march4cpp
-{
-struct IMCObject
-{
-  int address;  // in IMC memory (see IMC manual)
-  int length;   // bits (see IMC manual)
+namespace march4cpp {
 
-  explicit IMCObject(int _address, int _length)
-  {
-    this->address = _address;
-    this->length = _length;
-  }
-
-  IMCObject(){}
-};
-
-enum class dataDirection
-{
-  miso,
-  mosi
-};
-
-// If a new object is added to this enum, make sure to also add it to PDOmap::initAllObjects()!
-enum class IMCObjectName
-{
+// If a new object is added to this enum, make sure to also add it to
+// PDOmap::initAllObjects()!
+enum class IMCObjectName {
   StatusWord,
   ActualPosition,
   MotionErrorRegister,
@@ -46,32 +28,47 @@ enum class IMCObjectName
   MotorPosition,
   ControlWord,
   TargetPosition,
+  TargetCurrent,
   QuickStopDeceleration,
   QuickStopOption
 };
 
-class PDOmap
-{
+enum class dataDirection { miso, mosi };
+
+struct IMCObject {
+  int address; // in IMC memory (see IMC manual)
+  int length;  // bits (see IMC manual)
+
+  explicit IMCObject(int _address, int _length) {
+    this->address = _address;
+  }
+
+  IMCObject() {}
+};
+
+class PDOmap {
 public:
   // Constructor
   PDOmap();
 
-  void addObject(IMCObjectName objectname);
+  void addObject(IMCObjectName objectname, int reg);
   std::map<IMCObjectName, int> map(int slaveIndex, dataDirection direction);
 
 private:
-  void initAllObjects();
-  void sortPDOObjects();
+  void initIMCObjects();
+  int mapObject(IMCObjectName objectName, int objectCount, int reg, int slaveIndex);
   uint32_t combineAddressLength(uint16_t address, uint16_t length);
-  std::map<IMCObjectName, IMCObject> PDOObjects;
-  std::map<IMCObjectName, IMCObject> allObjects;
-  std::vector<std::pair<IMCObjectName, IMCObject>> sortedPDOObjects;
+
+  std::vector<std::pair<IMCObjectName, IMCObject>> PDOObjects;
+  std::queue<IMCObjectName> mappedIMCObjects;
+  std::queue<int> mappedIMCObjectRegisters;
+  std::map<IMCObjectName, IMCObject> imcObjects;
   std::map<IMCObjectName, int> byteOffsets;
 
   const int bitsPerReg = 64;
   const int nrofRegs = 4;
-  const int objectSizes[3] = { 8, 16, 32 };
+  const int objectSizes[3] = {8, 16, 32};
 };
-}  // namespace march4cpp
+} // namespace march4cpp
 
 #endif

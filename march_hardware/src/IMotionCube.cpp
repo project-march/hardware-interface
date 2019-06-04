@@ -42,7 +42,7 @@ void IMotionCube::mapMisoPDOs()
 void IMotionCube::mapMosiPDOs()
 {
   PDOmap pdoMapMOSI = PDOmap();
-  pdoMapMOSI.addObject(IMCObjectName::ControlWord);  // Compulsory!
+  pdoMapMOSI.addObject(IMCObjectName::ControlWord, 1);  // Compulsory!
   pdoMapMOSI.addObject(IMCObjectName::TargetPosition);
   this->mosiByteOffsets = pdoMapMOSI.map(this->slaveIndex, dataDirection::mosi);
 }
