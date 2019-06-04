@@ -12,4 +12,4 @@ testsetup:
             minPositionIU: 83771
             maxPositionIU: 102464
             zeroPositionIU: 90000
-            safetyMarginRad: 0.05
+            safetyMarginRad: 0.005
