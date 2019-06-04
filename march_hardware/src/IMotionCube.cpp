@@ -46,7 +46,7 @@ void IMotionCube::mapMosiPDOs()
   PDOmap pdoMapMOSI = PDOmap();
   pdoMapMOSI.addObject(IMCObjectName::ControlWord);  // Compulsory!
   pdoMapMOSI.addObject(IMCObjectName::TargetPosition);
-  pdoMapMOSI.addObject(IMCObjectName::TargetCurrent);
+//  pdoMapMOSI.addObject(IMCObjectName::TargetCurrent);
   this->mosiByteOffsets = pdoMapMOSI.map(this->slaveIndex, dataDirection::mosi);
 }
 
@@ -129,7 +129,7 @@ void IMotionCube::actuateCurrent(float targetCurrent)
 
   int targetCurrentLocation = this->mosiByteOffsets[IMCObjectName::TargetCurrent];
 
-  ROS_DEBUG("Trying to actuate slave %d, soem location %d with targetcurrent%i", this->slaveIndex,
+  ROS_INFO("Trying to actuate slave %d, soem location %d with targetcurrent%i", this->slaveIndex,
             targetCurrentLocation, targetCurrentStruct.i);
 
   set_output_bit16(this->slaveIndex, targetCurrentLocation, targetCurrentStruct);
