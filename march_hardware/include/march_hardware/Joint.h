@@ -29,6 +29,7 @@ public:
   Joint(std::string name, bool allowActuation, TemperatureGES temperatureGES, IMotionCube iMotionCube,
                 std::string actuationmode);
   Joint(std::string name, bool allowActuation, TemperatureGES temperatureGES);
+  Joint(std::string name, bool allowActuation, IMotionCube iMotionCube, std::string actuationmode);
   Joint(std::string name, bool allowActuation, IMotionCube iMotionCube);
 
   void initialize(int ecatCycleTime);
