@@ -47,11 +47,26 @@ std::map<enum IMCObjectName, int> PDOmap::map(int slaveIndex, enum dataDirection
   }
   // Clear SyncManager Object
   sdo_bit8(slaveIndex, SMAddress, 0, 0);
-  int startReg = reg;
-  int lastFilledReg = reg;
   int sizeleft = this->bitsPerReg;
   int counter = 0;
   int byteOffset = 0;
+  int count = 0;
+  int startReg = reg;
+  int lastFilledReg = reg;
+//  // Manually add the default objects in 0x1600
+//  if (direction == dataDirection::mosi){
+//      sdo_bit32(slaveIndex, reg, 0, 0); // Set count for 0x1600 to 0
+//      sdo_bit32(slaveIndex, reg, 1, 0x607A0020); // Add Target position
+//      this->byteOffsets[IMCObjectName::TargetPosition] = 0;
+//      sdo_bit32(slaveIndex, reg, 0, 1); // Set count for 0x1600 to 1
+//      sdo_bit32(slaveIndex, reg, 1, 0x60400010); // Add Control Word
+//      this->byteOffsets[IMCObjectName::ControlWord] = 4;
+////    TODO(Martijn) add mode of operation byte offset
+//      sdo_bit32(slaveIndex, reg, 0, 2); // Set count for 0x1600 to 2
+//      byteOffset += 8; // Increment byteOffset so starts at next byte
+//      lastFilledReg = reg;
+//      reg++; // Increment to 0x1601 for next objects
+//  }
   while (this->sortedPDOObjects.size() > 0)
   {
     // Check if register is still empty
@@ -67,7 +82,7 @@ std::map<enum IMCObjectName, int> PDOmap::map(int slaveIndex, enum dataDirection
     sdo_bit32(slaveIndex, reg, counter,
               this->combineAddressLength(nextObject.second.address, nextObject.second.length));
     this->byteOffsets[nextObject.first] = byteOffset;
-    sdo_bit32(slaveIndex, reg, 0, counter);
+//    sdo_bit32(slaveIndex, reg, 0, counter);
     byteOffset += nextObject.second.length / 8;
     sizeleft -= nextObject.second.length;
     // Check if this was the last object of the list
@@ -86,17 +101,22 @@ std::map<enum IMCObjectName, int> PDOmap::map(int slaveIndex, enum dataDirection
       sizeleft = this->bitsPerReg;
     }
   }
+  // Manually add Target Current
+  if (direction == dataDirection::mosi){
+      sdo_bit32(slaveIndex, 0x1600, 3, 0x60710010); // Add Target position
+      this->byteOffsets[IMCObjectName::TargetCurrent] = 6;
+      sdo_bit32(slaveIndex, reg, 0, 3); // Set count for 0x1600 to 3
+  }
   // For the unused registers, set count to zero
   for (int i = reg; i < startReg + this->nrofRegs; i++)
   {
     sdo_bit32(slaveIndex, i, 0, 0);
   }
   // For all filled registers, set data to Sync Manager object
-  int count = 0;
   for (int i = startReg; i <= lastFilledReg; i++)
   {
     count++;
-    sdo_bit16(slaveIndex, SMAddress, count, 0x1600);
+    sdo_bit16(slaveIndex, SMAddress, count, i);
   }
   sdo_bit8(slaveIndex, SMAddress, 0, count);
   return this->byteOffsets;
@@ -150,6 +170,7 @@ void PDOmap::initAllObjects()
   this->allObjects[IMCObjectName::MotorPosition] = IMCObject(0x2088, 32);
   this->allObjects[IMCObjectName::ControlWord] = IMCObject(0x6040, 16);
   this->allObjects[IMCObjectName::TargetPosition] = IMCObject(0x607A, 32);
+  this->allObjects[IMCObjectName::TargetCurrent] = IMCObject(0x6071, 16);
   this->allObjects[IMCObjectName::QuickStopDeceleration] = IMCObject(0x6085, 32);
   this->allObjects[IMCObjectName::QuickStopOption] = IMCObject(0x605A, 16);
   // etc...
