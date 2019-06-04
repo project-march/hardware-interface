@@ -8,8 +8,8 @@ testsetup:
         imotioncube:
           slaveIndex: 1
           encoder:
-            resolution: 16
-            minPositionIU: 37961
-            maxPositionIU: 59649
-            zeroPositionIU: 39717
+            resolution: 17
+            minPositionIU: 83771
+            maxPositionIU: 102464
+            zeroPositionIU: 90000
             safetyMarginRad: 0.05
