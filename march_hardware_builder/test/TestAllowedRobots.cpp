@@ -41,12 +41,12 @@ TEST_F(AllowedRobotTest, TestMarch3Values)
   march4cpp::IMotionCube RKJimc = march4cpp::IMotionCube(10, RKJenc);
   march4cpp::IMotionCube RAJimc = march4cpp::IMotionCube(12, RAJenc);
 
-  march4cpp::Joint leftHip = march4cpp::Joint("left_hip", true, LHJimc);
-  march4cpp::Joint leftKnee = march4cpp::Joint("left_knee", true, LKJimc);
-  march4cpp::Joint leftAnkle = march4cpp::Joint("left_ankle", true, LAJimc);
-  march4cpp::Joint rightHip = march4cpp::Joint("right_hip", true, RHJimc);
-  march4cpp::Joint rightKnee = march4cpp::Joint("right_knee", true, RKJimc);
-  march4cpp::Joint rightAnkle = march4cpp::Joint("right_ankle", true, RAJimc);
+  march4cpp::Joint leftHip = march4cpp::Joint("left_hip", true, LHJimc, "torque");
+  march4cpp::Joint leftKnee = march4cpp::Joint("left_knee", true, LKJimc, "torque");
+  march4cpp::Joint leftAnkle = march4cpp::Joint("left_ankle", true, LAJimc, "torque");
+  march4cpp::Joint rightHip = march4cpp::Joint("right_hip", true, RHJimc, "torque");
+  march4cpp::Joint rightKnee = march4cpp::Joint("right_knee", true, RKJimc, "torque");
+  march4cpp::Joint rightAnkle = march4cpp::Joint("right_ankle", true, RAJimc, "torque");
 
   std::vector<march4cpp::Joint> jointList;
   jointList.push_back(rightHip);
