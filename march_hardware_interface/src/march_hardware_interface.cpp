@@ -183,7 +183,7 @@ void MarchHardwareInterface::write(ros::Duration elapsed_time)
   for (int i = 0; i < num_joints_; i++)
   {
     march4cpp::Joint singleJoint = marchRobot.getJoint(joint_names_[i]);
-    if (marchRobot.getJoint(joint_names_[i]).canActuate())
+    if (singleJoint.canActuate())
     {
       ROS_INFO("After limits: Trying to actuate joint %s, to %lf rad, %f speed, %f effort.", joint_names_[i].c_str(),
                 joint_position_command_[i], joint_velocity_command_[i], joint_effort_command_[i]);
