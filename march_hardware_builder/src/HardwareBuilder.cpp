@@ -83,6 +83,7 @@ march4cpp::Joint HardwareBuilder::createJoint(YAML::Node jointConfig, std::strin
     temperatureGes = this->createTemperatureGES(jointConfig["temperatureges"]);
   }
 
+    ROS_INFO("actuation mode: %s", actuationMode.c_str());
   ROS_ASSERT_MSG(hasIMotionCube || hasTemperatureGes,
                  "Joint %s has no IMotionCube and no TemperatureGES. Please check its purpose.", jointName.c_str());
   if (hasTemperatureGes && hasIMotionCube)
@@ -93,7 +94,7 @@ march4cpp::Joint HardwareBuilder::createJoint(YAML::Node jointConfig, std::strin
   {
     return march4cpp::Joint(jointName, allowActuation, temperatureGes);
   }
-  return march4cpp::Joint(jointName, allowActuation, imc);
+  return march4cpp::Joint(jointName, allowActuation, imc, actuationMode);
 }
 
 march4cpp::IMotionCube HardwareBuilder::createIMotionCube(YAML::Node iMotionCubeConfig)

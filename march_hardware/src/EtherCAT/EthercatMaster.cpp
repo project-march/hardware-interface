@@ -99,7 +99,8 @@ void EthercatMaster::start()
   {
     // All slaves in operational state
     ROS_INFO("Operational state reached for all slaves");
-    isOperational = true;
+
+      isOperational = true;
     EcatThread = std::thread(&EthercatMaster::ethercatLoop, this);
   }
   else

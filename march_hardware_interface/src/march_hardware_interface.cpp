@@ -36,17 +36,20 @@ void MarchHardwareInterface::init()
   // Start ethercat cycle in the hardware
   this->marchRobot.startEtherCAT();
 
+
+
   if (!this->marchRobot.isEthercatOperational())
   {
     ROS_FATAL("EtherCAT is not operational");
     exit(0);
   }
 
+
   // Get joint names
   nh_.getParam("/march/hardware_interface/joints", joint_names_);
   num_joints_ = joint_names_.size();
 
-  this->contlist_client = new ContListClient("/march/controller_manager/list_controllers", true);
+//  this->contlist_client = new ContListClient("/march/controller_manager/list_controllers", true);
 
   // Resize vectors
   joint_position_.resize(num_joints_);
@@ -59,6 +62,7 @@ void MarchHardwareInterface::init()
   joint_effort_command_.resize(num_joints_);
 
   // Print all joint positions on startup in case initialization fails.
+
   this->read();
   for (int i = 0; i < num_joints_; ++i)
   {
@@ -94,7 +98,8 @@ void MarchHardwareInterface::init()
     effortJointSoftLimitsInterface.registerHandle(effortLimitsHandle);
     effort_joint_interface_.registerHandle(jointEffortHandle);
 
-    // Set the first target as the current position
+
+
     this->read();
     joint_velocity_[i] = 0;
     joint_effort_[i] = 0;
@@ -178,9 +183,9 @@ void MarchHardwareInterface::write(ros::Duration elapsed_time)
   for (int i = 0; i < num_joints_; i++)
   {
     march4cpp::Joint singleJoint = marchRobot.getJoint(joint_names_[i]);
-    if (marchRobot.getJoint(joint_names_[i]).canActuate())
+    if (singleJoint.canActuate())
     {
-      ROS_DEBUG("After limits: Trying to actuate joint %s, to %lf rad, %f speed, %f effort.", joint_names_[i].c_str(),
+      ROS_INFO("After limits: Trying to actuate joint %s, to %lf rad, %f speed, %f effort.", joint_names_[i].c_str(),
                 joint_position_command_[i], joint_velocity_command_[i], joint_effort_command_[i]);
 
       if (singleJoint.getActuationMode() == ActuationMode::position)
