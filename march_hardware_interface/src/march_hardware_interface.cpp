@@ -36,11 +36,14 @@ void MarchHardwareInterface::init()
   // Start ethercat cycle in the hardware
   this->marchRobot.startEtherCAT();
 
+
+
   if (!this->marchRobot.isEthercatOperational())
   {
     ROS_FATAL("EtherCAT is not operational");
     exit(0);
   }
+
 
   // Get joint names
   nh_.getParam("/march/hardware_interface/joints", joint_names_);
@@ -59,6 +62,7 @@ void MarchHardwareInterface::init()
   joint_effort_command_.resize(num_joints_);
 
   // Print all joint positions on startup in case initialization fails.
+
   this->read();
   for (int i = 0; i < num_joints_; ++i)
   {
@@ -94,7 +98,8 @@ void MarchHardwareInterface::init()
     effortJointSoftLimitsInterface.registerHandle(effortLimitsHandle);
     effort_joint_interface_.registerHandle(jointEffortHandle);
 
-    // Set the first target as the current position
+
+
     this->read();
     joint_velocity_[i] = 0;
     joint_effort_[i] = 0;

@@ -50,9 +50,7 @@ int Encoder::getAngleIU(uint8_t ActualPositionByteOffset)
     ROS_FATAL("Encoder has slaveIndex of -1");
   }
   union bit32 return_byte = get_input_bit32(this->slaveIndex, ActualPositionByteOffset);
-  union bit16 torque_read = get_input_bit16(this->slaveIndex, 4);
-  ROS_INFO("Target torque read: %d", torque_read.i);
-  ROS_DEBUG("Encoder read (IU): %d", return_byte.i);
+  ROS_INFO("Encoder read (IU): %d", return_byte.i);
   return return_byte.i;
 }
 
