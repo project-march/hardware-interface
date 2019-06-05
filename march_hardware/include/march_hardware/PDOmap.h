@@ -56,7 +56,7 @@ public:
 
 private:
   void initIMCObjects();
-  int mapObject(IMCObjectName objectName, int objectCount, int reg, int slaveIndex);
+  void mapObject(IMCObjectName objectName, int objectCount, int reg, int slaveIndex);
   uint32_t combineAddressLength(uint16_t address, uint16_t length);
 
   std::vector<std::pair<IMCObjectName, IMCObject>> PDOObjects;
@@ -66,7 +66,6 @@ private:
   std::map<IMCObjectName, int> byteOffsets;
 
   const int bitsPerReg = 64;
-  const int nrofRegs = 4;
   const int objectSizes[3] = {8, 16, 32};
 };
 } // namespace march4cpp

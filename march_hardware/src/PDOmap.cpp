@@ -23,29 +23,55 @@ void PDOmap::addObject(IMCObjectName objectname, int reg) {
 
 std::map<enum IMCObjectName, int> PDOmap::map(int slaveIndex,
                                               enum dataDirection direction) {
-  int currentRegister;
+  int firstRegister;
   int SMAddress;
   if (direction == dataDirection::miso) {
-    currentRegister = 0x1A00;
+    firstRegister = 0x1A00;
     SMAddress = 0x1C13;
   } else if (direction == dataDirection::mosi) {
-    currentRegister = 0x1600;
+    firstRegister = 0x1600;
     SMAddress = 0x1C12;
   } else {
     ROS_ERROR("Invalid dataDirection argument");
   }
   // Clear SyncManager Object
   sdo_bit8(slaveIndex, SMAddress, 0, 0);
-  int currentRegObjectCount = 0;
-  int bitsLeftCurrentRegister = this->bitsPerReg;
-  int byteOffset = 0;
-  while (!this->mappedIMCObjects.empty()) {
-    if
-      IMCObjectName objectToBeMapped = this->mappedIMCObjects.pop();
-
-    currentRegObjectCount = this->mapObject(
-        objectToBeMapped, currentRegObjectCount, currentRegister, slaveIndex);
+  int registerObjectCount[4] = {0, 0, 0, 0};
+  int registerBitsLeft[4] = {64, 64, 64, 64};
+  // Write initial object counts of zero to all registers
+  for (int i = firstRegister; i < firstRegister + 4; i++) {
+    sdo_bit32(slaveIndex, i, 0, 0);
   }
+  // Get to-be-mapped objects in a FIFO manner and map them
+  while (!this->mappedIMCObjects.empty()) {
+    // Get next object
+    IMCObjectName objectToBeMapped = this->mappedIMCObjects.pop();
+    int desiredRegister = this->mappedIMCObjectRegisters.pop();
+    // Check if the object fits in the desired register
+    if (this->imcObjects[objectToBeMapped].length >
+        registerBitsLeft[desiredRegister - 1]) {
+      ROS_FATAL("Object does not fit in this register");
+      throw std::exception();
+    }
+    // Map the object
+    registerObjectCount[desiredRegister - 1]++;
+    this->mapObject(objectToBeMapped, registerObjectCount[desiredRegister - 1],
+                    desiredRegister, slaveIndex);
+  }
+  // Tell the IMC how many objects are mapped in each register
+  for (int i = firstRegister; i < firstRegister + 4; i++) {
+    sdo_bit32(slaveIndex, i, 0, registerObjectCount[i - firstRegister]);
+  }
+  // Update the SyncManager
+  int nrOfRegsWithObjects = 0;
+  for (int i = 0; i < 4; i++) {
+    if (registerObjectCount[i] > 0) {
+      // There is at least one object in this register
+      nrOfRegsWithObjects++;
+      sdo_bit16(slaveIndex, SMAddress, nrOfRegsWithObjects, firstRegister + i);
+    }
+  }
+  sdo_bit8(slaveIndex, SMAddress, 0, nrOfRegsWithObjects);
 
   //  int startReg = reg;
   //  int lastFilledReg = reg;
@@ -103,14 +129,13 @@ std::map<enum IMCObjectName, int> PDOmap::map(int slaveIndex,
   //  return this->byteOffsets;
 }
 
-int mapObject(IMCObjectName objectName, int objectCount, int reg,
-              int slaveIndex) {
-  objectCount++;
+void mapObject(IMCObjectName objectName, int objectCount, int reg,
+               int slaveIndex) {
   IMCObject object = this->imcObjects[objectName];
   sdo_bit32(slaveIndex, reg, objectCount,
             this->combineAddressLength(object.address, object.length));
+  // Update count for the register
   sdo_bit32(slaveIndex, reg, 0, currentRegister);
-  return objectCount;
 }
 
 uint32_t PDOmap::combineAddressLength(uint16_t address, uint16_t length) {
