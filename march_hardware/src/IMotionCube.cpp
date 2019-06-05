@@ -46,7 +46,7 @@ void IMotionCube::mapMosiPDOs()
   PDOmap pdoMapMOSI = PDOmap();
   pdoMapMOSI.addObject(IMCObjectName::ControlWord);  // Compulsory!
   pdoMapMOSI.addObject(IMCObjectName::TargetPosition);
-//  pdoMapMOSI.addObject(IMCObjectName::TargetCurrent);
+  //  pdoMapMOSI.addObject(IMCObjectName::TargetCurrent);
   this->mosiByteOffsets = pdoMapMOSI.map(this->slaveIndex, dataDirection::mosi);
 }
 
@@ -86,7 +86,7 @@ void IMotionCube::writeInitialSettings(uint8 ecatCycleTime, uint8_t modeofOp)
   success &= sdo_bit32(slaveIndex, 0x607D, 2, this->encoder.getMaxPositionIU());
 
   // Quick stop option
-//  success &= sdo_bit16(slaveIndex, 0x605A, 0, 6);
+  //  success &= sdo_bit16(slaveIndex, 0x605A, 0, 6);
 
   // Quick stop deceleration
   success &= sdo_bit32(slaveIndex, 0x6085, 0, 0x7FFFFFFF);
@@ -101,7 +101,7 @@ void IMotionCube::writeInitialSettings(uint8 ecatCycleTime, uint8_t modeofOp)
 void IMotionCube::actuateRad(float targetRad)
 {
   ROS_ASSERT_MSG(this->actuationMode == ActuationMode::position, "trying to actuate rad, while actuationmode = "
-                                                               "%s",
+                                                                 "%s",
                  this->actuationMode.toString().c_str());
   if (std::abs(targetRad - this->getAngleRad()) > 0.2)
   {
@@ -130,8 +130,8 @@ void IMotionCube::actuateCurrent(float targetCurrent)
 
   int targetCurrentLocation = this->mosiByteOffsets[IMCObjectName::TargetCurrent];
 
-  ROS_INFO("Trying to actuate slave %d, soem location %d with targetcurrent%i", this->slaveIndex,
-            targetCurrentLocation, targetCurrentStruct.i);
+  ROS_INFO("Trying to actuate slave %d, soem location %d with targetcurrent%i", this->slaveIndex, targetCurrentLocation,
+           targetCurrentStruct.i);
 
   set_output_bit16(this->slaveIndex, targetCurrentLocation, targetCurrentStruct);
 }
@@ -459,13 +459,15 @@ bool IMotionCube::goToOperationEnabled()
   //  If the encoder is functioning correctly, move the joint to its current position. Otherwise shutdown
   if (this->encoder.isValidTargetPositionIU(angleRead))
   {
-      if(this->actuationMode == ActuationMode::position){
-          this->actuateIU(angleRead);
-      }
+    if (this->actuationMode == ActuationMode::position)
+    {
+      this->actuateIU(angleRead);
+    }
 
-      else if(this->actuationMode == ActuationMode::torque){
-          this->actuateCurrent(0);
-      }
+    else if (this->actuationMode == ActuationMode::torque)
+    {
+      this->actuateCurrent(0);
+    }
   }
   else
   {

@@ -102,7 +102,6 @@ void EthercatMaster::start()
 
       isOperational = true;
     EcatThread = std::thread(&EthercatMaster::ethercatLoop, this);
-
   }
   else
   {

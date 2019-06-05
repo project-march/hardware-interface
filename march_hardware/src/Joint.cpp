@@ -6,7 +6,7 @@
 namespace march4cpp
 {
 Joint::Joint(std::string name, bool allowActuation, TemperatureGES temperatureGES, IMotionCube iMotionCube,
-        std::string actuationModeName)
+             std::string actuationModeName)
   : temperatureGES(temperatureGES), iMotionCube(iMotionCube), actuationMode(ActuationMode(actuationModeName))
 {
   this->name = std::move(name);
@@ -18,18 +18,20 @@ Joint::Joint(std::string name, bool allowActuation, TemperatureGES temperatureGE
   this->name = std::move(name);
   this->allowActuation = allowActuation;
 }
-Joint::Joint(std::string name, bool allowActuation, IMotionCube iMotionCube, std::string actuationmode) : iMotionCube(iMotionCube), actuationMode(actuationmode)
+Joint::Joint(std::string name, bool allowActuation, IMotionCube iMotionCube, std::string actuationmode)
+  : iMotionCube(iMotionCube), actuationMode(actuationmode)
 
 {
   this->name = std::move(name);
   this->allowActuation = allowActuation;
 }
 
-Joint::Joint(std::string name, bool allowActuation, IMotionCube iMotionCube) : iMotionCube(iMotionCube), actuationMode("unknown")
+Joint::Joint(std::string name, bool allowActuation, IMotionCube iMotionCube)
+  : iMotionCube(iMotionCube), actuationMode("unknown")
 
 {
-    this->name = std::move(name);
-    this->allowActuation = allowActuation;
+  this->name = std::move(name);
+  this->allowActuation = allowActuation;
 }
 
 void Joint::initialize(int ecatCycleTime)
@@ -72,7 +74,7 @@ void Joint::actuateCurrent(float targetCurrent)
 
 int Joint::getActuationMode()
 {
-    return this->actuationMode.getValue();
+  return this->actuationMode.getValue();
 }
 
 float Joint::getAngleRad()
