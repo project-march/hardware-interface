@@ -102,9 +102,9 @@ std::map<enum IMCObjectName, int> PDOmap::map(int slaveIndex, enum dataDirection
   }
   // Manually add Target Current
   if (direction == dataDirection::mosi){
-      sdo_bit32(slaveIndex, 0x1600, 3, 0x60710010); // Add Target position
+      sdo_bit32(slaveIndex, 0x1600, 3, 0x60710010); // Add Target current
       this->byteOffsets[IMCObjectName::TargetCurrent] = 6;
-      sdo_bit32(slaveIndex, reg, 0, 3); // Set count for 0x1600 to 3
+      sdo_bit32(slaveIndex, 0x1600, 0, 3); // Set count for 0x1600 to 3
   }
   // For the unused registers, set count to zero
   for (int i = reg; i < startReg + this->nrofRegs; i++)
