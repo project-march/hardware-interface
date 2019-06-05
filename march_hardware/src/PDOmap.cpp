@@ -117,7 +117,7 @@ std::map<enum IMCObjectName, int> PDOmap::map(int slaveIndex, enum dataDirection
       //success = sdo_bit32(slaveIndex, 0x1600, 0, 2); // Set count for 0x1600 to 2
       //ROS_INFO("success 5: %d", success);
 
-      usleep(10000);
+//      usleep(10000);
       success = sdo_bit32(slaveIndex, 0x1600, 3, 0x60710010); // Add Target current
       ROS_INFO("success 6: %d", success);
       this->byteOffsets[IMCObjectName::TargetCurrent] = 6;
