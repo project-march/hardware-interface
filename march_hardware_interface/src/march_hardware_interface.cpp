@@ -92,15 +92,17 @@ void MarchHardwareInterface::init()
     joint_effort_[i] = 0;
     joint_position_command_[i] = joint_position_[i];
 
-    if (joint_position_[i] < softLimits.min_position || joint_position_[i] > softLimits.max_position)
+    if (joint.canActuate())
     {
-      ROS_FATAL("Joint %s is outside of its softLimits (%f, %f). Actual position: %f", joint_names_[i].c_str(),
-                softLimits.min_position, softLimits.max_position, joint_position_[i]);
+      if (joint_position_[i] < softLimits.min_position || joint_position_[i] > softLimits.max_position) {
+        ROS_FATAL("Joint %s is outside of its softLimits (%f, %f). Actual position: %f", joint_names_[i].c_str(),
+                  softLimits.min_position, softLimits.max_position, joint_position_[i]);
 
-      std::ostringstream errorStream;
-      errorStream << "Joint " << joint_names_[i].c_str() << " is out of its softLimits (" << softLimits.min_position
-                  << ", " << softLimits.max_position << "). Actual position: " << joint_position_[i];
-      throw ::std::invalid_argument(errorStream.str());
+        std::ostringstream errorStream;
+        errorStream << "Joint " << joint_names_[i].c_str() << " is out of its softLimits (" << softLimits.min_position
+                    << ", " << softLimits.max_position << "). Actual position: " << joint_position_[i];
+        throw ::std::invalid_argument(errorStream.str());
+      }
     }
 
     // Create velocity joint interface
