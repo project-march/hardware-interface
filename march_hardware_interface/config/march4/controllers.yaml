@@ -11,6 +11,6 @@ march:
         type: position_controllers/JointTrajectoryController
         joints:
           - right_hip_fe
-          - left_hip_fe
-          - right_knee
-          - left_knee
+#          - left_hip_fe
+#          - right_knee
+#          - left_knee
