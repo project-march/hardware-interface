@@ -4,9 +4,7 @@
 
 #include <map>
 #include <string>
-#include <vector>
 #include <queue>
-#include <find>
 
 #include <ros/ros.h>
 
@@ -40,6 +38,7 @@ struct IMCObject {
   int length;  // bits (see IMC manual)
 
   explicit IMCObject(int _address, int _length) {
+    this->length = _length;
     this->address = _address;
   }
 
@@ -56,17 +55,13 @@ public:
 
 private:
   void initIMCObjects();
-  void mapObject(IMCObjectName objectName, int objectCount, int reg, int slaveIndex);
+  void mapObject(IMCObject object, int objectCount, int reg, int slaveIndex);
   uint32_t combineAddressLength(uint16_t address, uint16_t length);
 
-  std::vector<std::pair<IMCObjectName, IMCObject>> PDOObjects;
   std::queue<IMCObjectName> mappedIMCObjects;
   std::queue<int> mappedIMCObjectRegisters;
   std::map<IMCObjectName, IMCObject> imcObjects;
   std::map<IMCObjectName, int> byteOffsets;
-
-  const int bitsPerReg = 64;
-  const int objectSizes[3] = {8, 16, 32};
 };
 } // namespace march4cpp
 

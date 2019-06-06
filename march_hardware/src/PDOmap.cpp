@@ -5,15 +5,8 @@ namespace march4cpp {
 PDOmap::PDOmap() { this->initIMCObjects(); }
 
 void PDOmap::addObject(IMCObjectName objectname, int reg) {
-  if (this->allObjects.count(objectname) != 1) {
-    ROS_WARN("IMC object does not exist (yet), or multiple exist");
-    return;
-  } else if (find(this->mappedIMCObjects.begin(), this->mappedIMCObjects.end(),
-                  objectname) != this->mappedIMCObjects.end()) {
-    ROS_WARN("IMC object is already added to PDO map");
-    return;
-  } else if (reg < 1 || reg > 4) {
-    ROS_WARN("Register %d invalid. 4 registers available", reg);
+    if (reg < 1 || reg > 4) {
+        ROS_WARN("Indicated register %d is invalid. There are 4 PDO registers available", reg);
     return;
   } else { // Valid
     this->mappedIMCObjects.push(objectname);
@@ -36,6 +29,7 @@ std::map<enum IMCObjectName, int> PDOmap::map(int slaveIndex,
   }
   // Clear SyncManager Object
   sdo_bit8(slaveIndex, SMAddress, 0, 0);
+  // Initial object counts and bits left per register
   int registerObjectCount[4] = {0, 0, 0, 0};
   int registerBitsLeft[4] = {64, 64, 64, 64};
   // Write initial object counts of zero to all registers
@@ -45,18 +39,27 @@ std::map<enum IMCObjectName, int> PDOmap::map(int slaveIndex,
   // Get to-be-mapped objects in a FIFO manner and map them
   while (!this->mappedIMCObjects.empty()) {
     // Get next object
-    IMCObjectName objectToBeMapped = this->mappedIMCObjects.pop();
-    int desiredRegister = this->mappedIMCObjectRegisters.pop();
+    IMCObject objectToBeMapped =
+        this->imcObjects[this->mappedIMCObjects.front()];
+    IMCObjectName objectToBeMappedName = this->mappedIMCObjects.front();
+    this->mappedIMCObjects.pop();
+    int desiredRegisterNr = this->mappedIMCObjectRegisters.front();
+    this->mappedIMCObjectRegisters.pop();
+    int desiredRegister = desiredRegisterNr + firstRegister - 1;
     // Check if the object fits in the desired register
-    if (this->imcObjects[objectToBeMapped].length >
-        registerBitsLeft[desiredRegister - 1]) {
-      ROS_FATAL("Object does not fit in this register");
+    if (objectToBeMapped.length > registerBitsLeft[desiredRegisterNr - 1]) {
+      ROS_FATAL("IMC object 0x%X cannot be mapped because it does not fit in "
+                "register 0x%X any more. Try another register",
+                objectToBeMapped.address, desiredRegister);
       throw std::exception();
     }
     // Map the object
-    registerObjectCount[desiredRegister - 1]++;
-    this->mapObject(objectToBeMapped, registerObjectCount[desiredRegister - 1],
+    registerObjectCount[desiredRegisterNr - 1]++;
+    this->mapObject(objectToBeMapped, registerObjectCount[desiredRegisterNr - 1],
                     desiredRegister, slaveIndex);
+    this->byteOffsets[objectToBeMappedName] =
+        8 * desiredRegisterNr - (registerBitsLeft[desiredRegisterNr - 1] / 8);
+    registerBitsLeft[desiredRegisterNr - 1] -= objectToBeMapped.length;
   }
   // Tell the IMC how many objects are mapped in each register
   for (int i = firstRegister; i < firstRegister + 4; i++) {
@@ -72,70 +75,24 @@ std::map<enum IMCObjectName, int> PDOmap::map(int slaveIndex,
     }
   }
   sdo_bit8(slaveIndex, SMAddress, 0, nrOfRegsWithObjects);
-
-  //  int startReg = reg;
-  //  int lastFilledReg = reg;
-  //  int sizeleft = this->bitsPerReg;
-  //  int counter = 0;
-  //  int byteOffset = 0;
-  //  while (this->sortedPDOObjects.size() > 0)
-  //  {
-  //    // Check if register is still empty
-  //    if (sizeleft == this->bitsPerReg)
-  //    {
-  //      sdo_bit32(slaveIndex, reg, 0, 0);
-  //    }
-  //    // Get next object (from end, because sorted from small to large)
-  //    std::pair<IMCObjectName, IMCObject> nextObject =
-  //    this->sortedPDOObjects.back();
-  //    this->sortedPDOObjects.pop_back();
-  //    // Add next object to map
-  //    counter++;
-  //    sdo_bit32(slaveIndex, reg, counter,
-  //              this->combineAddressLength(nextObject.second.address,
-  //              nextObject.second.length));
-  //    this->byteOffsets[nextObject.first] = byteOffset;
-  //    byteOffset += nextObject.second.length / 8;
-  //    sizeleft -= nextObject.second.length;
-  //    // Check if this was the last object of the list
-  //    if (this->sortedPDOObjects.size() == 0)
-  //    {
-  //      sdo_bit32(slaveIndex, reg, 0, counter);
-  //      lastFilledReg = reg;
-  //      reg++;
-  //    }
-  //    // else, check if register is full
-  //    else if (sizeleft <= 0)
-  //    {
-  //      sdo_bit32(slaveIndex, reg, 0, counter);
-  //      reg++;
-  //      counter = 0;
-  //      sizeleft = this->bitsPerReg;
-  //    }
-  //  }
-  //  // For the unused registers, set count to zero
-  //  for (int i = reg; i < startReg + this->nrofRegs; i++)
-  //  {
-  //    sdo_bit32(slaveIndex, i, 0, 0);
-  //  }
-  //  // For all filled registers, set data to Sync Manager object
-  //  int count = 0;
-  //  for (int i = startReg; i <= lastFilledReg; i++)
-  //  {
-  //    count++;
-  //    sdo_bit16(slaveIndex, SMAddress, count, 0x1600);
-  //  }
-  //  sdo_bit8(slaveIndex, SMAddress, 0, count);
-  //  return this->byteOffsets;
+  // Return the byteoffsets
+  return this->byteOffsets;
 }
 
-void mapObject(IMCObjectName objectName, int objectCount, int reg,
-               int slaveIndex) {
-  IMCObject object = this->imcObjects[objectName];
-  sdo_bit32(slaveIndex, reg, objectCount,
-            this->combineAddressLength(object.address, object.length));
+void PDOmap::mapObject(IMCObject object, int objectCount, int reg,
+                       int slaveIndex) {
+  uint32_t combinedAddressLength =
+      this->combineAddressLength(object.address, object.length);
+  // Map the object
+  bool success = sdo_bit32(slaveIndex, reg, objectCount, combinedAddressLength);
   // Update count for the register
-  sdo_bit32(slaveIndex, reg, 0, currentRegister);
+  // TODO(Martijn, BaCo) find out if next line is necessary in some cases
+  //  sdo_bit32(slaveIndex, reg, 0, currentRegister);
+  if (!success) {
+    ROS_FATAL("SDO write when PDO mapping object 0x%X to IMC %d failed", object.address,
+              slaveIndex);
+    throw std::exception();
+  }
 }
 
 uint32_t PDOmap::combineAddressLength(uint16_t address, uint16_t length) {

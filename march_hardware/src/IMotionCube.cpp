@@ -30,10 +30,8 @@ void IMotionCube::writeInitialSDOs(int ecatCycleTime)
 void IMotionCube::mapMisoPDOs()
 {
   PDOmap pdoMapMISO = PDOmap();
-  pdoMapMISO.addObject(IMCObjectName::StatusWord);      // Compulsory!
-  pdoMapMISO.addObject(IMCObjectName::ActualPosition);  // Compulsory!
-  pdoMapMISO.addObject(IMCObjectName::DCLinkVoltage);
-  pdoMapMISO.addObject(IMCObjectName::DetailedErrorRegister);
+  pdoMapMISO.addObject(IMCObjectName::StatusWord, 1);      // Compulsory!
+  pdoMapMISO.addObject(IMCObjectName::ActualPosition, 1);  // Compulsory!
   this->misoByteOffsets = pdoMapMISO.map(this->slaveIndex, dataDirection::miso);
 }
 
@@ -43,7 +41,7 @@ void IMotionCube::mapMosiPDOs()
 {
   PDOmap pdoMapMOSI = PDOmap();
   pdoMapMOSI.addObject(IMCObjectName::ControlWord, 1);  // Compulsory!
-  pdoMapMOSI.addObject(IMCObjectName::TargetPosition);
+  pdoMapMOSI.addObject(IMCObjectName::TargetPosition, 1);
   this->mosiByteOffsets = pdoMapMOSI.map(this->slaveIndex, dataDirection::mosi);
 }
 
