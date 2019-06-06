@@ -1,5 +1,5 @@
 march3:
-  ifName: enp2s0
+  ifName: enp0s25
   ecatCycleTime: 4
   joints:
     - right_hip_fe:
