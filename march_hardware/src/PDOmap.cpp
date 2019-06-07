@@ -7,7 +7,6 @@ PDOmap::PDOmap() { this->initIMCObjects(); }
 void PDOmap::addObject(IMCObjectName objectname, int reg) {
     if (reg < 1 || reg > 4) {
         ROS_WARN("Indicated register %d is invalid. There are 4 PDO registers available", reg);
-    return;
   } else { // Valid
     this->mappedIMCObjects.push(objectname);
     this->mappedIMCObjectRegisters.push(reg);
