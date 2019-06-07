@@ -5,8 +5,10 @@ namespace march4cpp {
 PDOmap::PDOmap() { this->initIMCObjects(); }
 
 void PDOmap::addObject(IMCObjectName objectname, int reg) {
-    if (reg < 1 || reg > 4) {
-        ROS_WARN("Indicated register %d is invalid. There are 4 PDO registers available", reg);
+  if (reg < 1 || reg > 4) {
+    ROS_WARN(
+        "Indicated register %d is invalid. There are 4 PDO registers available",
+        reg);
   } else { // Valid
     this->mappedIMCObjects.push(objectname);
     this->mappedIMCObjectRegisters.push(reg);
@@ -54,8 +56,9 @@ std::map<enum IMCObjectName, int> PDOmap::map(int slaveIndex,
     }
     // Map the object
     registerObjectCount[desiredRegisterNr - 1]++;
-    this->mapObject(objectToBeMapped, registerObjectCount[desiredRegisterNr - 1],
-                    desiredRegister, slaveIndex);
+    this->mapObject(objectToBeMapped,
+                    registerObjectCount[desiredRegisterNr - 1], desiredRegister,
+                    slaveIndex);
     this->byteOffsets[objectToBeMappedName] =
         8 * desiredRegisterNr - (registerBitsLeft[desiredRegisterNr - 1] / 8);
     registerBitsLeft[desiredRegisterNr - 1] -= objectToBeMapped.length;
@@ -88,8 +91,8 @@ void PDOmap::mapObject(IMCObject object, int objectCount, int reg,
   // TODO(Martijn, BaCo) find out if next line is necessary in some cases
   //  sdo_bit32(slaveIndex, reg, 0, currentRegister);
   if (!success) {
-    ROS_FATAL("SDO write when PDO mapping object 0x%X to IMC %d failed", object.address,
-              slaveIndex);
+    ROS_FATAL("SDO write when PDO mapping object 0x%X to IMC %d failed",
+              object.address, slaveIndex);
     throw std::exception();
   }
 }
