@@ -10,11 +10,13 @@
 
 #include <march_hardware/EtherCAT/EthercatSDO.h>
 
-namespace march4cpp {
+namespace march4cpp
+{
 
 // If a new object is added to this enum, make sure to also add it to
 // PDOmap::initAllObjects()!
-enum class IMCObjectName {
+enum class IMCObjectName
+        {
   StatusWord,
   ActualPosition,
   MotionErrorRegister,
@@ -33,11 +35,13 @@ enum class IMCObjectName {
 
 enum class dataDirection { miso, mosi };
 
-struct IMCObject {
-  int address; // in IMC memory (see IMC manual)
+struct IMCObject
+{
+  int address;  // in IMC memory (see IMC manual)
   int length;  // bits (see IMC manual)
 
-  explicit IMCObject(int _address, int _length) {
+  explicit IMCObject(int _address, int _length)
+  {
     this->length = _length;
     this->address = _address;
   }
@@ -45,7 +49,8 @@ struct IMCObject {
   IMCObject() {}
 };
 
-class PDOmap {
+class PDOmap
+{
 public:
   // Constructor
   PDOmap();
@@ -63,6 +68,6 @@ private:
   std::map<IMCObjectName, IMCObject> imcObjects;
   std::map<IMCObjectName, int> byteOffsets;
 };
-} // namespace march4cpp
+}  // namespace march4cpp
 
 #endif
