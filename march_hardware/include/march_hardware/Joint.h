@@ -28,6 +28,7 @@ public:
 
   float getAngleRad();
   float getTemperature();
+  uint16 getStatusWord();
 
   std::string getName();
   int getTemperatureGESSlaveIndex();

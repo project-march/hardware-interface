@@ -17,7 +17,7 @@ joint_limits:
     min_position: -0.26
     max_position: 1.83259571
     has_velocity_limits: true
-    max_velocity: 0.2
+    max_velocity: 0.6
 
     has_soft_limits: true
     soft_lower_limit: -0.2
@@ -43,7 +43,7 @@ joint_limits:
     min_position: -0.2
     max_position: 2
     has_velocity_limits: true
-    max_velocity: 0.2
+    max_velocity: 0.6
 
     has_soft_limits: true
     soft_lower_limit: -0.18

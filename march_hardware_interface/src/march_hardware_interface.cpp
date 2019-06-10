@@ -146,7 +146,7 @@ void MarchHardwareInterface::read(ros::Duration elapsed_time)
   for (int i = 0; i < num_joints_; i++)
   {
     float oldPosition = joint_position_[i];
-
+    ROS_INFO_STREAM_THROTTLE(1, "Status Word: " << std::bitset<16>(marchRobot.getJoint(joint_names_[i]).getStatusWord()));
     joint_position_[i] = marchRobot.getJoint(joint_names_[i]).getAngleRad();
 
     if (marchRobot.getJoint(joint_names_[i]).hasTemperatureGES())

@@ -1,21 +1,20 @@
 march3:
-  ifName: enp0s25
+  ifName: enp2s0
   ecatCycleTime: 4
   joints:
     - right_hip_fe:
         allowActuation: false
 #        temperatureges: {slaveIndex: 6, byteOffset: 0}
         imotioncube:
-          slaveIndex: 1
-          #10
-          encoder: {resolution: 17, minPositionIU: 22129, maxPositionIU: 43941, zeroPositionIU: 22129, safetyMarginRad: 0.05}
+          slaveIndex: 10
+          encoder: {resolution: 17, minPositionIU: 2070, maxPositionIU: 45235, zeroPositionIU: 10039, safetyMarginRad: 0.05}
 
-#    - left_hip_fe:
-#        allowActuation: false
-#        imotioncube:
-#          temperatureges: {slaveIndex: 1, byteOffset: 0}
-#          slaveIndex: 3
-#          encoder: {resolution: 17, minPositionIU: 9756, maxPositionIU: 31543, zeroPositionIU: 9756, safetyMarginRad: 0.05}
+    - left_hip_fe:
+        allowActuation: false
+        imotioncube:
+          temperatureges: {slaveIndex: 1, byteOffset: 0}
+          slaveIndex: 3
+          encoder: {resolution: 17, minPositionIU: 62158, maxPositionIU: 102825, zeroPositionIU: 71007, safetyMarginRad: 0.05}
 #
 #    - right_knee:
 #        allowActuation: false

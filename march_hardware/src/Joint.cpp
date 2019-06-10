@@ -113,4 +113,7 @@ bool Joint::canActuate()
 {
   return this->allowActuation;
 }
+uint16 Joint::getStatusWord() {
+  return this->iMotionCube.getStatusWord();
+}
 }  // namespace march4cpp
