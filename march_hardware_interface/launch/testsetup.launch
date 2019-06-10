@@ -11,8 +11,10 @@
           args="
                 /march/controller/state
                 /march/controller/temperature_sensor
-                /march/controller/trajectory/testjoint
+                /march/controller/effort_controller
             "/>
+
+<!--    /march/controller/trajectory/testjoint-->
 
     <node name="march_hardware_interface" pkg="march_hardware_interface" type="march_hardware_interface_node" args="testsetup" output="screen"/>
 

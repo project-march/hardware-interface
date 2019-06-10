@@ -4,7 +4,7 @@ joint_limits:
     min_position: -0.0872664626
     max_position: 2.00713
     has_velocity_limits: true
-    max_velocity: 0.4
+    max_velocity: 2
 
     has_soft_limits: true
     soft_lower_limit: -0.5
@@ -15,4 +15,7 @@ joint_limits:
     k_velocity: 25000
 
     has_effort_limits: true
-    max_effort: 5000.0
+    max_effort: 10000.0
+
+    has_jerk_limits: true
+    max_jerk: 1000
