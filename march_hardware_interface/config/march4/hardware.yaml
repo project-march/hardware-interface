@@ -3,6 +3,6 @@ march:
     loop_hz: 100
     joints:
       - right_hip_fe
-      - left_hip_fe
+#      - left_hip_fe
       - right_knee
-      - left_knee
+#      - left_knee
