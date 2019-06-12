@@ -117,7 +117,7 @@ void IMotionCube::actuateCurrent(float targetCurrent)
                                                                "%s",
                  this->actuationMode.toString().c_str());
 
-  ROS_ASSERT_MSG(targetCurrent < 10000, "Current of %f is too high.", targetCurrent);
+  ROS_ASSERT_MSG(targetCurrent < 20000, "Current of %f is too high.", targetCurrent);
 
   union bit16 targetCurrentStruct;
   targetCurrentStruct.i = targetCurrent;

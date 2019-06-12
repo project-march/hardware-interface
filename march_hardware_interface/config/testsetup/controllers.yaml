@@ -6,13 +6,13 @@ march:
     temperature_sensor:
       type: march_temperature_sensor_controller/MarchTemperatureSensorController
       publish_rate: 50
-    trajectory:
-      testjoint:
-        type: effort_controllers/JointTrajectoryController
-        joints:
-          - test_joint
-        gains: # Required because we're controlling an effort interface
-          test_joint: {p: 20000, i: 1000, d: 1, i_clamp: 10, publish_state: true, antiwindup: true}
     effort_controller:
       type: effort_controllers/JointEffortController
-      joints: test_joint
+      joint: test_joint
+#    trajectory:
+#      testjoint:
+#        type: effort_controllers/JointTrajectoryController
+#        joints:
+#          - test_joint
+#        gains: # Required because we're controlling an effort interface
+#          test_joint: {p: 20000, i: 1000, d: 1, i_clamp: 10, publish_state: true, antiwindup: true}
