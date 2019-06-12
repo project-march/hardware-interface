@@ -14,7 +14,7 @@
                 /march/controller/effort_controller
             "/>
 
-<!--    /march/controller/trajectory/testjoint-->
+    <!--    /march/controller/trajectory/testjoint-->
 
     <node name="march_hardware_interface" pkg="march_hardware_interface" type="march_hardware_interface_node" args="testsetup" output="screen"/>
 
