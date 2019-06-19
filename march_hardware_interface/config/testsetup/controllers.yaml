@@ -9,10 +9,10 @@ march:
     effort_controller:
       type: effort_controllers/JointEffortController
       joint: test_joint
-#    trajectory:
-#      testjoint:
-#        type: effort_controllers/JointTrajectoryController
-#        joints:
-#          - test_joint
-#        gains: # Required because we're controlling an effort interface
-#          test_joint: {p: 20000, i: 1000, d: 1, i_clamp: 10, publish_state: true, antiwindup: true}
+    trajectory:
+      testjoint:
+        type: effort_controllers/JointTrajectoryController
+        joints:
+          - test_joint
+        gains: # Required because we're controlling an effort interface
+          test_joint: {p: 20000, i: 1000, d: 1, i_clamp: 10, publish_state: true, antiwindup: true}
