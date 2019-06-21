@@ -98,8 +98,6 @@ void MarchHardwareInterface::init()
     effortJointSoftLimitsInterface.registerHandle(effortLimitsHandle);
     effort_joint_interface_.registerHandle(jointEffortHandle);
 
-
-
     this->read();
     joint_velocity_[i] = 0;
     joint_effort_[i] = 0;

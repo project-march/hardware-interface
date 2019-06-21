@@ -2,10 +2,13 @@ march:
   controller:
     state:
       type: joint_state_controller/JointStateController
-      publish_rate: 50
+      publish_rate: 200
     temperature_sensor:
       type: march_temperature_sensor_controller/MarchTemperatureSensorController
       publish_rate: 50
+    effort_controller:
+      type: effort_controllers/JointEffortController
+      joint: test_joint
     trajectory:
       testjoint:
         type: effort_controllers/JointTrajectoryController
