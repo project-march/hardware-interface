@@ -5,6 +5,7 @@
 #include <string>
 
 #include <march_hardware/IMotionCube.h>
+#include <march_hardware/PowerDistributionBoard.h>
 #include <march_hardware/TemperatureGES.h>
 #include <march_hardware/ActuationMode.h>
 
@@ -21,6 +22,8 @@ private:
    * statement in the .yaml will indicate what can be expected.
    */
   bool allowActuation;
+  // Set this number via the hardware builder
+  int netNumber = -1;
   ActuationMode actuationMode;
   IMotionCube iMotionCube;
   TemperatureGES temperatureGES;
@@ -29,9 +32,10 @@ public:
   // TODO(Tim) pass by reference or pointer instead of making copy
   Joint(std::string name, bool allowActuation, TemperatureGES temperatureGES, IMotionCube iMotionCube,
                 std::string actuationmode);
-  Joint(std::string name, bool allowActuation, TemperatureGES temperatureGES);
-  Joint(std::string name, bool allowActuation, IMotionCube iMotionCube, std::string actuationmode);
-  Joint(std::string name, bool allowActuation, IMotionCube iMotionCube);
+  Joint(std::string name, bool allowActuation, TemperatureGES temperatureGES, IMotionCube iMotionCube, int netNumber,std::string actuationmode);
+  Joint(std::string name, bool allowActuation, TemperatureGES temperatureGES,std::string actuationmode);
+  Joint(std::string name, bool allowActuation, IMotionCube iMotionCube,std::string actuationmode);
+  Joint(std::string name, bool allowActuation, IMotionCube iMotionCube, int netNumber,std::string actuationmode);
 
   void initialize(int ecatCycleTime);
   void prepareActuation();
@@ -46,6 +50,10 @@ public:
   std::string getName();
   int getTemperatureGESSlaveIndex();
   int getIMotionCubeSlaveIndex();
+  int getNetNumber()
+  {
+    return netNumber;
+  }
 
   bool hasIMotionCube();
   bool hasTemperatureGES();

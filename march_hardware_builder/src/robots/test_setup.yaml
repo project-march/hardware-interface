@@ -1,0 +1,14 @@
+testsetup:
+  ifName: enp2s0
+  ecatCycleTime: 4
+  joints:
+    - test_joint:
+        allowActuation: true
+        imotioncube:
+          slaveIndex: 1
+          encoder:
+            resolution: 17
+            minPositionIU: 83678
+            maxPositionIU: 101450
+            zeroPositionIU: 89712
+            safetyMarginRad: 0.005

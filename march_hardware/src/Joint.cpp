@@ -5,6 +5,7 @@
 
 namespace march4cpp
 {
+// ImotionCube and Temperature GES
 Joint::Joint(std::string name, bool allowActuation, TemperatureGES temperatureGES, IMotionCube iMotionCube,
              std::string actuationModeName)
   : temperatureGES(temperatureGES), iMotionCube(iMotionCube), actuationMode(ActuationMode(actuationModeName))
@@ -13,22 +14,33 @@ Joint::Joint(std::string name, bool allowActuation, TemperatureGES temperatureGE
   this->allowActuation = allowActuation;
 }
 
-Joint::Joint(std::string name, bool allowActuation, TemperatureGES temperatureGES) : temperatureGES(temperatureGES)
+// ImotionCube, Temperature GES and PDB
+Joint::Joint(std::string name, bool allowActuation, TemperatureGES temperatureGES, IMotionCube iMotionCube,
+             int netNumber, std::string actuationModeName)
+  : temperatureGES(temperatureGES), iMotionCube(iMotionCube), netNumber(netNumber), actuationMode(ActuationMode(actuationModeName)
 {
   this->name = std::move(name);
   this->allowActuation = allowActuation;
 }
-Joint::Joint(std::string name, bool allowActuation, IMotionCube iMotionCube, std::string actuationmode)
-  : iMotionCube(iMotionCube), actuationMode(actuationmode)
 
+// Only Temperature GES
+//TODO:(bart) make sure these constructors make sense with actuationmode
+Joint::Joint(std::string name, bool allowActuation, TemperatureGES temperatureGES, std::string actuationModeName) : temperatureGES(temperatureGES), actuationMode(ActuationMode(actuationModeName)
 {
   this->name = std::move(name);
   this->allowActuation = allowActuation;
 }
 
-Joint::Joint(std::string name, bool allowActuation, IMotionCube iMotionCube)
-  : iMotionCube(iMotionCube), actuationMode("unknown")
+// Only ImotionCube
+Joint::Joint(std::string name, bool allowActuation, IMotionCube iMotionCube, std::string actuationModeName) : iMotionCube(iMotionCube), actuationMode(ActuationMode(actuationModeName)
+{
+  this->name = std::move(name);
+  this->allowActuation = allowActuation;
+}
 
+// ImotionCube and PDB
+Joint::Joint(std::string name, bool allowActuation, IMotionCube iMotionCube, int netNumber, std::string actuationModeName)
+  : iMotionCube(iMotionCube), netNumber(netNumber), actuationMode(ActuationMode(actuationModeName)
 {
   this->name = std::move(name);
   this->allowActuation = allowActuation;
@@ -54,15 +66,20 @@ void Joint::prepareActuation()
   }
   else
   {
-    ROS_ERROR("Trying to prepare joint %s for actuation while it is not allowed to actuate", this->name.c_str());
+    ROS_ERROR("Trying to prepare joint %s for actuation while it is not "
+              "allowed to actuate",
+              this->name.c_str());
   }
 }
 
 void Joint::actuateRad(float targetPositionRad)
 {
-  ROS_ASSERT_MSG(this->allowActuation, "Joint %s is not allowed to actuate, yet its actuate method has been called.",
+  ROS_ASSERT_MSG(this->allowActuation, "Joint %s is not allowed to actuate, "
+                                       "yet its actuate method has been "
+                                       "called.",
                  this->name.c_str());
-  // TODO(BaCo) check that the position is allowed and does not exceed (torque) limits.
+  // TODO(BaCo) check that the position is allowed and does not exceed (torque)
+  // limits.
   this->iMotionCube.actuateRad(targetPositionRad);
 }
 
