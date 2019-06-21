@@ -4,16 +4,17 @@ march3:
   joints:
     - right_hip_fe:
         allowActuation: true
-        actuationMode: position
+        actuationMode: torque
         imotioncube:
-          slaveIndex: 10
+          slaveIndex: 5
           encoder: {resolution: 17, minPositionIU: 2070, maxPositionIU: 45235, zeroPositionIU: 10039, safetyMarginRad: 0.05}
 
 
-    - right_knee:
-        allowActuation: true
-        actuationMode: position
-        temperatureges: {slaveIndex: 6, byteOffset: 4}
-        imotioncube:
-          slaveIndex: 7
-          encoder: {resolution: 17, minPositionIU: 90751, maxPositionIU: 133842, zeroPositionIU: 92217, safetyMarginRad: 0.05}
+#    - right_knee:
+#        allowActuation: true
+#        actuationMode: position
+#        temperatureges: {slaveIndex: 6, byteOffset: 4}
+#        imotioncube:
+#          slaveIndex: 7
+#          encoder: {resolution: 17, minPositionIU: 90751, maxPositionIU: 133842, zeroPositionIU: 92217, safetyMarginRad: 0.05}
+
