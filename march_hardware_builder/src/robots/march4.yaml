@@ -2,7 +2,7 @@ march4:
   ifName: enp2s0
   ecatCycleTime: 4
   powerDistributionBoard:
-    slaveIndex: 1
+    slaveIndex: 6
     bootShutdownOffsets:
       masterOk: 0
       shutdown: 0
@@ -23,29 +23,29 @@ march4:
   joints:
     - right_hip_fe:
         allowActuation: false
-        temperatureges: {slaveIndex: 6, byteOffset: 0}
+        temperatureges: {slaveIndex: 1, byteOffset: 0}
         netNumber: 2
         imotioncube:
-          slaveIndex: 2
+          slaveIndex: 4
           encoder: {resolution: 17, minPositionIU: 2070, maxPositionIU: 45235, zeroPositionIU: 10039, safetyMarginRad: 0.05}
-    - left_hip_fe:
-        allowActuation: false
-        netNumber: 7
-        imotioncube:
-          temperatureges: {slaveIndex: 11, byteOffset: 0}
-          slaveIndex: 8
-          encoder: {resolution: 17, minPositionIU: 9756, maxPositionIU: 31543, zeroPositionIU: 9756, safetyMarginRad: 0.05}
+#    - left_hip_fe:
+#        allowActuation: false
+#        netNumber: 6
+#        imotioncube:
+#          temperatureges: {slaveIndex: 8, byteOffset: 0}
+#          slaveIndex: 11
+#          encoder: {resolution: 17, minPositionIU: 9756, maxPositionIU: 31543, zeroPositionIU: 9756, safetyMarginRad: 0.05}
     - right_knee:
         allowActuation: false
         netNumber: 3
-        temperatureges: {slaveIndex: 6, byteOffset: 4}
+        temperatureges: {slaveIndex: 1, byteOffset: 4}
         imotioncube:
-          slaveIndex: 5
+          slaveIndex: 2
           encoder: {resolution: 17, minPositionIU: 25364, maxPositionIU: 68048, zeroPositionIU: 28591, safetyMarginRad: 0.05}
-    - left_knee:
-        allowActuation: false
-        netNumber: 6
-        temperatureges: {slaveIndex: 11, byteOffset: 4}
-        imotioncube:
-          slaveIndex: 10
-          encoder: {resolution: 17, minPositionIU: 21907, maxPositionIU: 43737, zeroPositionIU: 21907, safetyMarginRad: 0.05}
+#    - left_knee:
+#        allowActuation: false
+#        netNumber: 7
+#        temperatureges: {slaveIndex: 8, byteOffset: 4}
+#        imotioncube:
+#          slaveIndex: 9
+#          encoder: {resolution: 17, minPositionIU: 21907, maxPositionIU: 43737, zeroPositionIU: 21907, safetyMarginRad: 0.05}
