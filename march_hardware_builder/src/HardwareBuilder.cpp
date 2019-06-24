@@ -126,7 +126,7 @@ march4cpp::Joint HardwareBuilder::createJoint(YAML::Node jointConfig, std::strin
   }
   if (hasTemperatureGes)
   {
-    return march4cpp::Joint(jointName, allowActuation, temperatureGes);
+    return march4cpp::Joint(jointName, allowActuation, temperatureGes, actuationMode);
   }
   if (hasNetNumber)
   {

@@ -31,11 +31,12 @@ private:
 public:
   // TODO(Tim) pass by reference or pointer instead of making copy
   Joint(std::string name, bool allowActuation, TemperatureGES temperatureGES, IMotionCube iMotionCube,
-                std::string actuationmode);
-  Joint(std::string name, bool allowActuation, TemperatureGES temperatureGES, IMotionCube iMotionCube, int netNumber,std::string actuationmode);
-  Joint(std::string name, bool allowActuation, TemperatureGES temperatureGES,std::string actuationmode);
-  Joint(std::string name, bool allowActuation, IMotionCube iMotionCube,std::string actuationmode);
-  Joint(std::string name, bool allowActuation, IMotionCube iMotionCube, int netNumber,std::string actuationmode);
+        std::string actuationmode);
+  Joint(std::string name, bool allowActuation, TemperatureGES temperatureGES, IMotionCube iMotionCube, int netNumber,
+        std::string actuationmode);
+  Joint(std::string name, bool allowActuation, TemperatureGES temperatureGES, std::string actuationmode);
+  Joint(std::string name, bool allowActuation, IMotionCube iMotionCube, std::string actuationmode);
+  Joint(std::string name, bool allowActuation, IMotionCube iMotionCube, int netNumber, std::string actuationmode);
 
   void initialize(int ecatCycleTime);
   void prepareActuation();
@@ -74,7 +75,7 @@ public:
   friend ::std::ostream& operator<<(std::ostream& os, const Joint& joint)
   {
     return os << "name: " << joint.name << ", "
-            << "ActuationMode: " << joint.actuationMode.toString() << ", "
+              << "ActuationMode: " << joint.actuationMode.toString() << ", "
               << "allowActuation: " << joint.allowActuation << ", "
               << "imotioncube: " << joint.iMotionCube << ","
               << "temperatureges: " << joint.temperatureGES;

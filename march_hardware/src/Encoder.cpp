@@ -15,8 +15,9 @@ Encoder::Encoder(int numberOfBits, int minPositionIU, int maxPositionIU, int zer
 
   ROS_ASSERT_MSG(this->isValidPositionIU(minPositionIU), "MinPositionIU %d is not within range (0, %d)", minPositionIU,
                  this->totalPositions);
-//  ROS_ASSERT_MSG(this->isValidPositionIU(maxPositionIU), "MaxPositionIU %d is not within range (0, %d)", maxPositionIU,
-//                 this->totalPositions);
+  //  ROS_ASSERT_MSG(this->isValidPositionIU(maxPositionIU), "MaxPositionIU %d is not within range (0, %d)",
+  //  maxPositionIU,
+  //                 this->totalPositions);
   ROS_ASSERT_MSG(this->isValidPositionIU(zeroPositionIU), "ZeroPositionIU %d is not within range (0, %d)",
                  zeroPositionIU, this->totalPositions);
 

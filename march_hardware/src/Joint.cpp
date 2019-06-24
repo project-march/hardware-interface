@@ -17,30 +17,36 @@ Joint::Joint(std::string name, bool allowActuation, TemperatureGES temperatureGE
 // ImotionCube, Temperature GES and PDB
 Joint::Joint(std::string name, bool allowActuation, TemperatureGES temperatureGES, IMotionCube iMotionCube,
              int netNumber, std::string actuationModeName)
-  : temperatureGES(temperatureGES), iMotionCube(iMotionCube), netNumber(netNumber), actuationMode(ActuationMode(actuationModeName)
+  : temperatureGES(temperatureGES)
+  , iMotionCube(iMotionCube)
+  , netNumber(netNumber)
+  , actuationMode(ActuationMode(actuationModeName))
 {
   this->name = std::move(name);
   this->allowActuation = allowActuation;
 }
 
 // Only Temperature GES
-//TODO:(bart) make sure these constructors make sense with actuationmode
-Joint::Joint(std::string name, bool allowActuation, TemperatureGES temperatureGES, std::string actuationModeName) : temperatureGES(temperatureGES), actuationMode(ActuationMode(actuationModeName)
+// TODO(bart): make sure these constructors make sense with actuationmode
+Joint::Joint(std::string name, bool allowActuation, TemperatureGES temperatureGES, std::string actuationModeName)
+  : temperatureGES(temperatureGES), actuationMode(ActuationMode(actuationModeName))
 {
   this->name = std::move(name);
   this->allowActuation = allowActuation;
 }
 
 // Only ImotionCube
-Joint::Joint(std::string name, bool allowActuation, IMotionCube iMotionCube, std::string actuationModeName) : iMotionCube(iMotionCube), actuationMode(ActuationMode(actuationModeName)
+Joint::Joint(std::string name, bool allowActuation, IMotionCube iMotionCube, std::string actuationModeName)
+  : iMotionCube(iMotionCube), actuationMode(ActuationMode(actuationModeName))
 {
   this->name = std::move(name);
   this->allowActuation = allowActuation;
 }
 
 // ImotionCube and PDB
-Joint::Joint(std::string name, bool allowActuation, IMotionCube iMotionCube, int netNumber, std::string actuationModeName)
-  : iMotionCube(iMotionCube), netNumber(netNumber), actuationMode(ActuationMode(actuationModeName)
+Joint::Joint(std::string name, bool allowActuation, IMotionCube iMotionCube, int netNumber,
+             std::string actuationModeName)
+  : iMotionCube(iMotionCube), netNumber(netNumber), actuationMode(ActuationMode(actuationModeName))
 {
   this->name = std::move(name);
   this->allowActuation = allowActuation;
