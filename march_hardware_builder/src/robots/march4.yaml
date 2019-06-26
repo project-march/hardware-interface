@@ -1,0 +1,78 @@
+march4:
+  ifName: enp2s0
+  ecatCycleTime: 4
+  powerDistributionBoard:
+    slaveIndex: 7
+    bootShutdownOffsets:
+      masterOk: 0
+      shutdown: 0
+      shutdownAllowed: 1
+    netMonitorByteOffsets:
+      powerDistributionBoardCurrent: 5
+      lowVoltageNet1Current: 9
+      lowVoltageNet2Current: 13
+      highVoltageNetCurrent: 17
+      lowVoltageState: 3
+      highVoltageOvercurrentTrigger: 2
+      highVoltageEnabled: 1
+      highVoltageState: 4
+    netDriverByteOffsets:
+      lowVoltageNetOnOff: 4
+      highVoltageNetOnOff: 3
+      allHighVoltageOnOff: 2
+  joints:
+    - right_hip_aa:
+        allowActuation: false
+        temperatureges: {slaveIndex: 8, byteOffset: 0}
+        imotioncube:
+          slaveIndex: 6
+          encoder: {resolution: 17, minPositionIU: 1, maxPositionIU: 3, zeroPositionIU: 2, safetyMarginRad: 0}
+
+    - left_hip_aa:
+        allowActuation: false
+        temperatureges: {slaveIndex: 8, byteOffset: 0}
+        imotioncube:
+          slaveIndex: 13
+          encoder: {resolution: 17, minPositionIU: 1, maxPositionIU: 3, zeroPositionIU: 2, safetyMarginRad: 0}
+
+    - right_hip_fe:
+        allowActuation: false
+        temperatureges: {slaveIndex: 1, byteOffset: 0}
+        imotioncube:
+          slaveIndex: 5
+          encoder: {resolution: 17, minPositionIU: 1, maxPositionIU: 3, zeroPositionIU: 2, safetyMarginRad: 0}
+
+    - left_hip_fe:
+        allowActuation: false
+        temperatureges: {slaveIndex: 9, byteOffset: 0}
+        imotioncube:
+          slaveIndex: 12
+          encoder: {resolution: 17, minPositionIU: 1, maxPositionIU: 3, zeroPositionIU: 2, safetyMarginRad: 0}
+
+    - right_knee:
+        allowActuation: false
+        temperatureges: {slaveIndex: 1, byteOffset: 4}
+        imotioncube:
+          slaveIndex: 2
+          encoder: {resolution: 17, minPositionIU: 1, maxPositionIU: 3, zeroPositionIU: 2, safetyMarginRad: 0}
+
+    - left_knee:
+        allowActuation: false
+        temperatureges: {slaveIndex: 9, byteOffset: 4}
+        imotioncube:
+          slaveIndex: 10
+          encoder: {resolution: 17, minPositionIU: 1, maxPositionIU: 3, zeroPositionIU: 2, safetyMarginRad: 0}
+
+    - right_ankle:
+        allowActuation: false
+        temperatureges: {slaveIndex: 4, byteOffset: 4}
+        imotioncube:
+          slaveIndex: 3
+          encoder: {resolution: 12, minPositionIU: 1, maxPositionIU: 3, zeroPositionIU: 2, safetyMarginRad: 0}
+
+    - left_ankle:
+        allowActuation: false
+        temperatureges: {slaveIndex: 11, byteOffset: 4}
+        imotioncube:
+          slaveIndex:
+          encoder: {resolution: 12, minPositionIU: 1, maxPositionIU: 3, zeroPositionIU: 2, safetyMarginRad: 0}
