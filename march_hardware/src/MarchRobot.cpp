@@ -17,6 +17,8 @@ namespace march4cpp
 MarchRobot::MarchRobot(::std::vector<Joint> jointList, ::std::string ifName, int ecatCycleTime)
 {
   this->jointList = std::move(jointList);
+  this->powerDistributionBoard =
+      std::unique_ptr<PowerDistributionBoard>(new PowerDistributionBoard());
   ethercatMaster.reset(new EthercatMaster(&this->jointList, ifName, this->getMaxSlaveIndex(), ecatCycleTime));
 }
 
@@ -156,11 +158,11 @@ Joint MarchRobot::getJoint(::std::string jointName)
 
 const std::unique_ptr<PowerDistributionBoard>& MarchRobot::getPowerDistributionBoard() const
 {
-  if (this->powerDistributionBoard->getSlaveIndex() == -1)
-  {
-    ROS_ERROR("Could not find power distribution board");
-    throw ::std::runtime_error("Could not find power distribution board");
-  }
+//  if (this->powerDistributionBoard->getSlaveIndex() == -1)
+//  {
+//    ROS_ERROR("Could not find power distribution board");
+//    throw ::std::runtime_error("Could not find power distribution board");
+//  }
 
   return powerDistributionBoard;
 }

@@ -42,6 +42,7 @@ public:
   void writeInitialSDOs(int ecatCycleTime) override;
 
   float getAngleRad();
+  int getAngleIU();
 
   uint16 getStatusWord();
   uint16 getMotionError();

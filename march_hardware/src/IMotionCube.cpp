@@ -169,6 +169,13 @@ float IMotionCube::getAngleRad()
   return this->encoder.getAngleRad(this->misoByteOffsets[IMCObjectName::ActualPosition]);
 }
 
+int IMotionCube::getAngleIU()
+{
+  ROS_ASSERT_MSG(this->misoByteOffsets.count(IMCObjectName::ActualPosition) == 1, "ActualPosition not defined in PDO "
+                                                                                  "mapping, so can't get angle");
+  return this->encoder.getAngleIU(this->misoByteOffsets[IMCObjectName::ActualPosition]);
+}
+
 uint16 IMotionCube::getStatusWord()
 {
   ROS_ASSERT_MSG(this->misoByteOffsets.count(IMCObjectName::StatusWord) == 1, "StatusWord not defined in PDO "
@@ -474,9 +481,9 @@ bool IMotionCube::goToOperationEnabled()
 
 bool IMotionCube::resetIMotionCube()
 {
-    ROS_INFO("Try to reset IMC with slave index %d", slaveIndex);
-    sdo_bit16(slaveIndex, 0x2080, 0, 1);
-    usleep(20000);
+  this->setControlWord(0);
+  ROS_INFO("Try to reset IMC with slave index %d", slaveIndex);
+  sdo_bit16(slaveIndex, 0x2080, 0, 1);
 }
 
 bool IMotionCube::get_bit(uint16 value, int index)

@@ -34,6 +34,7 @@ public:
   void actuateRad(float targetPositionRad);
 
   float getAngleRad();
+  int getAngleIU();
   float getTemperature();
 
   std::string getName();
