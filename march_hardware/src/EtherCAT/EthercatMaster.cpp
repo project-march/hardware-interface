@@ -18,8 +18,9 @@ extern "C"
 namespace march4cpp
 {
 // Constructor
-EthercatMaster::EthercatMaster(std::vector<Joint> *jointListPtr, std::string ifname, int maxSlaveIndex,
-                               int ecatCycleTime) : jointListPtr(jointListPtr)
+EthercatMaster::EthercatMaster(std::vector<Joint>* jointListPtr, std::string ifname, int maxSlaveIndex,
+                               int ecatCycleTime)
+  : jointListPtr(jointListPtr)
 {
   this->ifname = ifname;
   this->maxSlaveIndex = maxSlaveIndex;
@@ -137,11 +138,12 @@ void EthercatMaster::ethercatLoop()
     auto duration = boost::chrono::duration_cast<boost::chrono::microseconds>(stop - start);
     if (duration.count() > ecatCycleTimems * 1000)
     {
-        ROS_WARN_THROTTLE(5, "EtherCAT rate of %d milliseconds per cycle was not achieved this EtherCAT cycle", ecatCycleTimems);
+      ROS_WARN_THROTTLE(5, "EtherCAT rate of %d milliseconds per cycle was not achieved this EtherCAT cycle",
+                        ecatCycleTimems);
     }
     else
     {
-        usleep(ecatCycleTimems * 1000 - duration.count());
+      usleep(ecatCycleTimems * 1000 - duration.count());
     }
   }
 }
@@ -163,8 +165,8 @@ void EthercatMaster::monitorSlaveConnection()
     ec_statecheck(slave, EC_STATE_OPERATIONAL, EC_TIMEOUTRET);
     if (ec_slave[slave].state == EC_STATE_NONE)
     {
-//      ROS_ERROR("EtherCAT train lost connection from slave %d onwards", slave);
-//      throw std::exception();
+      //      ROS_ERROR("EtherCAT train lost connection from slave %d onwards", slave);
+      //      throw std::exception();
     }
   }
 }
