@@ -71,12 +71,12 @@ void MarchHardwareInterface::init()
       break;
     }
     ROS_INFO("Restarting EtherCAT");
-    marchRobot.stopEtherCAT();
-    marchRobot.startEtherCAT();
     for (int i = 0; i < num_joints_; ++i) {
       march4cpp::Joint joint = marchRobot.getJoint(joint_names_[i]);
       joint.resetIMotionCube();
     }
+    marchRobot.stopEtherCAT();
+    marchRobot.startEtherCAT();
     count++;
   }
 
@@ -169,24 +169,24 @@ void MarchHardwareInterface::init()
                                                               &joint_temperature_variance_[i]);
     march_temperature_interface.registerHandle(marchTemperatureSensorHandle);
 
-    if (power_distribution_board_read_.getSlaveIndex() != -1)
-    {
+//    if (power_distribution_board_read_.getSlaveIndex() != -1)
+//    {
       // Enable high voltage on the IMC
       if (joint.canActuate())
       {
-        int net_number = joint.getNetNumber();
-        if (net_number != -1)
-        {
-          power_distribution_board_read_.getHighVoltage().setNetOnOff(true, net_number);
-        }
-        else
-        {
-          ROS_FATAL("Joint %s has no high voltage net number", joint.getName().c_str());
-          throw std::runtime_error("Joint has no high voltage net number");
-        }
+//        int net_number = joint.getNetNumber();
+//        if (net_number != -1)
+//        {
+//          power_distribution_board_read_.getHighVoltage().setNetOnOff(true, net_number);
+//        }
+//        else
+//        {
+//          ROS_FATAL("Joint %s has no high voltage net number", joint.getName().c_str());
+//          throw std::runtime_error("Joint has no high voltage net number");
+//        }
         joint.prepareActuation();
       }
-    }
+//    }
   }
 }
 
