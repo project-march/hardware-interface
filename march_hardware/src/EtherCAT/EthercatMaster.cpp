@@ -37,7 +37,7 @@ void EthercatMaster::start()
     ROS_ERROR("No socket connection on %s. Confirm that you have selected the right ifname", ifname.c_str());
     return;
   }
-  ROS_INFO("ec_init on %s succeeded", ifname.c_str());
+  ROS_DEBUG("ec_init on %s succeeded", ifname.c_str());
 
   // Find and auto-config slaves
   if (ec_config_init(FALSE) <= 0)
@@ -71,7 +71,7 @@ void EthercatMaster::start()
   // Wait for all slaves to reach SAFE_OP state
   ec_statecheck(0, EC_STATE_SAFE_OP, EC_TIMEOUTSTATE * 4);
 
-  ROS_INFO("Request operational state for all slaves");
+  ROS_DEBUG("Request operational state for all slaves");
   expectedWKC = (ec_group[0].outputsWKC * 2) + ec_group[0].inputsWKC;
   ec_slave[0].state = EC_STATE_OPERATIONAL;
 
