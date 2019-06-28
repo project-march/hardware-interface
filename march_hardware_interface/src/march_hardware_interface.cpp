@@ -56,22 +56,26 @@ void MarchHardwareInterface::init()
   joint_effort_command_.resize(num_joints_);
 
   int count = 1;
-  while(true)
+  while (true)
   {
     bool success = true;
-    for (int i = 0; i < num_joints_; ++i) {
+    for (int i = 0; i < num_joints_; ++i)
+    {
       march4cpp::Joint joint = marchRobot.getJoint(joint_names_[i]);
-      if (joint.getAngleIU() == 0) {
+      if (joint.getAngleIU() == 0)
+      {
         ROS_ERROR("Joint %s failed (encoder reset)", joint_names_[i].c_str());
         success = false;
       }
     }
-    if (success){
+    if (success)
+    {
       ROS_INFO("All joints successful! (no encoder resets)");
       break;
     }
     ROS_INFO("Restarting EtherCAT");
-    for (int i = 0; i < num_joints_; ++i) {
+    for (int i = 0; i < num_joints_; ++i)
+    {
       march4cpp::Joint joint = marchRobot.getJoint(joint_names_[i]);
       joint.resetIMotionCube();
     }
@@ -79,7 +83,6 @@ void MarchHardwareInterface::init()
     marchRobot.startEtherCAT();
     count++;
   }
-
 
   // Print all joint positions on startup in case initialization fails.
   this->read();
@@ -169,8 +172,7 @@ void MarchHardwareInterface::init()
                                                               &joint_temperature_variance_[i]);
     march_temperature_interface.registerHandle(marchTemperatureSensorHandle);
 
-
-      // Enable high voltage on the IMC
+    // Enable high voltage on the IMC
     if (joint.canActuate())
     {
       if (power_distribution_board_read_.getSlaveIndex() != -1)
@@ -224,10 +226,10 @@ void MarchHardwareInterface::read(ros::Duration elapsed_time)
 
   if (power_distribution_board_read_.getSlaveIndex() != -1)
   {
-
     power_distribution_board_read_ = *marchRobot.getPowerDistributionBoard();
 
-    if (!power_distribution_board_read_.getHighVoltage().getHighVoltageEnabled()) {
+    if (!power_distribution_board_read_.getHighVoltage().getHighVoltageEnabled())
+    {
       ROS_WARN_THROTTLE(10, "All-High-Voltage disabled");
     }
   }

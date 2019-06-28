@@ -415,7 +415,8 @@ bool IMotionCube::goToOperationEnabled()
     int switchOnDisabledMask = 0b0000000001001111;
     int switchOnDisabledState = 64;
     switchOnDisabled = (statusWord & switchOnDisabledMask) == switchOnDisabledState;
-    ROS_INFO_STREAM_THROTTLE(1, "Slave: "<< this->slaveIndex << " Waiting for 'Switch on Disabled': " << std::bitset<16>(statusWord));
+    ROS_INFO_STREAM_THROTTLE(1, "Slave: " << this->slaveIndex
+                                          << " Waiting for 'Switch on Disabled': " << std::bitset<16>(statusWord));
   }
   ROS_INFO("Slave: %d, Switch on Disabled!", this->slaveIndex);
 
@@ -428,7 +429,8 @@ bool IMotionCube::goToOperationEnabled()
     int readyToSwitchOnMask = 0b0000000001101111;
     int readyToSwitchOnState = 33;
     readyToSwitchOn = (statusWord & readyToSwitchOnMask) == readyToSwitchOnState;
-    ROS_INFO_STREAM_THROTTLE(1, "Slave: "<< this->slaveIndex << " Waiting for 'Ready to Switch On': " << std::bitset<16>(statusWord));
+    ROS_INFO_STREAM_THROTTLE(1, "Slave: " << this->slaveIndex
+                                          << " Waiting for 'Ready to Switch On': " << std::bitset<16>(statusWord));
   }
   ROS_INFO("Slave: %d, Ready to Switch On!", this->slaveIndex);
 
@@ -441,7 +443,8 @@ bool IMotionCube::goToOperationEnabled()
     int switchedOnMask = 0b0000000001101111;
     int switchedOnState = 35;
     switchedOn = (statusWord & switchedOnMask) == switchedOnState;
-    ROS_INFO_STREAM_THROTTLE(1, "Slave: "<< this->slaveIndex << " Waiting for 'Switched On': " << std::bitset<16>(statusWord));
+    ROS_INFO_STREAM_THROTTLE(1, "Slave: " << this->slaveIndex
+                                          << " Waiting for 'Switched On': " << std::bitset<16>(statusWord));
   }
   ROS_INFO("Slave: %d, Switched On!", this->slaveIndex);
 
@@ -474,7 +477,8 @@ bool IMotionCube::goToOperationEnabled()
     int operationEnabledMask = 0b0000000001101111;
     int operationEnabledState = 39;
     operationEnabled = (statusWord & operationEnabledMask) == operationEnabledState;
-    ROS_INFO_STREAM_THROTTLE(1, "Slave: "<< this->slaveIndex << " Waiting for 'Operation Enabled': " << std::bitset<16>(statusWord));
+    ROS_INFO_STREAM_THROTTLE(1, "Slave: " << this->slaveIndex
+                                          << " Waiting for 'Operation Enabled': " << std::bitset<16>(statusWord));
   }
   ROS_INFO("Slave: %d, Operation Enabled!", this->slaveIndex);
 }
