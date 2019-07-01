@@ -17,8 +17,7 @@ namespace march4cpp
 MarchRobot::MarchRobot(::std::vector<Joint> jointList, ::std::string ifName, int ecatCycleTime)
 {
   this->jointList = std::move(jointList);
-  this->powerDistributionBoard =
-      std::unique_ptr<PowerDistributionBoard>(new PowerDistributionBoard());
+  this->powerDistributionBoard = std::unique_ptr<PowerDistributionBoard>(new PowerDistributionBoard());
   ethercatMaster.reset(new EthercatMaster(&this->jointList, ifName, this->getMaxSlaveIndex(), ecatCycleTime));
 }
 
