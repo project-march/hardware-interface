@@ -55,7 +55,6 @@ void MarchHardwareInterface::init()
   joint_velocity_command_.resize(num_joints_);
   joint_effort_command_.resize(num_joints_);
 
-  int count = 1;
   while (true)
   {
     bool success = true;
@@ -81,7 +80,6 @@ void MarchHardwareInterface::init()
     }
     marchRobot.stopEtherCAT();
     marchRobot.startEtherCAT();
-    count++;
   }
 
   // Print all joint positions on startup in case initialization fails.
