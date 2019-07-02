@@ -99,7 +99,10 @@ void IMotionCube::actuateRad(float targetRad)
 {
   if (std::abs(targetRad - this->getAngleRad()) > 0.2)
   {
-    ROS_ERROR("Target %f exceeds max difference of 0.2 from current %f", targetRad, this->getAngleRad());
+    ROS_ERROR_THROTTLE(1, "Target %f exceeds max difference of 0.2 from current %f", targetRad, this->getAngleRad());
+    ROS_INFO("%d", this->slaveIndex);
+    this->parseStatusWord(this->getStatusWord());
+    this->parseDetailedError(this->getDetailedError());
     return;
   }
   this->actuateIU(this->encoder.RadtoIU(targetRad));
@@ -486,7 +489,7 @@ bool IMotionCube::goToOperationEnabled()
 bool IMotionCube::resetIMotionCube()
 {
   this->setControlWord(0);
-  ROS_INFO("Slave: %d, Try to reset IMC", this->slaveIndex);
+  ROS_DEBUG("Slave: %d, Try to reset IMC", this->slaveIndex);
   sdo_bit16(slaveIndex, 0x2080, 0, 1);
 }
 
