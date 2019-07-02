@@ -14,7 +14,7 @@
 
 namespace march4cpp
 {
-MarchRobot::MarchRobot(::std::vector<Joint> jointList, ::std::string ifName, int ecatCycleTime)
+MarchRobot::MarchRobot(::std::vector<Joint> jointList, ::std::string ifName, int ecatCycleTime) : cycleTime(ecatCycleTime)
 {
   this->jointList = std::move(jointList);
   this->powerDistributionBoard = std::unique_ptr<PowerDistributionBoard>(new PowerDistributionBoard());
@@ -22,7 +22,7 @@ MarchRobot::MarchRobot(::std::vector<Joint> jointList, ::std::string ifName, int
 }
 
 MarchRobot::MarchRobot(::std::vector<Joint> jointList, PowerDistributionBoard powerDistributionBoard,
-                       ::std::string ifName, int ecatCycleTime)
+                       ::std::string ifName, int ecatCycleTime) : cycleTime(ecatCycleTime)
 {
   this->jointList = std::move(jointList);
   this->powerDistributionBoard =
@@ -47,7 +47,31 @@ void MarchRobot::startEtherCAT()
     return;
   }
   ethercatMaster->start();
+  this->robotThread = std::thread(&MarchRobot::robotLoop, this);
+
+
 }
+
+void MarchRobot::robotLoop() {
+    while (this->ethercatMaster->isOperational)
+    {
+        auto start = boost::chrono::high_resolution_clock::now();
+        this->ethercatMaster->sendProcessData();
+        this->ethercatMaster->receiveProcessData();
+        this->ethercatMaster->monitorSlaveConnection();
+        auto stop = boost::chrono::high_resolution_clock::now();
+        auto duration = boost::chrono::duration_cast<boost::chrono::microseconds>(stop - start);
+        if (duration.count() > cycleTime * 1000)
+        {
+            ROS_WARN("EtherCAT rate of %d milliseconds per cycle was not achieved this EtherCAT cycle", cycleTime);
+        }
+        else
+        {
+            usleep(cycleTime * 1000 - duration.count());
+        }
+    }
+}
+
 
 void MarchRobot::stopEtherCAT()
 {
@@ -57,6 +81,7 @@ void MarchRobot::stopEtherCAT()
     return;
   }
 
+  this->robotThread.join();
   ethercatMaster->stop();
 }
 

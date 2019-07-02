@@ -11,6 +11,7 @@
 
 #include <march_hardware/EtherCAT/EthercatMaster.h>
 #include <march_hardware/PowerDistributionBoard.h>
+#include <boost/chrono/chrono.hpp>
 
 namespace march4cpp
 {
@@ -19,6 +20,8 @@ class MarchRobot
 private:
   std::unique_ptr<EthercatMaster> ethercatMaster;
   std::unique_ptr<PowerDistributionBoard> powerDistributionBoard;
+  std::thread robotThread;  // Handler for parallel thread
+  int cycleTime;
 
 public:
   ::std::vector<Joint> jointList;
@@ -34,6 +37,8 @@ public:
   ~MarchRobot();
 
   void startEtherCAT();
+
+  void robotLoop();
 
   void stopEtherCAT();
 

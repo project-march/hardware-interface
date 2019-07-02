@@ -4,8 +4,6 @@
 // EtherCAT master class source. Interfaces with SOEM
 //
 
-#include <boost/chrono/chrono.hpp>
-
 #include <ros/ros.h>
 
 #include <march_hardware/EtherCAT/EthercatMaster.h>
@@ -97,7 +95,6 @@ void EthercatMaster::start()
     // All slaves in operational state
     ROS_INFO("Operational state reached for all slaves");
     isOperational = true;
-    EcatThread = std::thread(&EthercatMaster::ethercatLoop, this);
   }
   else
   {
@@ -120,32 +117,11 @@ void EthercatMaster::stop()
 {
   ROS_INFO("Stopping EtherCAT");
   isOperational = false;
-  EcatThread.join();
   ec_slave[0].state = EC_STATE_INIT;
   ec_writestate(0);
   ec_close();
 }
 
-void EthercatMaster::ethercatLoop()
-{
-  while (isOperational)
-  {
-    auto start = boost::chrono::high_resolution_clock::now();
-    sendProcessData();
-    receiveProcessData();
-    monitorSlaveConnection();
-    auto stop = boost::chrono::high_resolution_clock::now();
-    auto duration = boost::chrono::duration_cast<boost::chrono::microseconds>(stop - start);
-    if (duration.count() > ecatCycleTimems * 1000)
-    {
-        ROS_WARN("EtherCAT rate of %d milliseconds per cycle was not achieved this EtherCAT cycle", ecatCycleTimems);
-    }
-    else
-    {
-        usleep(ecatCycleTimems * 1000 - duration.count());
-    }
-  }
-}
 
 void EthercatMaster::sendProcessData()
 {

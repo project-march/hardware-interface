@@ -13,7 +13,6 @@ class EthercatMaster
   std::string ifname;      // Network interface name, check ifconfig
   char IOmap[4096];        // Holds the mapping of the SOEM message
   int expectedWKC;         // Expected working counter
-  std::thread EcatThread;  // Handler for parallel thread
 
   std::vector<Joint>* jointListPtr;
   int maxSlaveIndex;
