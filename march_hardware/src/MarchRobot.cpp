@@ -81,8 +81,11 @@ void MarchRobot::stopEtherCAT()
     return;
   }
 
-  this->robotThread.join();
   ethercatMaster->stop();
+  this->robotThread.join();
+  ec_slave[0].state = EC_STATE_INIT;
+  ec_writestate(0);
+  ec_close();
 }
 
 int MarchRobot::getMaxSlaveIndex()
