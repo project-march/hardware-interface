@@ -8,23 +8,21 @@
 
 #include <march_hardware/EtherCAT/EthercatMaster.h>
 
-extern "C"
-{
+extern "C" {
 #include "ethercat.h"
 }
 
 namespace march4cpp
 {
 // Constructor
-EthercatMaster::EthercatMaster(std::vector<Joint> *jointListPtr, std::string ifname, int maxSlaveIndex,
-                               int ecatCycleTime) : jointListPtr(jointListPtr)
+EthercatMaster::EthercatMaster(std::vector<Joint>* jointListPtr, std::string ifname, int maxSlaveIndex)
+  : jointListPtr(jointListPtr)
 {
   this->ifname = ifname;
   this->maxSlaveIndex = maxSlaveIndex;
-  this->ecatCycleTimems = ecatCycleTime;
 }
 
-void EthercatMaster::start()
+void EthercatMaster::start(int cycleTimeMs)
 {
   // TODO(Isha, Martijn) this method is really long, split into more methods
   ROS_INFO("Trying to start EtherCAT");
@@ -58,7 +56,7 @@ void EthercatMaster::start()
 
   for (int i = 0; i < jointListPtr->size(); i++)
   {
-    jointListPtr->at(i).initialize(ecatCycleTimems);
+    jointListPtr->at(i).initialize(cycleTimeMs);
   }
 
   // Configure the EtherCAT message structure depending on the PDO mapping of all the slaves
@@ -87,8 +85,7 @@ void EthercatMaster::start()
     ec_send_processdata();
     ec_receive_processdata(EC_TIMEOUTRET);
     ec_statecheck(0, EC_STATE_OPERATIONAL, 50000);
-  }
-  while (chk-- && (ec_slave[0].state != EC_STATE_OPERATIONAL));
+  } while (chk-- && (ec_slave[0].state != EC_STATE_OPERATIONAL));
 
   if (ec_slave[0].state == EC_STATE_OPERATIONAL)
   {
@@ -118,7 +115,6 @@ void EthercatMaster::stop()
   ROS_INFO("Stopping EtherCAT");
   isOperational = false;
 }
-
 
 void EthercatMaster::sendProcessData()
 {

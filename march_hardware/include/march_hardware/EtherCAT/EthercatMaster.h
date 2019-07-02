@@ -16,18 +16,14 @@ class EthercatMaster
 
   std::vector<Joint>* jointListPtr;
   int maxSlaveIndex;
-  int ecatCycleTimems;
 
 public:
   bool isOperational = false;  // Is SOEM in operational state
 
-  explicit EthercatMaster(std::vector<Joint>* jointListPtr, std::string ifname, int maxSlaveIndex, int ecatCycleTime);
+  explicit EthercatMaster(std::vector<Joint>* jointListPtr, std::string ifname, int maxSlaveIndex);
 
-  void start();
+  void start(int cycleTimeMs);
   void stop();
-
-  // Parallel thread
-  void ethercatLoop();
 
   void sendProcessData();
 

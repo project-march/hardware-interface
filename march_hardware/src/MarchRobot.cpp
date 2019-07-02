@@ -14,20 +14,22 @@
 
 namespace march4cpp
 {
-MarchRobot::MarchRobot(::std::vector<Joint> jointList, ::std::string ifName, int ecatCycleTime) : cycleTime(ecatCycleTime)
+MarchRobot::MarchRobot(::std::vector<Joint> jointList, ::std::string ifName, int ecatCycleTime)
+  : cycleTime(ecatCycleTime)
 {
   this->jointList = std::move(jointList);
   this->powerDistributionBoard = std::unique_ptr<PowerDistributionBoard>(new PowerDistributionBoard());
-  ethercatMaster.reset(new EthercatMaster(&this->jointList, ifName, this->getMaxSlaveIndex(), ecatCycleTime));
+  ethercatMaster.reset(new EthercatMaster(&this->jointList, ifName, this->getMaxSlaveIndex()));
 }
 
 MarchRobot::MarchRobot(::std::vector<Joint> jointList, PowerDistributionBoard powerDistributionBoard,
-                       ::std::string ifName, int ecatCycleTime) : cycleTime(ecatCycleTime)
+                       ::std::string ifName, int ecatCycleTime)
+  : cycleTime(ecatCycleTime)
 {
   this->jointList = std::move(jointList);
   this->powerDistributionBoard =
       std::unique_ptr<PowerDistributionBoard>(new PowerDistributionBoard(powerDistributionBoard));
-  ethercatMaster.reset(new EthercatMaster(&this->jointList, ifName, this->getMaxSlaveIndex(), ecatCycleTime));
+  ethercatMaster.reset(new EthercatMaster(&this->jointList, ifName, this->getMaxSlaveIndex()));
 }
 
 void MarchRobot::startEtherCAT()
@@ -46,32 +48,30 @@ void MarchRobot::startEtherCAT()
     ROS_ERROR("Trying to start EtherCAT while it is already active.");
     return;
   }
-  ethercatMaster->start();
+  ethercatMaster->start(this->cycleTime);
   this->robotThread = std::thread(&MarchRobot::robotLoop, this);
-
-
 }
 
-void MarchRobot::robotLoop() {
-    while (this->ethercatMaster->isOperational)
+void MarchRobot::robotLoop()
+{
+  while (this->ethercatMaster->isOperational)
+  {
+    auto start = boost::chrono::high_resolution_clock::now();
+    this->ethercatMaster->sendProcessData();
+    this->ethercatMaster->receiveProcessData();
+    this->ethercatMaster->monitorSlaveConnection();
+    auto stop = boost::chrono::high_resolution_clock::now();
+    auto duration = boost::chrono::duration_cast<boost::chrono::microseconds>(stop - start);
+    if (duration.count() > cycleTime * 1000)
     {
-        auto start = boost::chrono::high_resolution_clock::now();
-        this->ethercatMaster->sendProcessData();
-        this->ethercatMaster->receiveProcessData();
-        this->ethercatMaster->monitorSlaveConnection();
-        auto stop = boost::chrono::high_resolution_clock::now();
-        auto duration = boost::chrono::duration_cast<boost::chrono::microseconds>(stop - start);
-        if (duration.count() > cycleTime * 1000)
-        {
-            ROS_WARN("EtherCAT rate of %d milliseconds per cycle was not achieved this EtherCAT cycle", cycleTime);
-        }
-        else
-        {
-            usleep(cycleTime * 1000 - duration.count());
-        }
+      ROS_WARN("EtherCAT rate of %d milliseconds per cycle was not achieved this EtherCAT cycle", cycleTime);
     }
+    else
+    {
+      usleep(cycleTime * 1000 - duration.count());
+    }
+  }
 }
-
 
 void MarchRobot::stopEtherCAT()
 {
