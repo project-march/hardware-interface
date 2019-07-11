@@ -72,6 +72,7 @@ protected:
   RtPublisherPtr imc_state_pub_;
   double p_error_, v_error_, e_error_;
   std::vector<SoftJointLimits> soft_limits_;
+  std::vector<JointLimits> joint_limits_;
 
 private:
   void updatePowerNet();
