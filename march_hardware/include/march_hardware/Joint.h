@@ -3,14 +3,17 @@
 #define MARCH4CPP__JOINT_H
 
 #include <string>
+#include <vector>
 
 #include <march_hardware/IMotionCube.h>
 #include <march_hardware/PowerDistributionBoard.h>
 #include <march_hardware/TemperatureGES.h>
 #include <march_hardware/ActuationMode.h>
+#include <march_hardware/IMotionCubeState.h>
 
 namespace march4cpp
 {
+
 class Joint
 {
 private:
@@ -40,13 +43,18 @@ public:
 
   void initialize(int ecatCycleTime);
   void prepareActuation();
+  // TODO(Martijn) Refactor this to make joint less dependent on knowledge of the IMC
+  void resetIMotionCube();
+
   void actuateRad(float targetPositionRad);
   void actuateCurrent(float targetCurrentRad);
   int getActuationMode();
 
   float getAngleRad();
+  int getAngleIU();
   float getTorque();
   float getTemperature();
+  IMotionCubeState getIMotionCubeState();
 
   std::string getName();
   int getTemperatureGESSlaveIndex();
@@ -81,5 +89,6 @@ public:
               << "temperatureges: " << joint.temperatureGES;
   }
 };
+
 }  // namespace march4cpp
 #endif
