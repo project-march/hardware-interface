@@ -146,6 +146,7 @@ void MarchHardwareInterface::init() {
     JointLimits limits;
     getJointLimits(model.getJoint(joint.getName()), limits);
 
+    // TODO: make sure that both of the controllers are loaded, but only one controller starts. Currently both are loaded, one fails due to it's interface not being available.
     if (marchRobot.getJoint(joint_names_[i]).getActuationMode() == ActuationMode::position) {
 
       // Create position joint interface
@@ -159,7 +160,7 @@ void MarchHardwareInterface::init() {
 
 
     }
-    else if (marchRobot.getJoint(joint_names_[i]).getActuationMode() == ActuationMode::position) {
+    else if (marchRobot.getJoint(joint_names_[i]).getActuationMode() == ActuationMode::torque) {
 
       // Create effort joint interface
       JointHandle jointEffortHandle(jointStateHandle, &joint_effort_command_[i]);
@@ -169,7 +170,6 @@ void MarchHardwareInterface::init() {
       EffortJointSoftLimitsHandle jointLimitsHandle(jointEffortHandle, limits, soft_limits_[i]);
       effortJointSoftLimitsInterface.registerHandle(jointLimitsHandle);
     }
-
 
     // Set the first target as the current position
     this->read();
@@ -181,15 +181,6 @@ void MarchHardwareInterface::init() {
     JointHandle jointVelocityHandle(jointStateHandle,
                                     &joint_velocity_command_[i]);
     velocity_joint_interface_.registerHandle(jointVelocityHandle);
-
-    // Create effort joint interface
-    JointHandle jointEffortHandle(jointStateHandle, &joint_effort_command_[i]);
-    effort_joint_interface_.registerHandle(jointEffortHandle);
-
-    // Create joint effort limit interface
-    EffortJointSoftLimitsHandle jointLimitsHandle(jointEffortHandle, limits, soft_limits_[i]);
-    effortJointSoftLimitsInterface.registerHandle(jointLimitsHandle);
-    effort_joint_interface_.registerHandle(jointEffortHandle);
 
     // Create march_state interface
     MarchTemperatureSensorHandle marchTemperatureSensorHandle(
@@ -280,17 +271,16 @@ void MarchHardwareInterface::write(ros::Duration elapsed_time) {
       if (singleJoint.getActuationMode() == ActuationMode::position) {
         positionJointSoftLimitsInterface.enforceLimits(elapsed_time);
         singleJoint.actuateRad(static_cast<float>(joint_position_command_[i]));
-      } else if (singleJoint.getActuationMode() == ActuationMode::torque) {
+      }
+      else if (singleJoint.getActuationMode() == ActuationMode::torque) {
         effortJointSoftLimitsInterface.enforceLimits(elapsed_time);
-        singleJoint.actuateCurrent(
-            static_cast<float>(joint_effort_command_[i]));
+        singleJoint.actuateCurrent(static_cast<int>(joint_effort_command_[i]));
       }
 
       ROS_INFO("After effort limit: Trying to actuate joint %s, to %lf "
                "rad, %f speed, %f effort.",
                joint_names_[i].c_str(), joint_position_command_[i],
                joint_velocity_command_[i], joint_effort_command_[i]);
-
     }
   }
 
