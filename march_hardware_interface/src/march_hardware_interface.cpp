@@ -156,8 +156,8 @@ void MarchHardwareInterface::init()
     JointLimits limits;
     getJointLimits(model.getJoint(joint.getName()), limits);
 
-    // TODO(Jitske): make sure that both of the controllers are loaded, but only one controller starts. Currently both
-    // are loaded, one fails due to it's interface not being available.
+    // TODO: make sure that both of the controllers are loaded, but only one controller starts. Currently both are
+    // loaded, one fails due to it's interface not being available.
     if (marchRobot.getJoint(joint_names_[i]).getActuationMode() == ActuationMode::position)
     {
       // Create position joint interface
