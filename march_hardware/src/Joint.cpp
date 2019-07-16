@@ -96,7 +96,7 @@ void Joint::actuateRad(float targetPositionRad)
   this->iMotionCube.actuateRad(targetPositionRad);
 }
 
-void Joint::actuateCurrent(float targetCurrent)
+void Joint::actuateCurrent(int targetCurrent)
 {
   // TODO(BaCo) check that the position is allowed and does not exceed (torque) limits.
   this->iMotionCube.actuateCurrent(targetCurrent);
@@ -205,4 +205,5 @@ bool Joint::canActuate()
 {
   return this->allowActuation;
 }
+
 }  // namespace march4cpp

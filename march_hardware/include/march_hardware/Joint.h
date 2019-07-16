@@ -47,7 +47,7 @@ public:
   void resetIMotionCube();
 
   void actuateRad(float targetPositionRad);
-  void actuateCurrent(float targetCurrentRad);
+  void actuateCurrent(int targetCurrentRad);
   int getActuationMode();
 
   float getAngleRad();
