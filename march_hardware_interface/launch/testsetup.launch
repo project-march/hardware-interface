@@ -17,7 +17,8 @@
           args="
                 /march/controller/joint_state
                 /march/controller/temperature_sensor
-                /march/controller/trajectory
+                /march/controller/trajectory_effort
+                /march/controller/trajectory_position
             "/>
 
     <node name="march_hardware_interface" pkg="march_hardware_interface" type="march_hardware_interface_node" args="testsetup" output="screen"/>
