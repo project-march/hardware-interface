@@ -132,8 +132,8 @@ void IMotionCube::actuateCurrent(float targetCurrent)
 
   int targetCurrentLocation = this->mosiByteOffsets[IMCObjectName::TargetCurrent];
 
-  ROS_DEBUG("Trying to actuate slave %d, soem location %d with targetcurrent%i", this->slaveIndex, targetCurrentLocation,
-           targetCurrentStruct.i);
+  ROS_DEBUG("Trying to actuate slave %d, soem location %d with targetcurrent%i", this->slaveIndex,
+            targetCurrentLocation, targetCurrentStruct.i);
 
   set_output_bit16(this->slaveIndex, targetCurrentLocation, targetCurrentStruct);
 }
@@ -518,8 +518,8 @@ bool IMotionCube::goToOperationEnabled()
   else
   {
     ROS_FATAL("Encoder of iMotionCube (with slaveindex %d) is not functioning properly, read value %d, min value "
-              "is %d, max value is %d. Shutting down", this->slaveIndex,
-              angleRead, this->encoder.getMinPositionIU(), this->encoder.getMaxPositionIU());
+              "is %d, max value is %d. Shutting down",
+              this->slaveIndex, angleRead, this->encoder.getMinPositionIU(), this->encoder.getMaxPositionIU());
     throw std::domain_error("Encoder is not functioning properly");
   }
 
