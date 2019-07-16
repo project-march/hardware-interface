@@ -16,16 +16,13 @@
 #include <urdf/model.h>
 
 using joint_limits_interface::JointLimits;
-// using joint_limits_interface::PositionJointSoftLimitsHandle;
-// using joint_limits_interface::PositionJointSoftLimitsInterface;
+using joint_limits_interface::PositionJointSoftLimitsHandle;
+using joint_limits_interface::PositionJointSoftLimitsInterface;
 using joint_limits_interface::EffortJointSoftLimitsHandle;
 using joint_limits_interface::EffortJointSoftLimitsInterface;
 using joint_limits_interface::SoftJointLimits;
 
-namespace march_hardware_interface {
-MarchHardwareInterface::MarchHardwareInterface(ros::NodeHandle &nh,
-                                               AllowedRobot robotName)
-    : nh_(nh), marchRobot(HardwareBuilder(robotName).createMarchRobot()) {
+namespace march_hardware_interface {MarchHardwareInterface::MarchHardwareInterface(ros::NodeHandle &nh, AllowedRobot robotName): nh_(nh), marchRobot(HardwareBuilder(robotName).createMarchRobot()) {
   init();
   controller_manager_.reset(
       new controller_manager::ControllerManager(this, nh_));
@@ -115,7 +112,7 @@ void MarchHardwareInterface::init() {
   registerInterface(&joint_state_interface_);
   registerInterface(&position_joint_interface_);
   registerInterface(&effort_joint_interface_);
-//  registerInterface(&positionJointSoftLimitsInterface);
+  registerInterface(&positionJointSoftLimitsInterface);
   registerInterface(&effortJointSoftLimitsInterface);
 
   hasPowerDistributionBoard =
@@ -144,20 +141,35 @@ void MarchHardwareInterface::init() {
                                       &joint_velocity_[i], &joint_effort_[i]);
     joint_state_interface_.registerHandle(jointStateHandle);
 
-    // Create position joint interface
-//    JointHandle jointPositionHandle(jointStateHandle,
-//                                    &joint_position_command_[i]);
 
     // Retrieve joint (soft) limits from the urdf
     JointLimits limits;
     getJointLimits(model.getJoint(joint.getName()), limits);
 
-//     Create joint limit interface
-//    PositionJointSoftLimitsHandle jointLimitsHandle(jointPositionHandle, limits,
-//                                                    soft_limits_[i]);
-//    positionJointSoftLimitsInterface.registerHandle(jointLimitsHandle);
-//
-//    position_joint_interface_.registerHandle(jointPositionHandle);
+    if (marchRobot.getJoint(joint_names_[i]).getActuationMode() == ActuationMode::position) {
+
+      // Create position joint interface
+      JointHandle jointPositionHandle(jointStateHandle, &joint_position_command_[i]);
+      position_joint_interface_.registerHandle(jointPositionHandle);
+
+      //     Create joint limit interface
+      PositionJointSoftLimitsHandle jointLimitsHandle(jointPositionHandle, limits,
+                                                    soft_limits_[i]);
+      positionJointSoftLimitsInterface.registerHandle(jointLimitsHandle);
+
+
+    }
+    else if (marchRobot.getJoint(joint_names_[i]).getActuationMode() == ActuationMode::position) {
+
+      // Create effort joint interface
+      JointHandle jointEffortHandle(jointStateHandle, &joint_effort_command_[i]);
+      effort_joint_interface_.registerHandle(jointEffortHandle);
+
+      // Create joint effort limit interface
+      EffortJointSoftLimitsHandle jointLimitsHandle(jointEffortHandle, limits, soft_limits_[i]);
+      effortJointSoftLimitsInterface.registerHandle(jointLimitsHandle);
+    }
+
 
     // Set the first target as the current position
     this->read();
@@ -260,23 +272,25 @@ void MarchHardwareInterface::write(ros::Duration elapsed_time) {
             "rad, %f speed, %f effort.",
             joint_names_[0].c_str(), joint_position_command_[0],
             joint_velocity_command_[0], joint_effort_command_[0]);
-//  positionJointSoftLimitsInterface.enforceLimits(elapsed_time);
-  effortJointSoftLimitsInterface.enforceLimits(elapsed_time);
 
   for (int i = 0; i < num_joints_; i++) {
     march4cpp::Joint singleJoint = marchRobot.getJoint(joint_names_[i]);
     if (singleJoint.canActuate()) {
-      ROS_INFO("After effort limit: Trying to actuate joint %s, to %lf "
-                "rad, %f speed, %f effort.",
-                joint_names_[i].c_str(), joint_position_command_[i],
-                joint_velocity_command_[i], joint_effort_command_[i]);
 
       if (singleJoint.getActuationMode() == ActuationMode::position) {
+        positionJointSoftLimitsInterface.enforceLimits(elapsed_time);
         singleJoint.actuateRad(static_cast<float>(joint_position_command_[i]));
       } else if (singleJoint.getActuationMode() == ActuationMode::torque) {
+        effortJointSoftLimitsInterface.enforceLimits(elapsed_time);
         singleJoint.actuateCurrent(
             static_cast<float>(joint_effort_command_[i]));
       }
+
+      ROS_INFO("After effort limit: Trying to actuate joint %s, to %lf "
+               "rad, %f speed, %f effort.",
+               joint_names_[i].c_str(), joint_position_command_[i],
+               joint_velocity_command_[i], joint_effort_command_[i]);
+
     }
   }
 
@@ -449,25 +463,24 @@ void MarchHardwareInterface::outsideLimitsCheck(int joint_index) {
     }
   }
 
-  //  if (joint_velocity_[joint_index] >
-  //  joint_limits_[joint_index].max_velocity) {
-  //    ROS_ERROR_THROTTLE(
-  //        1,
-  //        "Joint %s is beyond it's maximum velocity_ (%f). Actual velocity:
-  //        %f",
-  //        joint_names_[joint_index].c_str(),
-  //        joint_limits_[joint_index].max_velocity,
-  //        joint_velocity_[joint_index]);
-  //
-  //    if (joint.canActuate()) {
-  //      std::ostringstream errorStream;
-  //      errorStream << "Joint " << joint_names_[joint_index].c_str()
-  //                  << " is beyond it's maximum velocity_ ("
-  //                  << joint_limits_[joint_index].max_velocity
-  //                  << "). Actual position: " << joint_velocity_[joint_index];
-  //      throw ::std::runtime_error(errorStream.str());
-  //    }
-  //  }
+    if (joint_velocity_[joint_index] >
+    joint_limits_[joint_index].max_velocity) {
+      ROS_ERROR_THROTTLE(
+          1,
+          "Joint %s is beyond it's maximum velocity_ (%f). Actual velocity: %f",
+          joint_names_[joint_index].c_str(),
+          joint_limits_[joint_index].max_velocity,
+          joint_velocity_[joint_index]);
+
+      if (joint.canActuate()) {
+        std::ostringstream errorStream;
+        errorStream << "Joint " << joint_names_[joint_index].c_str()
+                    << " is beyond it's maximum velocity_ ("
+                    << joint_limits_[joint_index].max_velocity
+                    << "). Actual position: " << joint_velocity_[joint_index];
+        throw ::std::runtime_error(errorStream.str());
+      }
+    }
 
   if (joint_effort_[joint_index] > joint_limits_[joint_index].max_effort) {
     ROS_ERROR_THROTTLE(

@@ -73,7 +73,6 @@ void IMotionCube::writeInitialSettings(uint8 ecatCycleTime, uint8_t modeofOp)
   // mode of operation
   ROS_INFO("the mode of operation is: %i", modeofOp);
   success &= sdo_bit8(slaveIndex, 0x6060, 0, modeofOp);
-
   // position dimension index
   success &= sdo_bit8(slaveIndex, 0x608A, 0, 1);
 
@@ -133,7 +132,7 @@ void IMotionCube::actuateCurrent(float targetCurrent)
 
   int targetCurrentLocation = this->mosiByteOffsets[IMCObjectName::TargetCurrent];
 
-  ROS_INFO("Trying to actuate slave %d, soem location %d with targetcurrent%i", this->slaveIndex, targetCurrentLocation,
+  ROS_DEBUG("Trying to actuate slave %d, soem location %d with targetcurrent%i", this->slaveIndex, targetCurrentLocation,
            targetCurrentStruct.i);
 
   set_output_bit16(this->slaveIndex, targetCurrentLocation, targetCurrentStruct);
