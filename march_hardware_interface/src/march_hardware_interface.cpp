@@ -288,7 +288,9 @@ void MarchHardwareInterface::write(ros::Duration elapsed_time)
       }
       else if (singleJoint.getActuationMode() == ActuationMode::torque)
       {
+        joint_effort_command_[i] = joint_effort_command_[i]*1000;
         effortJointSoftLimitsInterface.enforceLimits(elapsed_time);
+        //TODO: (baco) this is added so that the limits of the PID controller in dynamic reconfigure are not reached
         singleJoint.actuateCurrent(static_cast<int>(joint_effort_command_[i]));
       }
 
