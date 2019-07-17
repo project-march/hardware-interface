@@ -21,10 +21,10 @@ march:
 #        - right_ankle
 #        - left_ankle
       gains: # Required because we're controlling an effort interface
-        right_hip_fe: {p: 10, i: 0, d: 0, i_clamp: 10, publish_state: true, antiwindup: true}
-        left_hip_fe: {p: 10, i: 0, d: 0, i_clamp: 10, publish_state: true, antiwindup: true}
-        right_knee: {p: 10, i: 0, d: 0, i_clamp: 10, publish_state: true, antiwindup: true}
-        left_knee: {p: 10, i: 0, d: 0, i_clamp: 10, publish_state: true, antiwindup: true}
+        right_hip_fe: {p: 50, i: 200, d: 10, i_clamp: 100, publish_state: true, antiwindup: true}
+        left_hip_fe: {p: 50, i: 200, d: 10, i_clamp: 100, publish_state: true, antiwindup: true}
+        right_knee: {p: 50, i: 200, d: 10, i_clamp: 100, publish_state: true, antiwindup: true}
+        left_knee: {p: 50, i: 200, d: 10, i_clamp: 100, publish_state: true, antiwindup: true}
     trajectory_position:
       type: position_controllers/JointTrajectoryController
       allow_partial_joints_goal: true
