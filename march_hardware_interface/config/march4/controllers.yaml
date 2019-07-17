@@ -11,15 +11,20 @@ march:
       publish_rate: 1
     trajectory_effort:
       type: effort_controllers/JointTrajectoryController
+      state_publish_rate: 250
+      allow_partial_joints_goal: true
       joints:
         - right_hip_fe
         - left_hip_fe
         - right_knee
         - left_knee
-        - right_ankle
-        - left_ankle
+#        - right_ankle
+#        - left_ankle
       gains: # Required because we're controlling an effort interface
-        test_joint: {p: 80000, i: 1000, d: 1, i_clamp: 10, publish_state: true, antiwindup: true}
+        right_hip_fe: {p: 10, i: 0, d: 0, i_clamp: 10, publish_state: true, antiwindup: true}
+        left_hip_fe: {p: 10, i: 0, d: 0, i_clamp: 10, publish_state: true, antiwindup: true}
+        right_knee: {p: 10, i: 0, d: 0, i_clamp: 10, publish_state: true, antiwindup: true}
+        left_knee: {p: 10, i: 0, d: 0, i_clamp: 10, publish_state: true, antiwindup: true}
       trajectory_position:
         type: position_controllers/JointTrajectoryController
         joints:
@@ -27,5 +32,5 @@ march:
           - left_hip_fe
           - right_knee
           - left_knee
-          - right_ankle
-          - left_ankle
+#          - right_ankle
+#          - left_ankle
