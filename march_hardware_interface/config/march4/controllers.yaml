@@ -25,12 +25,13 @@ march:
         left_hip_fe: {p: 10, i: 0, d: 0, i_clamp: 10, publish_state: true, antiwindup: true}
         right_knee: {p: 10, i: 0, d: 0, i_clamp: 10, publish_state: true, antiwindup: true}
         left_knee: {p: 10, i: 0, d: 0, i_clamp: 10, publish_state: true, antiwindup: true}
-      trajectory_position:
-        type: position_controllers/JointTrajectoryController
-        joints:
-          - right_hip_fe
-          - left_hip_fe
-          - right_knee
-          - left_knee
+    trajectory_position:
+      type: position_controllers/JointTrajectoryController
+      allow_partial_joints_goal: true
+      joints:
+        - right_hip_fe
+        - left_hip_fe
+        - right_knee
+        - left_knee
 #          - right_ankle
 #          - left_ankle
