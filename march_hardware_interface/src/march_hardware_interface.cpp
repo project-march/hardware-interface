@@ -477,35 +477,5 @@ void MarchHardwareInterface::outsideLimitsCheck(int joint_index)
       throw ::std::runtime_error(errorStream.str());
     }
   }
-
-  if (joint_velocity_[joint_index] > joint_limits_[joint_index].max_velocity)
-  {
-    ROS_ERROR_THROTTLE(1, "Joint %s is beyond it's maximum velocity_ (%f). Actual velocity: %f",
-                       joint_names_[joint_index].c_str(), joint_limits_[joint_index].max_velocity,
-                       joint_velocity_[joint_index]);
-
-    if (joint.canActuate())
-    {
-      std::ostringstream errorStream;
-      errorStream << "Joint " << joint_names_[joint_index].c_str() << " is beyond it's maximum velocity_ ("
-                  << joint_limits_[joint_index].max_velocity << "). Actual position: " << joint_velocity_[joint_index];
-      throw ::std::runtime_error(errorStream.str());
-    }
-  }
-
-  if (joint_effort_[joint_index] > joint_limits_[joint_index].max_effort)
-  {
-    ROS_ERROR_THROTTLE(1, "Joint %s is beyond it's maximum effort_ (%f). Actual effort: %f",
-                       joint_names_[joint_index].c_str(), joint_limits_[joint_index].max_effort,
-                       joint_effort_[joint_index]);
-
-    if (joint.canActuate())
-    {
-      std::ostringstream errorStream;
-      errorStream << "Joint " << joint_names_[joint_index].c_str() << " is beyond it's maximum effort_ ("
-                  << joint_limits_[joint_index].max_effort << "). Actual effort: " << joint_effort_[joint_index];
-      throw ::std::runtime_error(errorStream.str());
-    }
-  }
 }
 }  // namespace march_hardware_interface
