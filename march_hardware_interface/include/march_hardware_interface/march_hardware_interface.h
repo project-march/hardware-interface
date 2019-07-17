@@ -8,6 +8,7 @@
 #include <march_hardware/ActuationMode.h>
 #include <realtime_tools/realtime_publisher.h>
 #include <march_shared_resources/ImcErrorState.h>
+#include <march_shared_resources/AfterLimitCommand.h>
 #include <march_hardware_builder/HardwareBuilder.h>
 #include <march_hardware/MarchRobot.h>
 
@@ -68,8 +69,10 @@ protected:
   double loop_hz_;
   bool hasPowerDistributionBoard = false;
   boost::shared_ptr<controller_manager::ControllerManager> controller_manager_;
-  typedef boost::shared_ptr<realtime_tools::RealtimePublisher<march_shared_resources::ImcErrorState> > RtPublisherPtr;
-  RtPublisherPtr imc_state_pub_;
+  typedef boost::shared_ptr<realtime_tools::RealtimePublisher<march_shared_resources::ImcErrorState> > RtPublisherImcStatePtr;
+  RtPublisherImcStatePtr imc_state_pub_;
+  typedef boost::shared_ptr<realtime_tools::RealtimePublisher<march_shared_resources::AfterLimitCommand> > RtPublisherAfterLimitCommandPtr;
+  RtPublisherAfterLimitCommandPtr after_limit_command_pub_;
   double p_error_, v_error_, e_error_;
   std::vector<SoftJointLimits> soft_limits_;
   std::vector<JointLimits> joint_limits_;
