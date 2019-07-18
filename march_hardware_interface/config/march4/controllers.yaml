@@ -9,6 +9,15 @@ march:
     temperature_sensor:
       type: march_temperature_sensor_controller/MarchTemperatureSensorController
       publish_rate: 1
+    trajectory_position:
+      type: position_controllers/JointTrajectoryController
+      joints:
+        - right_hip_fe
+        - left_hip_fe
+        - right_knee
+        - left_knee
+        - right_ankle
+        - left_ankle
     trajectory_effort:
       type: effort_controllers/JointTrajectoryController
       state_publish_rate: 250
@@ -18,19 +27,10 @@ march:
         - left_hip_fe
         - right_knee
         - left_knee
-#        - right_ankle
-#        - left_ankle
+        - right_ankle
+        - left_ankle
       gains: # Required because we're controlling an effort interface
         right_hip_fe: {p: 10, i: 0, d: 0, i_clamp: 10, publish_state: true, antiwindup: true}
         left_hip_fe: {p: 10, i: 0, d: 0, i_clamp: 10, publish_state: true, antiwindup: true}
         right_knee: {p: 10, i: 0, d: 0, i_clamp: 10, publish_state: true, antiwindup: true}
         left_knee: {p: 10, i: 0, d: 0, i_clamp: 10, publish_state: true, antiwindup: true}
-      trajectory_position:
-        type: position_controllers/JointTrajectoryController
-        joints:
-          - right_hip_fe
-          - left_hip_fe
-          - right_knee
-          - left_knee
-#          - right_ankle
-#          - left_ankle

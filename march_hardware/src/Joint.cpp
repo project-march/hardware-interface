@@ -99,8 +99,6 @@ void Joint::actuateRad(float targetPositionRad)
                                        "yet its actuate method has been "
                                        "called.",
                  this->name.c_str());
-  // TODO(BaCo) check that the position is allowed and does not exceed (torque)
-  // limits.
   this->iMotionCube.actuateRad(targetPositionRad);
 }
 

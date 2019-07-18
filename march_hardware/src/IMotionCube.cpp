@@ -115,6 +115,8 @@ void IMotionCube::actuateCurrent(int targetCurrent)
                                                                "%s",
                  this->actuationMode.toString().c_str());
 
+  // The targetCurrent must not exceed the value of 27300 IU, this is 25 A. This value could be increased in the future with good reasoning.
+  // TODO: @baco decide what the maximum current is that must not be exceeded
   ROS_ASSERT_MSG(targetCurrent < 27300, "Current of %d is too high.", targetCurrent);
 
   union bit16 targetCurrentStruct;
