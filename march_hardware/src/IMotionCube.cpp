@@ -34,7 +34,6 @@ void IMotionCube::mapMisoPDOs()
   pdoMapMISO.addObject(IMCObjectName::StatusWord);      // Compulsory!
   pdoMapMISO.addObject(IMCObjectName::ActualPosition);  // Compulsory!
   pdoMapMISO.addObject(IMCObjectName::ActualTorque);
-  pdoMapMISO.addObject(IMCObjectName::TargetCurrent);
   pdoMapMISO.addObject(IMCObjectName::MotionErrorRegister);
   pdoMapMISO.addObject(IMCObjectName::DetailedErrorRegister);
   this->misoByteOffsets = pdoMapMISO.map(this->slaveIndex, dataDirection::miso);
@@ -71,7 +70,7 @@ void IMotionCube::writeInitialSettings(uint8 ecatCycleTime, uint8_t modeofOp)
   bool success = true;
   // sdo_bit32(slaveIndex, address, subindex, value);
   // mode of operation
-  ROS_INFO("the mode of operation is: %i", modeofOp);
+
   success &= sdo_bit8(slaveIndex, 0x6060, 0, modeofOp);
   // position dimension index
   success &= sdo_bit8(slaveIndex, 0x608A, 0, 1);
@@ -85,9 +84,6 @@ void IMotionCube::writeInitialSettings(uint8 ecatCycleTime, uint8_t modeofOp)
   success &= sdo_bit32(slaveIndex, 0x607D, 1, this->encoder.getMinPositionIU());
   // position limit -- max position
   success &= sdo_bit32(slaveIndex, 0x607D, 2, this->encoder.getMaxPositionIU());
-
-  // Quick stop option
-  //  success &= sdo_bit16(slaveIndex, 0x605A, 0, 6);
 
   // Quick stop deceleration
   success &= sdo_bit32(slaveIndex, 0x6085, 0, 0x7FFFFFFF);
@@ -113,7 +109,7 @@ void IMotionCube::actuateRad(float targetRad)
   this->actuateIU(this->encoder.RadtoIU(targetRad));
 }
 
-void IMotionCube::actuateCurrent(float targetCurrent)
+void IMotionCube::actuateCurrent(int targetCurrent)
 {
   ROS_ASSERT_MSG(this->actuationMode == ActuationMode::torque, "trying to actuate current, while actuationmode = "
                                                                "%s",
