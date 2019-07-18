@@ -21,18 +21,20 @@ private:
   // TODO(bart) review this comment if it still makes sense
   /**
    * An explicit difference is made between allowActuation and actuationMode, since the situation can occur that
-   * controllers want to be tested for example to see how it responds to error. For the sake of safety an explicit
-   * statement in the .yaml will indicate what can be expected.
+   * controllers has to be tested, but the joint should not actuate. For example to see how it responds to the error.
+   * Both the actuationmode and allowactuation are defined in the .yaml in the hardware builder.
    */
   bool allowActuation;
   // Set this number via the hardware builder
   int netNumber = -1;
+  std::string actuationModeName;
   ActuationMode actuationMode;
   IMotionCube iMotionCube;
   TemperatureGES temperatureGES;
 
 public:
   // TODO(Tim) pass by reference or pointer instead of making copy
+  // TODO refactor to using proper initialization lists
   Joint(std::string name, bool allowActuation, TemperatureGES temperatureGES, IMotionCube iMotionCube,
         std::string actuationmode);
   Joint(std::string name, bool allowActuation, TemperatureGES temperatureGES, IMotionCube iMotionCube, int netNumber,
@@ -47,7 +49,7 @@ public:
   void resetIMotionCube();
 
   void actuateRad(float targetPositionRad);
-  void actuateCurrent(int targetCurrentRad);
+  void actuateCurrent(int targetCurrent);
   int getActuationMode();
 
   float getAngleRad();

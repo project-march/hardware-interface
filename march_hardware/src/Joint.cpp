@@ -14,6 +14,7 @@ Joint::Joint(std::string name, bool allowActuation, TemperatureGES temperatureGE
 {
   this->name = std::move(name);
   this->allowActuation = allowActuation;
+  this->actuationModeName = actuationModeName;
 }
 
 // ImotionCube, Temperature GES and PDB
@@ -26,6 +27,7 @@ Joint::Joint(std::string name, bool allowActuation, TemperatureGES temperatureGE
 {
   this->name = std::move(name);
   this->allowActuation = allowActuation;
+  this->actuationModeName = actuationModeName;
 }
 
 // Only Temperature GES
@@ -35,6 +37,7 @@ Joint::Joint(std::string name, bool allowActuation, TemperatureGES temperatureGE
 {
   this->name = std::move(name);
   this->allowActuation = allowActuation;
+  this->actuationModeName = actuationModeName;
 }
 
 // Only ImotionCube
@@ -43,6 +46,7 @@ Joint::Joint(std::string name, bool allowActuation, IMotionCube iMotionCube, std
 {
   this->name = std::move(name);
   this->allowActuation = allowActuation;
+  this->actuationModeName = actuationModeName;
 }
 
 // ImotionCube and PDB
@@ -52,6 +56,7 @@ Joint::Joint(std::string name, bool allowActuation, IMotionCube iMotionCube, int
 {
   this->name = std::move(name);
   this->allowActuation = allowActuation;
+  this->actuationModeName = actuationModeName;
 }
 
 void Joint::initialize(int ecatCycleTime)
@@ -68,6 +73,7 @@ void Joint::initialize(int ecatCycleTime)
 
 void Joint::prepareActuation()
 {
+    ROS_INFO("The mode of actuation for joint %s is: %s", this->name.c_str(), this->actuationModeName.c_str());
   if (this->allowActuation)
   {
     ROS_INFO("Preparing joint %s for actuation", this->name.c_str());
