@@ -29,8 +29,8 @@ public:
     }
     else
     {
-      //      ROS_ASSERT_MSG(false, "Unknown actuation mode %s, setting to unknown mode", actuationMode.c_str());
-      this->value = ActuationMode::unknown;
+        ROS_ASSERT_MSG(false, "Unknown actuation mode %s, setting to unknown mode", actuationMode.c_str());
+        this->value = ActuationMode::unknown;
     }
   }
 
@@ -70,7 +70,9 @@ public:
       case position:
         return "position";
       default:
+          ROS_WARN("Actuationmode (%i) is neither 'torque' or 'position", value);
         return "unknown";
+
     }
   }
 
