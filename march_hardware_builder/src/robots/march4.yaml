@@ -1,6 +1,6 @@
 march4:
   ifName: enp2s0
-  ecatCycleTime: 4
+  ecatCycleTime: 2
 #  powerDistributionBoard:
 #    slaveIndex: 7
 #    bootShutdownOffsets:
@@ -19,7 +19,7 @@ march4:
 #    netDriverByteOffsets:
 #      lowVoltageNetOnOff: 4
 #      highVoltageNetOnOff: 3
-#      highVoltageNetEnableDisable: 2
+#      allHighVoltageOnOff: 2
   joints:
 #    - right_hip_aa:
 #        allowActuation: true
@@ -74,7 +74,7 @@ march4:
           encoder: {resolution: 17, minPositionIU: 19892, maxPositionIU: 63537, zeroPositionIU: 21711, safetyMarginRad: 0.05}
 
     - right_ankle:
-        allowActuation: false
+        allowActuation: true
         actuationMode: torque
         netNumber: 4
         temperatureges: {slaveIndex: 4, byteOffset: 0}

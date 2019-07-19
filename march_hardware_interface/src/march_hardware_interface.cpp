@@ -379,9 +379,7 @@ void MarchHardwareInterface::updateHighVoltageEnable()
   catch (std::exception& exception)
   {
     ROS_ERROR("%s", exception.what());
-    ROS_DEBUG("Reverting the enable_high_voltage_command input, in attempt to "
-              "prevent this exception is thrown "
-              "again");
+    ROS_DEBUG("Reverting the enable_high_voltage_command input, in attempt to prevent this exception is thrown again");
     enable_high_voltage_command = !enable_high_voltage_command;
   }
 }
