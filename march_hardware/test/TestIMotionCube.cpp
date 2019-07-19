@@ -59,13 +59,6 @@ TEST_F(IMotionCubeTest, NoActuationMode)
     ASSERT_DEATH(imc.actuateRad(1), "trying to actuate rad, while actuationmode = unknown");
 }
 
-//TEST_F(IMotionCubeTest, ActuationModeTorqueActuateRad)
-//{
-//  actuationmode
-//  march4cpp::IMotionCube imc = march4cpp::IMotionCube(1, encoder, actuationmode);
-//  ASSERT_DEATH(imc.actuateRad(1), "trying to actuate rad, while actuationmode = unknown");
-//}
-
 TEST_F(IMotionCubeTest, ActuationModeTorqueImotionCubeActuateRad)
 {
     march4cpp::Encoder actualEncoder = march4cpp::Encoder(20, 3, 40000, 5, 0.05);
@@ -73,9 +66,5 @@ TEST_F(IMotionCubeTest, ActuationModeTorqueImotionCubeActuateRad)
     ASSERT_DEATH(imc.actuateRad(1), "trying to actuate rad, while actuationmode = unknown");
 }
 
-TEST_F(IMotionCubeTest, ActuationModePositionJointActuateTorque)
-{
-    march4cpp::Encoder actualEncoder = march4cpp::Encoder(20, 3, 40000, 5, 0.05);
-    march4cpp::IMotionCube imc = march4cpp::IMotionCube(10, actualEncoder);
-    ASSERT_DEATH(imc.actuateTorque(1), "trying to actuate torque, while actuationmode = unknown");
-}
+// TODO @BaCO: write new tests for actuating with the wrong actuationmode when the initializer list is set right
+

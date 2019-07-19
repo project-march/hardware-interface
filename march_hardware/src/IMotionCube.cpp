@@ -119,7 +119,7 @@ void IMotionCube::actuateRad(float targetRad)
 
 void IMotionCube::actuateTorque(int targetTorque)
 {
-  ROS_ASSERT_MSG(this->actuationMode == ActuationMode::torque, "trying to actuate Torque, while actuationmode = "
+  ROS_ASSERT_MSG(this->actuationMode == ActuationMode::torque, "trying to actuate torque, while actuationmode = "
                                                                "%s",
                  this->actuationMode.toString().c_str());
 

@@ -36,14 +36,14 @@ TEST_F(JointTest, GetActuationModeTorque)
 {
     march4cpp::TemperatureGES temp = march4cpp::TemperatureGES(2,2);
     march4cpp::Joint joint = march4cpp::Joint("actuate_true", true, temp,"torque");
-    ASSERT_DEATH(joint.getActuationMode(), "torque");
+    ASSERT_EQ(joint.getActuationMode(), march4cpp::ActuationMode::torque);
 }
 
 TEST_F(JointTest, GetActuationModePosition)
 {
     march4cpp::TemperatureGES temp = march4cpp::TemperatureGES(2,2);
     march4cpp::Joint joint = march4cpp::Joint("actuate_true", true, temp,"position");
-    ASSERT_DEATH(joint.getActuationMode(), "position");
+    ASSERT_EQ(joint.getActuationMode(), march4cpp::ActuationMode::position);
 }
 
 TEST_F(JointTest, DisableActuation)
@@ -60,3 +60,7 @@ TEST_F(JointDeathTest, ActuateDisableActuation)
     ASSERT_FALSE(joint.canActuate());
     ASSERT_DEATH(joint.actuateRad(0.3), "Joint actuate_false is not allowed to actuate, yet its actuate method has been called.");
 }
+
+// TODO @BaCo: write new tests for actuating with the wrong actuationmode when the initializer list is set right
+
+
