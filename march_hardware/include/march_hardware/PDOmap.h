@@ -46,7 +46,7 @@ enum class IMCObjectName
   MotorPosition,
   ControlWord,
   TargetPosition,
-  TargetCurrent,
+  TargetTorque,
   QuickStopDeceleration,
   QuickStopOption
 };

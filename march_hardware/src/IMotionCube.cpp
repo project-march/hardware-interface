@@ -46,7 +46,7 @@ void IMotionCube::mapMosiPDOs()
   PDOmap pdoMapMOSI = PDOmap();
   pdoMapMOSI.addObject(IMCObjectName::ControlWord);  // Compulsory!
   pdoMapMOSI.addObject(IMCObjectName::TargetPosition);
-  //  pdoMapMOSI.addObject(IMCObjectName::TargetCurrent);
+  pdoMapMOSI.addObject(IMCObjectName::TargetTorque);
   this->mosiByteOffsets = pdoMapMOSI.map(this->slaveIndex, dataDirection::mosi);
 }
 
@@ -61,6 +61,14 @@ void IMotionCube::validateMisoPDOs()
 void IMotionCube::validateMosiPDOs()
 {
   ROS_ASSERT_MSG(this->mosiByteOffsets.count(IMCObjectName::ControlWord) == 1, "ControlWord not mapped");
+
+  if (this->actuationMode == ActuationMode::position){
+      ROS_ASSERT_MSG(this->mosiByteOffsets.count(IMCObjectName::TargetPosition) == 1, "TargetPosition not mapped");
+  }
+
+  if (this->actuationMode == ActuationMode::torque){
+      ROS_ASSERT_MSG(this->mosiByteOffsets.count(IMCObjectName::TargetTorque) == 1, "TargetTorque not mapped");
+  }
 }
 
 // Set configuration parameters to the IMC
@@ -102,38 +110,38 @@ void IMotionCube::actuateRad(float targetRad)
                  this->actuationMode.toString().c_str());
   if (std::abs(targetRad - this->getAngleRad()) > 0.27)
   {
-    ROS_ERROR("Target %f exceeds max difference of 0.27 from current %f for slave %d", targetRad, this->getAngleRad(),
+    ROS_ERROR("Target %f exceeds max difference of 0.27 from Torque %f for slave %d", targetRad, this->getAngleRad(),
               this->slaveIndex);
-    throw std::runtime_error("Target exceeds max difference of 0.27 from current position");
+    throw std::runtime_error("Target exceeds max difference of 0.27 from Torque position");
   }
   this->actuateIU(this->encoder.RadtoIU(targetRad));
 }
 
-void IMotionCube::actuateCurrent(int targetCurrent)
+void IMotionCube::actuateTorque(int targetTorque)
 {
-  ROS_ASSERT_MSG(this->actuationMode == ActuationMode::torque, "trying to actuate current, while actuationmode = "
+  ROS_ASSERT_MSG(this->actuationMode == ActuationMode::torque, "trying to actuate Torque, while actuationmode = "
                                                                "%s",
                  this->actuationMode.toString().c_str());
 
-  // The targetCurrent must not exceed the value of 27300 IU, this is 25 A. This value could be increased in the future with good reasoning.
-  // TODO: @baco decide what the maximum current is that must not be exceeded
-  ROS_ASSERT_MSG(targetCurrent < 27300, "Current of %d is too high.", targetCurrent);
+  // The targetTorque must not exceed the value of 27300 IU, this is 25 A. This value could be increased in the future with good reasoning.
+  // TODO: @baco decide what the maximum Torque is that must not be exceeded
+  ROS_ASSERT_MSG(targetTorque < 27300, "Torque of %d is too high.", targetTorque);
 
-  union bit16 targetCurrentStruct;
-  targetCurrentStruct.i = targetCurrent;
+  union bit16 targetTorqueStruct;
+  targetTorqueStruct.i = targetTorque;
 
-  if (this->mosiByteOffsets.count(IMCObjectName::TargetCurrent) != 1)
+  if (this->mosiByteOffsets.count(IMCObjectName::TargetTorque) != 1)
   {
-    ROS_WARN("TargetCurrent not defined in PDO mapping, so can't do actuateIU");
+    ROS_WARN("TargetTorque not defined in PDO mapping, so can't do actuateIU");
     return;
   }
 
-  int targetCurrentLocation = this->mosiByteOffsets[IMCObjectName::TargetCurrent];
+  int targetTorqueLocation = this->mosiByteOffsets[IMCObjectName::TargetTorque];
 
-  ROS_DEBUG("Trying to actuate slave %d, soem location %d with targetcurrent%i", this->slaveIndex,
-            targetCurrentLocation, targetCurrentStruct.i);
+  ROS_DEBUG("Trying to actuate slave %d, soem location %d with targetTorque%i", this->slaveIndex,
+            targetTorqueLocation, targetTorqueStruct.i);
 
-  set_output_bit16(this->slaveIndex, targetCurrentLocation, targetCurrentStruct);
+  set_output_bit16(this->slaveIndex, targetTorqueLocation, targetTorqueStruct);
 }
 
 void IMotionCube::actuateRadFixedSpeed(float targetRad, float radPerSec)
@@ -153,17 +161,17 @@ void IMotionCube::actuateRadFixedSpeed(float targetRad, float radPerSec)
     ROS_ERROR("Target position is outside the allowed range of motion, given: %f", targetRad);
     return;
   }
-  float currentRad = this->getAngleRad();
-  ROS_INFO("Trying to go from position %f to position %f with speed %f", currentRad, targetRad, radPerSec);
-  float distance = targetRad - currentRad;
+  float TorqueRad = this->getAngleRad();
+  ROS_INFO("Trying to go from position %f to position %f with speed %f", TorqueRad, targetRad, radPerSec);
+  float distance = targetRad - TorqueRad;
   int resolution = 250;
   int cycles = std::floor(std::abs(distance) / radPerSec * resolution) + 1;
   for (int i = 0; i < cycles; i++)
   {
     float index = i;
-    float calculatedTarget = currentRad + (index / cycles * distance);
+    float calculatedTarget = TorqueRad + (index / cycles * distance);
     ROS_INFO_STREAM("Target: " << calculatedTarget);
-    ROS_INFO_STREAM("Current: " << this->getAngleRad());
+    ROS_INFO_STREAM("Torque: " << this->getAngleRad());
     usleep(static_cast<__useconds_t>(1000000 / resolution));
     this->actuateRad(calculatedTarget);
   }
@@ -406,7 +414,7 @@ std::string IMotionCube::parseMotionError(uint16 motionError)
   bitDescriptions.push_back("Motor position wraps around. ");
   bitDescriptions.push_back("Positive limit switch. ");
   bitDescriptions.push_back("Negative limit switch. ");
-  bitDescriptions.push_back("Over-current. ");
+  bitDescriptions.push_back("Over-Torque. ");
   bitDescriptions.push_back("I2T protection. ");
   bitDescriptions.push_back("Over-temperature motor. ");
   bitDescriptions.push_back("Over-temperature drive. ");
@@ -499,7 +507,7 @@ bool IMotionCube::goToOperationEnabled()
                                                                                   "mapping, so can't get angle");
 
   int angleRead = this->encoder.getAngleIU(this->misoByteOffsets[IMCObjectName::ActualPosition]);
-  //  If the encoder is functioning correctly, move the joint to its current
+  //  If the encoder is functioning correctly, move the joint to its Torque
   //  position. Otherwise shutdown
   if (this->encoder.isValidTargetPositionIU(angleRead) && angleRead != 0)
   {
@@ -510,7 +518,7 @@ bool IMotionCube::goToOperationEnabled()
 
     else if (this->actuationMode == ActuationMode::torque)
     {
-      this->actuateCurrent(0);
+      this->actuateTorque(0);
     }
   }
   else

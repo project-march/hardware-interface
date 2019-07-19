@@ -55,7 +55,7 @@ public:
   void setControlWord(uint16 controlWord);
 
   void actuateRad(float targetRad);
-  void actuateCurrent(int targetCurrent);
+  void actuateTorque(int targetTorque);
 
   void actuateRadFixedSpeed(float targetRad, float radPerSec);
 

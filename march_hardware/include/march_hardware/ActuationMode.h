@@ -5,6 +5,8 @@
 
 #include <ros/package.h>
 
+namespace march4cpp
+{
 class ActuationMode
 {
 public:
@@ -29,7 +31,7 @@ public:
     }
     else
     {
-        ROS_ASSERT_MSG(false, "Unknown actuation mode %s, setting to unknown mode", actuationMode.c_str());
+        ROS_WARN("Actuation mode (%s) is not recognized, setting to unknown mode", actuationMode.c_str());
         this->value = ActuationMode::unknown;
     }
   }
@@ -72,12 +74,12 @@ public:
       default:
           ROS_WARN("Actuationmode (%i) is neither 'torque' or 'position", value);
         return "unknown";
-
     }
   }
 
 private:
   Value value = unknown;
 };
+}  // namespace march4cpp
 
 #endif  // MARCH_HARDWARE_INTERFACE_ACTUATIONMODE_H

@@ -162,25 +162,28 @@ void MarchHardwareInterface::init()
 
     // TODO(Jitske): make sure that both of the controllers are loaded, but only one controller starts. Currently both
     // are loaded, one fails due to it's interface not being available.
-    if (marchRobot.getJoint(joint_names_[i]).getActuationMode() == ActuationMode::position)
+
+    // Dependently on which actuationMode is chosen, the state and limit handles must be selected
+    if (marchRobot.getJoint(joint_names_[i]).getActuationMode() == march4cpp::ActuationMode::position)
     {
       // Create position joint interface
       JointHandle jointPositionHandle(jointStateHandle, &joint_position_command_[i]);
       position_joint_interface_.registerHandle(jointPositionHandle);
 
       //     Create joint limit interface
-      PositionJointSoftLimitsHandle jointLimitsHandle(jointPositionHandle, limits, soft_limits_[i]);
-      positionJointSoftLimitsInterface.registerHandle(jointLimitsHandle);
+      PositionJointSoftLimitsHandle jointPositionLimitsHandle(jointPositionHandle, limits, soft_limits_[i]);
+      positionJointSoftLimitsInterface.registerHandle(jointPositionLimitsHandle);
+
     }
-    else if (marchRobot.getJoint(joint_names_[i]).getActuationMode() == ActuationMode::torque)
+    else if (marchRobot.getJoint(joint_names_[i]).getActuationMode() == march4cpp::ActuationMode::torque)
     {
       // Create effort joint interface
       JointHandle jointEffortHandle(jointStateHandle, &joint_effort_command_[i]);
       effort_joint_interface_.registerHandle(jointEffortHandle);
 
       // Create joint effort limit interface
-      EffortJointSoftLimitsHandle jointLimitsHandle(jointEffortHandle, limits, soft_limits_[i]);
-      effortJointSoftLimitsInterface.registerHandle(jointLimitsHandle);
+      EffortJointSoftLimitsHandle jointEffortLimitsHandle(jointEffortHandle, limits, soft_limits_[i]);
+      effortJointSoftLimitsInterface.registerHandle(jointEffortLimitsHandle);
     }
 
     // Set the first target as the current position
@@ -290,19 +293,23 @@ void MarchHardwareInterface::write(ros::Duration elapsed_time)
     if (singleJoint.canActuate())
     {
       after_limit_command_pub_->msg_.name.push_back(singleJoint.getName());
-      if (singleJoint.getActuationMode() == ActuationMode::position)
+
+      // Enlarge joint_effort_command so dynamic reconfigure can be used inside it's bounds
+      joint_effort_command_[i] = joint_effort_command_[i] * 1000;
+
+      effortJointSoftLimitsInterface.enforceLimits(elapsed_time);
+      positionJointSoftLimitsInterface.enforceLimits(elapsed_time);
+
+      if (singleJoint.getActuationMode() == march4cpp::ActuationMode::position)
       {
-        positionJointSoftLimitsInterface.enforceLimits(elapsed_time);
         singleJoint.actuateRad(static_cast<float>(joint_position_command_[i]));
         after_limit_command_pub_->msg_.position_command.push_back(joint_position_command_[i]);
         after_limit_command_pub_->msg_.effort_command.push_back(0);
       }
-      else if (singleJoint.getActuationMode() == ActuationMode::torque)
+      else if (singleJoint.getActuationMode() == march4cpp::ActuationMode::torque)
       {
-        joint_effort_command_[i] = joint_effort_command_[i] * 1000;
-        effortJointSoftLimitsInterface.enforceLimits(elapsed_time);
         // TODO: (baco) this is added so that the limits of the PID controller in dynamic reconfigure are not reached
-        singleJoint.actuateCurrent(static_cast<int>(joint_effort_command_[i]));
+        singleJoint.actuateTorque(static_cast<int>(joint_effort_command_[i]));
         after_limit_command_pub_->msg_.position_command.push_back(0);
         after_limit_command_pub_->msg_.effort_command.push_back(joint_effort_command_[i]);
       }
@@ -314,7 +321,7 @@ void MarchHardwareInterface::write(ros::Duration elapsed_time)
     after_limit_command_pub_->unlockAndPublish();
   }
   //  ROS_INFO("After effort limit: Trying to actuate joint %s, to %lf "
-  //           "rad, %f speed, %f effort.",
+  //           "rad, %f speed, %f effort.",a
   //           joint_names_[0].c_str(), joint_position_command_[0], joint_velocity_command_[0],
   //           joint_effort_command_[0]);
 
