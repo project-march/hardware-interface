@@ -118,7 +118,7 @@ TEST_F(JointTest, ActuationModeTorqueJointActuateRad)
     ASSERT_DEATH(torqueJoint.actuateRad(1), "trying to actuate rad, while actuationmode = unknown");
 }
 
-TEST_F(JointTest, ActuationModePositionJointActuateCurrent)
+TEST_F(JointTest, ActuationModePositionJointActuateTorque)
 {
     march4cpp::Encoder actualEncoder = march4cpp::Encoder(20, 3, 40000, 5, 0.05);
     march4cpp::IMotionCube actualIMotionCube = march4cpp::IMotionCube(10, actualEncoder);
@@ -127,7 +127,7 @@ TEST_F(JointTest, ActuationModePositionJointActuateCurrent)
     march4cpp::Joint torqueJoint =
             march4cpp::Joint("test_joint_ankle", true, actualTemperatureGes, actualIMotionCube, "position");
 
-    ASSERT_DEATH(torqueJoint.actuateCurrent(1), "trying to actuate current, while actuationmode = unknown");
+    ASSERT_DEATH(torqueJoint.actuateTorque(1), "trying to actuate torque, while actuationmode = unknown");
 }
 
 TEST_F(JointTest, NoActuate)

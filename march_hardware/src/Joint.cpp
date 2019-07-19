@@ -102,10 +102,10 @@ void Joint::actuateRad(float targetPositionRad)
   this->iMotionCube.actuateRad(targetPositionRad);
 }
 
-void Joint::actuateCurrent(int targetCurrent)
+void Joint::actuateTorque(int targetTorque)
 {
   // TODO(BaCo) check that the position is allowed and does not exceed (torque) limits.
-  this->iMotionCube.actuateCurrent(targetCurrent);
+  this->iMotionCube.actuateTorque(targetTorque);
 }
 
 int Joint::getActuationMode()
