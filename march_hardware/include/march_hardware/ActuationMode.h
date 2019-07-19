@@ -29,11 +29,11 @@ public:
     {
       this->value = torque;
     }
-//    else
-//    {
-//        ROS_ASSERT_MSG(false, "Unknown actuation mode %s, setting to unknown mode", actuationMode.c_str());
-//        this->value = ActuationMode::unknown;
-//    }
+    else
+    {
+        ROS_WARN("Actuation mode (%s) is not recognized, setting to unknown mode", actuationMode.c_str());
+        this->value = ActuationMode::unknown;
+    }
   }
 
   int toModeNumber()
