@@ -32,6 +32,20 @@ TEST_F(JointTest, AllowActuation)
     ASSERT_TRUE(joint.canActuate());
 }
 
+TEST_F(JointTest, GetActuationModeTorque)
+{
+    march4cpp::TemperatureGES temp = march4cpp::TemperatureGES(2,2);
+    march4cpp::Joint joint = march4cpp::Joint("actuate_true", true, temp,"torque");
+    ASSERT_DEATH(joint.getActuationMode(), "torque");
+}
+
+TEST_F(JointTest, GetActuationModePosition)
+{
+    march4cpp::TemperatureGES temp = march4cpp::TemperatureGES(2,2);
+    march4cpp::Joint joint = march4cpp::Joint("actuate_true", true, temp,"position");
+    ASSERT_DEATH(joint.getActuationMode(), "position");
+}
+
 TEST_F(JointTest, DisableActuation)
 {
     march4cpp::TemperatureGES temp = march4cpp::TemperatureGES(2,2);
