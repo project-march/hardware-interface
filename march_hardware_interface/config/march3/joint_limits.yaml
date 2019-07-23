@@ -13,7 +13,7 @@ joint_limits:
     k_velocity: 25000
 
     has_effort_limits: true
-    max_effort: 10000.0
+    max_effort: 21840 # IU = 20 A
 
   right_hip:
     has_position_limits: true
@@ -29,7 +29,7 @@ joint_limits:
     k_velocity: 25000
 
     has_effort_limits: true
-    max_effort: 10000.0
+    max_effort: 21840
 
   left_knee:
     has_position_limits: true
@@ -45,7 +45,7 @@ joint_limits:
     k_velocity: 25000
 
     has_effort_limits: true
-    max_effort: 10000.0
+    max_effort: 21840
 
   right_knee:
     has_position_limits: true
@@ -61,7 +61,7 @@ joint_limits:
     k_velocity: 25000
 
     has_effort_limits: true
-    max_effort: 10000.0
+    max_effort: 21840
 
   right_ankle:
     has_position_limits: true
@@ -77,7 +77,7 @@ joint_limits:
     k_velocity: 25000
 
     has_effort_limits: true
-    max_effort: 10000.0
+    max_effort: 21840
 
   left_ankle:
     has_position_limits: true
@@ -93,5 +93,5 @@ joint_limits:
     k_velocity: 25000
 
     has_effort_limits: true
-    max_effort: 10000.0
+    max_effort: 21840
 

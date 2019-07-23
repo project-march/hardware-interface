@@ -19,7 +19,7 @@ march:
         - left_knee
         - right_ankle
         - left_ankle
-#      gains:
+#      gains: # These gains are tuned for the march iv, thus be careful
 #        right_hip_fe: {p: 80, i: 0, d: 10, i_clamp: 100, publish_state: true, antiwindup: true}
 #        left_hip_fe: {p: 80, i: 0, d: 10, i_clamp: 100, publish_state: true, antiwindup: true}
 #        right_knee: {p: 50, i: 0, d: 10, i_clamp: 100, publish_state: true, antiwindup: true}
