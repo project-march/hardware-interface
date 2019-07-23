@@ -2,8 +2,7 @@
 #include "march_hardware/EtherCAT/EthercatSDO.h"
 #include "ros/ros.h"
 
-extern "C"
-{
+extern "C" {
 #include "ethercat.h"
 }
 
