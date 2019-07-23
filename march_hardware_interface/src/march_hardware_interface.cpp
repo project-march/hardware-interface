@@ -170,7 +170,6 @@ void MarchHardwareInterface::init()
       //     Create joint limit interface
       PositionJointSoftLimitsHandle jointPositionLimitsHandle(jointPositionHandle, limits, soft_limits_[i]);
       positionJointSoftLimitsInterface.registerHandle(jointPositionLimitsHandle);
-
     }
     else if (marchRobot.getJoint(joint_names_[i]).getActuationMode() == march4cpp::ActuationMode::torque)
     {
@@ -276,10 +275,9 @@ void MarchHardwareInterface::read(ros::Duration elapsed_time)
 
 void MarchHardwareInterface::write(ros::Duration elapsed_time)
 {
-    ROS_DEBUG("Before limits: Trying to actuate joint %s, to %lf "
-             "rad, %f speed, %f effort.",
-             joint_names_[0].c_str(), joint_position_command_[0], joint_velocity_command_[0],
-             joint_effort_command_[0]);
+  ROS_DEBUG("Before limits: Trying to actuate joint %s, to %lf "
+            "rad, %f speed, %f effort.",
+            joint_names_[0].c_str(), joint_position_command_[0], joint_velocity_command_[0], joint_effort_command_[0]);
   after_limit_command_pub_->msg_.name.clear();
   after_limit_command_pub_->msg_.position_command.clear();
   after_limit_command_pub_->msg_.effort_command.clear();
@@ -316,10 +314,9 @@ void MarchHardwareInterface::write(ros::Duration elapsed_time)
   {
     after_limit_command_pub_->unlockAndPublish();
   }
-    ROS_DEBUG("After effort limit: Trying to actuate joint %s, to %lf "
-             "rad, %f speed, %f effort.",
-             joint_names_[0].c_str(), joint_position_command_[0], joint_velocity_command_[0],
-             joint_effort_command_[0]);
+  ROS_DEBUG("After effort limit: Trying to actuate joint %s, to %lf "
+            "rad, %f speed, %f effort.",
+            joint_names_[0].c_str(), joint_position_command_[0], joint_velocity_command_[0], joint_effort_command_[0]);
 
   if (hasPowerDistributionBoard)
   {
