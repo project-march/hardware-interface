@@ -14,6 +14,8 @@ march:
       state_publish_rate: 250
       allow_partial_joints_goal: true
       joints:
+        - left_hip_aa
+        - right_hip_aa
         - right_hip_fe
         - left_hip_fe
         - right_knee
@@ -21,6 +23,8 @@ march:
         - right_ankle
         - left_ankle
       gains: # Required because we're controlling an effort interface
+        right_hip_aa: {p: 80, i: 30, d: 5, i_clamp: 100, publish_state: true, antiwindup: true}
+        left_hip_aa: {p: 80, i: 30, d: 5, i_clamp: 100, publish_state: true, antiwindup: true}
         right_hip_fe: {p: 80, i: 0, d: 10, i_clamp: 100, publish_state: true, antiwindup: true}
         left_hip_fe: {p: 80, i: 0, d: 10, i_clamp: 100, publish_state: true, antiwindup: true}
         right_knee: {p: 50, i: 0, d: 10, i_clamp: 100, publish_state: true, antiwindup: true}
