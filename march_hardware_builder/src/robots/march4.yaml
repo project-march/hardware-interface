@@ -21,21 +21,23 @@ march4:
       highVoltageNetOnOff: 3
       highVoltageNetEnableDisable: 2
   joints:
-#    - right_hip_aa:
-#        allowActuation: true
-#        netNumber: 1
-#        temperatureges: {slaveIndex: 8, byteOffset: 0}
-#        imotioncube:
-#          slaveIndex: 6
-#          encoder: {resolution: 12, minPositionIU: 3688, maxPositionIU: 4070, zeroPositionIU: 3884, safetyMarginRad: 0.05}
-#
-#    - left_hip_aa:
-#        allowActuation: true
-#        netNumber: 5
-#        temperatureges: {slaveIndex: 8, byteOffset: 0}
-#        imotioncube:
-#          slaveIndex: 9
-#          encoder: {resolution: 12, minPositionIU: 1010, maxPositionIU: 1401, zeroPositionIU: 1211, safetyMarginRad: 0.05}
+    - right_hip_aa:
+        allowActuation: true
+        actuationMode: torque   # Make sure when you change the actuationMode, that you also must adjust the controllers.yaml
+        netNumber: 1
+        temperatureges: {slaveIndex: 8, byteOffset: 0}
+        imotioncube:
+          slaveIndex: 6
+          encoder: {resolution: 12, minPositionIU: 3688, maxPositionIU: 4070, zeroPositionIU: 3884, safetyMarginRad: 0.05}
+
+    - left_hip_aa:
+        allowActuation: true
+        actuationMode: torque
+        netNumber: 5
+        temperatureges: {slaveIndex: 8, byteOffset: 0}
+        imotioncube:
+          slaveIndex: 9
+          encoder: {resolution: 12, minPositionIU: 1010, maxPositionIU: 1401, zeroPositionIU: 1211, safetyMarginRad: 0.05}
 
     - right_hip_fe:
         allowActuation: true

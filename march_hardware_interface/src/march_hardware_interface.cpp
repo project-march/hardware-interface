@@ -160,9 +160,6 @@ void MarchHardwareInterface::init()
     JointLimits limits;
     getJointLimits(model.getJoint(joint.getName()), limits);
 
-    // TODO(Jitske): make sure that both of the controllers are loaded, but only one controller starts. Currently both
-    // are loaded, one fails due to it's interface not being available.
-
     // Dependently on which actuationMode is chosen, the state and limit handles must be selected
     if (marchRobot.getJoint(joint_names_[i]).getActuationMode() == march4cpp::ActuationMode::position)
     {
@@ -279,10 +276,10 @@ void MarchHardwareInterface::read(ros::Duration elapsed_time)
 
 void MarchHardwareInterface::write(ros::Duration elapsed_time)
 {
-  //  ROS_INFO("Before limits: Trying to actuate joint %s, to %lf "
-  //           "rad, %f speed, %f effort.",
-  //           joint_names_[0].c_str(), joint_position_command_[0], joint_velocity_command_[0],
-  //           joint_effort_command_[0]);
+    ROS_DEBUG("Before limits: Trying to actuate joint %s, to %lf "
+             "rad, %f speed, %f effort.",
+             joint_names_[0].c_str(), joint_position_command_[0], joint_velocity_command_[0],
+             joint_effort_command_[0]);
   after_limit_command_pub_->msg_.name.clear();
   after_limit_command_pub_->msg_.position_command.clear();
   after_limit_command_pub_->msg_.effort_command.clear();
@@ -308,7 +305,6 @@ void MarchHardwareInterface::write(ros::Duration elapsed_time)
       }
       else if (singleJoint.getActuationMode() == march4cpp::ActuationMode::torque)
       {
-        // TODO: (baco) this is added so that the limits of the PID controller in dynamic reconfigure are not reached
         singleJoint.actuateTorque(static_cast<int>(joint_effort_command_[i]));
         after_limit_command_pub_->msg_.position_command.push_back(0);
         after_limit_command_pub_->msg_.effort_command.push_back(joint_effort_command_[i]);
@@ -320,10 +316,10 @@ void MarchHardwareInterface::write(ros::Duration elapsed_time)
   {
     after_limit_command_pub_->unlockAndPublish();
   }
-  //  ROS_INFO("After effort limit: Trying to actuate joint %s, to %lf "
-  //           "rad, %f speed, %f effort.",a
-  //           joint_names_[0].c_str(), joint_position_command_[0], joint_velocity_command_[0],
-  //           joint_effort_command_[0]);
+    ROS_DEBUG("After effort limit: Trying to actuate joint %s, to %lf "
+             "rad, %f speed, %f effort.",
+             joint_names_[0].c_str(), joint_position_command_[0], joint_velocity_command_[0],
+             joint_effort_command_[0]);
 
   if (hasPowerDistributionBoard)
   {

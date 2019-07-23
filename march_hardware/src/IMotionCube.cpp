@@ -110,6 +110,7 @@ void IMotionCube::actuateRad(float targetRad)
                  this->actuationMode.toString().c_str());
   if (std::abs(targetRad - this->getAngleRad()) > 0.27)
   {
+      // TODO(bart): also build something like this for torque mode in the trajectory controller
     ROS_ERROR("Target %f exceeds max difference of 0.27 from Torque %f for slave %d", targetRad, this->getAngleRad(),
               this->slaveIndex);
     throw std::runtime_error("Target exceeds max difference of 0.27 from Torque position");
@@ -123,8 +124,7 @@ void IMotionCube::actuateTorque(int targetTorque)
                                                                "%s",
                  this->actuationMode.toString().c_str());
 
-  // The targetTorque must not exceed the value of 27300 IU, this is 25 A. This value could be increased in the future with good reasoning.
-  // TODO: @baco decide what the maximum Torque is that must not be exceeded
+  // The targetTorque must not exceed the value of 27300 IU, this is 25 A. This value could be increased in the future (to 30A) with good reasoning.
   ROS_ASSERT_MSG(targetTorque < 27300, "Torque of %d is too high.", targetTorque);
 
   union bit16 targetTorqueStruct;

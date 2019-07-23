@@ -31,7 +31,7 @@ Joint::Joint(std::string name, bool allowActuation, TemperatureGES temperatureGE
 }
 
 // Only Temperature GES
-// TODO(bart): make sure these constructors make sense with actuationmode
+// TODO(bart): make sure these constructors make sense with actuationmode, can also be done after the initializer list
 Joint::Joint(std::string name, bool allowActuation, TemperatureGES temperatureGES, std::string actuationModeName)
   : temperatureGES(temperatureGES), actuationMode(ActuationMode(actuationModeName))
 {
@@ -104,7 +104,6 @@ void Joint::actuateRad(float targetPositionRad)
 
 void Joint::actuateTorque(int targetTorque)
 {
-  // TODO(BaCo) check that the position is allowed and does not exceed (torque) limits.
   this->iMotionCube.actuateTorque(targetTorque);
 }
 

@@ -18,7 +18,6 @@ class Joint
 {
 private:
   std::string name;
-  // TODO(bart) review this comment if it still makes sense
   /**
    * An explicit difference is made between allowActuation and actuationMode, since the situation can occur that
    * controllers has to be tested, but the joint should not actuate. For example to see how it responds to the error.
