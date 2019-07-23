@@ -33,7 +33,7 @@ private:
 
 public:
   // TODO(Tim) pass by reference or pointer instead of making copy
-  // TODO refactor to using proper initialization lists
+  // TODO(Isha) refactor to using proper initialization lists
   Joint(std::string name, bool allowActuation, TemperatureGES temperatureGES, IMotionCube iMotionCube,
         std::string actuationmode);
   Joint(std::string name, bool allowActuation, TemperatureGES temperatureGES, IMotionCube iMotionCube, int netNumber,
