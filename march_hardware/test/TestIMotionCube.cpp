@@ -12,10 +12,12 @@ class IMotionCubeTest : public ::testing::Test
 {
 protected:
   march4cpp::Encoder encoder;
+  march4cpp::ActuationMode actuationmode;
 
   void SetUp() override
   {
     encoder = march4cpp::Encoder();
+    actuationmode = march4cpp::ActuationMode();
   }
 };
 
@@ -50,3 +52,19 @@ TEST_F(IMotionCubeTest, NoSlaveIndexConstructorGetIndex)
   march4cpp::IMotionCube imc = march4cpp::IMotionCube();
   ASSERT_EQ(-1, imc.getSlaveIndex());
 }
+
+TEST_F(IMotionCubeTest, NoActuationMode)
+{
+    march4cpp::IMotionCube imc = march4cpp::IMotionCube(1, encoder);
+    ASSERT_DEATH(imc.actuateRad(1), "trying to actuate rad, while actuationmode = unknown");
+}
+
+TEST_F(IMotionCubeTest, ActuationModeTorqueImotionCubeActuateRad)
+{
+    march4cpp::Encoder actualEncoder = march4cpp::Encoder(20, 3, 40000, 5, 0.05);
+    march4cpp::IMotionCube imc = march4cpp::IMotionCube(10, actualEncoder);
+    ASSERT_DEATH(imc.actuateRad(1), "trying to actuate rad, while actuationmode = unknown");
+}
+
+// TODO @BaCO: write new tests for actuating with the wrong actuationmode when the initializer list is set right
+

@@ -3,10 +3,12 @@
 #include <joint_limits_interface/joint_limits.h>
 #include <joint_limits_interface/joint_limits_interface.h>
 #include <joint_limits_interface/joint_limits_urdf.h>
+
 #include <sstream>
 
-#include <march_hardware/MarchRobot.h>
+#include <march_hardware/ActuationMode.h>
 #include <march_hardware/Joint.h>
+#include <march_hardware/MarchRobot.h>
 
 #include <march_hardware_interface/PowerNetOnOffCommand.h>
 #include <march_hardware_interface/march_hardware_interface.h>
@@ -16,6 +18,8 @@
 using joint_limits_interface::JointLimits;
 using joint_limits_interface::PositionJointSoftLimitsHandle;
 using joint_limits_interface::PositionJointSoftLimitsInterface;
+using joint_limits_interface::EffortJointSoftLimitsHandle;
+using joint_limits_interface::EffortJointSoftLimitsInterface;
 using joint_limits_interface::SoftJointLimits;
 
 namespace march_hardware_interface
@@ -25,7 +29,7 @@ MarchHardwareInterface::MarchHardwareInterface(ros::NodeHandle& nh, AllowedRobot
 {
   init();
   controller_manager_.reset(new controller_manager::ControllerManager(this, nh_));
-  nh_.param("/march/hardware_interface/loop_hz", loop_hz_, 100.0);
+  nh_.param("/march_hardware_interface/loop_hz", loop_hz_, 100.0);
   ros::Duration update_freq = ros::Duration(1.0 / loop_hz_);
   non_realtime_loop_ = nh_.createTimer(update_freq, &MarchHardwareInterface::update, this);
 }
@@ -38,8 +42,12 @@ MarchHardwareInterface::~MarchHardwareInterface()
 void MarchHardwareInterface::init()
 {
   // Initialize realtime publisher for the IMotionCube states
-  imc_state_pub_ = RtPublisherPtr(
+  imc_state_pub_ = RtPublisherImcStatePtr(
       new realtime_tools::RealtimePublisher<march_shared_resources::ImcErrorState>(this->nh_, "/march/imc_states/", 4));
+
+//  after_limit_command_pub_ =
+//      RtPublisherAfterLimitCommandPtr(new realtime_tools::RealtimePublisher<march_shared_resources::AfterLimitCommand>(
+//          this->nh_, "/march/after_limit_command/", 4));
 
   // Start ethercat cycle in the hardware
   this->marchRobot.startEtherCAT();
@@ -74,6 +82,7 @@ void MarchHardwareInterface::init()
   joint_velocity_command_.resize(num_joints_);
   joint_effort_command_.resize(num_joints_);
   soft_limits_.resize(num_joints_);
+  joint_limits_.resize(num_joints_);
 
   for (int i = 0; i < num_joints_; ++i)
   {
@@ -81,6 +90,14 @@ void MarchHardwareInterface::init()
     getSoftJointLimits(model.getJoint(joint_names_[i]), soft_limits);
     ROS_INFO("%s soft_limits_ (%f, %f).", joint_names_[i].c_str(), soft_limits.min_position, soft_limits.max_position);
     soft_limits_[i] = soft_limits;
+  }
+
+  for (int i = 0; i < num_joints_; ++i)
+  {
+    JointLimits joint_limits;
+    getJointLimits(model.getJoint(joint_names_[i]), joint_limits);
+    ROS_INFO("max_velocity: %f, max_effort: %f.", joint_limits.max_velocity, joint_limits.max_effort);
+    joint_limits_[i] = joint_limits;
   }
 
   resetIMotionCubesUntilTheyWork();
@@ -104,6 +121,7 @@ void MarchHardwareInterface::init()
   registerInterface(&position_joint_interface_);
   registerInterface(&effort_joint_interface_);
   registerInterface(&positionJointSoftLimitsInterface);
+  registerInterface(&effortJointSoftLimitsInterface);
 
   hasPowerDistributionBoard = marchRobot.getPowerDistributionBoard()->getSlaveIndex() != -1;
   if (hasPowerDistributionBoard)
@@ -138,18 +156,31 @@ void MarchHardwareInterface::init()
     JointStateHandle jointStateHandle(joint.getName(), &joint_position_[i], &joint_velocity_[i], &joint_effort_[i]);
     joint_state_interface_.registerHandle(jointStateHandle);
 
-    // Create position joint interface
-    JointHandle jointPositionHandle(jointStateHandle, &joint_position_command_[i]);
-
     // Retrieve joint (soft) limits from the urdf
     JointLimits limits;
     getJointLimits(model.getJoint(joint.getName()), limits);
 
-    // Create joint limit interface
-    PositionJointSoftLimitsHandle jointLimitsHandle(jointPositionHandle, limits, soft_limits_[i]);
-    positionJointSoftLimitsInterface.registerHandle(jointLimitsHandle);
+    // Dependently on which actuationMode is chosen, the state and limit handles must be selected
+    if (marchRobot.getJoint(joint_names_[i]).getActuationMode() == march4cpp::ActuationMode::position)
+    {
+      // Create position joint interface
+      JointHandle jointPositionHandle(jointStateHandle, &joint_position_command_[i]);
+      position_joint_interface_.registerHandle(jointPositionHandle);
 
-    position_joint_interface_.registerHandle(jointPositionHandle);
+      //     Create joint limit interface
+      PositionJointSoftLimitsHandle jointPositionLimitsHandle(jointPositionHandle, limits, soft_limits_[i]);
+      positionJointSoftLimitsInterface.registerHandle(jointPositionLimitsHandle);
+    }
+    else if (marchRobot.getJoint(joint_names_[i]).getActuationMode() == march4cpp::ActuationMode::torque)
+    {
+      // Create effort joint interface
+      JointHandle jointEffortHandle(jointStateHandle, &joint_effort_command_[i]);
+      effort_joint_interface_.registerHandle(jointEffortHandle);
+
+      // Create joint effort limit interface
+      EffortJointSoftLimitsHandle jointEffortLimitsHandle(jointEffortHandle, limits, soft_limits_[i]);
+      effortJointSoftLimitsInterface.registerHandle(jointEffortLimitsHandle);
+    }
 
     // Set the first target as the current position
     this->read();
@@ -160,10 +191,6 @@ void MarchHardwareInterface::init()
     // Create velocity joint interface
     JointHandle jointVelocityHandle(jointStateHandle, &joint_velocity_command_[i]);
     velocity_joint_interface_.registerHandle(jointVelocityHandle);
-
-    // Create effort joint interface
-    JointHandle jointEffortHandle(jointStateHandle, &joint_effort_command_[i]);
-    effort_joint_interface_.registerHandle(jointEffortHandle);
 
     // Create march_state interface
     MarchTemperatureSensorHandle marchTemperatureSensorHandle(joint_names_[i], &joint_temperature_[i],
@@ -230,6 +257,7 @@ void MarchHardwareInterface::read(ros::Duration elapsed_time)
     joint_velocity_[i] = filters::exponentialSmoothing(joint_velocity, joint_velocity_[i], 0.2);
 
     ROS_DEBUG("Joint %s: read position %f", joint_names_[i].c_str(), joint_position_[i]);
+    joint_effort_[i] = marchRobot.getJoint(joint_names_[i]).getTorque();
   }
 
   this->updateIMotionCubeState();
@@ -247,19 +275,48 @@ void MarchHardwareInterface::read(ros::Duration elapsed_time)
 
 void MarchHardwareInterface::write(ros::Duration elapsed_time)
 {
-  positionJointSoftLimitsInterface.enforceLimits(elapsed_time);
+  ROS_DEBUG("Before limits: Trying to actuate joint %s, to %lf "
+            "rad, %f speed, %f effort.",
+            joint_names_[0].c_str(), joint_position_command_[0], joint_velocity_command_[0], joint_effort_command_[0]);
+//  after_limit_command_pub_->msg_.name.clear();
+//  after_limit_command_pub_->msg_.position_command.clear();
+//  after_limit_command_pub_->msg_.effort_command.clear();
 
   for (int i = 0; i < num_joints_; i++)
   {
-    if (marchRobot.getJoint(joint_names_[i]).canActuate())
+    march4cpp::Joint singleJoint = marchRobot.getJoint(joint_names_[i]);
+    if (singleJoint.canActuate())
     {
-      ROS_DEBUG("After limits: Trying to actuate joint %s, to %lf rad, %f "
-                "speed, %f effort.",
-                joint_names_[i].c_str(), joint_position_command_[i], joint_velocity_command_[i],
-                joint_effort_command_[i]);
-      marchRobot.getJoint(joint_names_[i]).actuateRad(static_cast<float>(joint_position_command_[i]));
+//      after_limit_command_pub_->msg_.name.push_back(singleJoint.getName());
+
+      // Enlarge joint_effort_command so dynamic reconfigure can be used inside it's bounds
+      joint_effort_command_[i] = joint_effort_command_[i] * 1000;
+
+      effortJointSoftLimitsInterface.enforceLimits(elapsed_time);
+      positionJointSoftLimitsInterface.enforceLimits(elapsed_time);
+
+      if (singleJoint.getActuationMode() == march4cpp::ActuationMode::position)
+      {
+        singleJoint.actuateRad(static_cast<float>(joint_position_command_[i]));
+//        after_limit_command_pub_->msg_.position_command.push_back(joint_position_command_[i]);
+//        after_limit_command_pub_->msg_.effort_command.push_back(0);
+      }
+      else if (singleJoint.getActuationMode() == march4cpp::ActuationMode::torque)
+      {
+        singleJoint.actuateTorque(static_cast<int>(joint_effort_command_[i]));
+//        after_limit_command_pub_->msg_.position_command.push_back(0);
+//        after_limit_command_pub_->msg_.effort_command.push_back(joint_effort_command_[i]);
+      }
     }
   }
+
+//  if (after_limit_command_pub_->trylock())
+//  {
+//    after_limit_command_pub_->unlockAndPublish();
+//  }
+  ROS_DEBUG("After effort limit: Trying to actuate joint %s, to %lf "
+            "rad, %f speed, %f effort.",
+            joint_names_[0].c_str(), joint_position_command_[0], joint_velocity_command_[0], joint_effort_command_[0]);
 
   if (hasPowerDistributionBoard)
   {
@@ -322,8 +379,7 @@ void MarchHardwareInterface::updateHighVoltageEnable()
   catch (std::exception& exception)
   {
     ROS_ERROR("%s", exception.what());
-    ROS_DEBUG("Reverting the enable_high_voltage_command input, in attempt to prevent this exception is thrown "
-              "again");
+    ROS_DEBUG("Reverting the enable_high_voltage_command input, in attempt to prevent this exception is thrown again");
     enable_high_voltage_command = !enable_high_voltage_command;
   }
 }
@@ -344,7 +400,8 @@ void MarchHardwareInterface::updatePowerNet()
     catch (std::exception& exception)
     {
       ROS_ERROR("%s", exception.what());
-      ROS_DEBUG("Reset power net command, in attempt to prevent this exception is thrown again");
+      ROS_DEBUG("Reset power net command, in attempt to prevent this exception "
+                "is thrown again");
       power_net_on_off_command_.reset();
     }
   }
@@ -362,7 +419,8 @@ void MarchHardwareInterface::updatePowerNet()
     catch (std::exception& exception)
     {
       ROS_ERROR("%s", exception.what());
-      ROS_WARN("Reset power net command, in attempt to prevent this exception is thrown again");
+      ROS_WARN("Reset power net command, in attempt to prevent this exception "
+               "is thrown again");
       power_net_on_off_command_.reset();
     }
   }

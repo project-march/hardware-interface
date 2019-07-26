@@ -34,7 +34,7 @@ private:
         "netMonitorByteOffsets",
         "netDriverByteOffsets" };
   const std::vector<std::string> JOINT_REQUIRED_KEYS =
-      { "allowActuation" };
+      { "actuationMode", "allowActuation" };
 
   /**
    * @brief Loop over all keys in the keyList and check if they exist in the

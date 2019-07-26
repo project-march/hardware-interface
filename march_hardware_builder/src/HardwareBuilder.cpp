@@ -45,7 +45,6 @@ march4cpp::MarchRobot HardwareBuilder::createMarchRobot(YAML::Node marchRobotCon
   {
     march4cpp::PowerDistributionBoard powerDistributionBoard =
         createPowerDistributionBoard(marchRobotConfig["powerDistributionBoard"]);
-
     ROS_INFO_STREAM("PowerDistributionBoard: " << powerDistributionBoard);
     return march4cpp::MarchRobot(jointList, powerDistributionBoard, ifName, ecatCycleTime);
   }
@@ -59,8 +58,9 @@ march4cpp::MarchRobot HardwareBuilder::createMarchRobot(YAML::Node marchRobotCon
 march4cpp::MarchRobot HardwareBuilder::createMarchRobot()
 {
   ROS_ASSERT_MSG(this->robotConfig.Type() != YAML::NodeType::Null,
-      "Trying to create a MarchRobot without specifying a .yaml file."
-      " Please do so in the constructor of the HardwareBuilder or in the function createMarchRobot");
+                 "Trying to create a MarchRobot without specifying a .yaml "
+                 "file. Please do so in the constructor of "
+                 "the HardwareBuilder or in the function createMarchRobot");
   return this->createMarchRobot(robotConfig);
 }
 
@@ -69,14 +69,15 @@ march4cpp::Joint HardwareBuilder::createJoint(YAML::Node jointConfig, std::strin
   ROS_INFO("Starting creation of joint %s", jointName.c_str());
   this->validateRequiredKeysExist(jointConfig, this->JOINT_REQUIRED_KEYS, "joint");
 
-  march4cpp::Joint joint;
-  joint.setName(jointName);
-
   march4cpp::IMotionCube imc;
   march4cpp::TemperatureGES temperatureGes;
 
+  bool hasIMotionCube = false;
+  bool hasTemperatureGes = false;
+  bool hasNetNumber = false;
+  int netNumber = -1;
   bool allowActuation = jointConfig["allowActuation"].as<bool>();
-  joint.setAllowActuation(allowActuation);
+  std::string actuationMode = jointConfig["actuationMode"].as<std::string>();
 
   if (jointConfig["imotioncube"].Type() == YAML::NodeType::Undefined)
   {
@@ -84,18 +85,18 @@ march4cpp::Joint HardwareBuilder::createJoint(YAML::Node jointConfig, std::strin
   }
   else
   {
+    hasIMotionCube = true;
     imc = this->createIMotionCube(jointConfig["imotioncube"]);
-    joint.setIMotionCube(imc);
   }
 
   if (jointConfig["netNumber"].Type() == YAML::NodeType::Undefined)
   {
     ROS_WARN("Joint %s does not have a netNumber", jointName.c_str());
-    joint.setNetNumber(-1);
   }
   else
   {
-    joint.setNetNumber(jointConfig["netNumber"].as<int>());
+    hasNetNumber = true;
+    netNumber = jointConfig["netNumber"].as<int>();
   }
 
   if (jointConfig["temperatureges"].Type() == YAML::NodeType::Undefined)
@@ -104,16 +105,37 @@ march4cpp::Joint HardwareBuilder::createJoint(YAML::Node jointConfig, std::strin
   }
   else
   {
+    hasTemperatureGes = true;
     temperatureGes = this->createTemperatureGES(jointConfig["temperatureges"]);
-    joint.setTemperatureGes(temperatureGes);
   }
 
-  ROS_ASSERT_MSG(joint.hasIMotionCube() || joint.hasTemperatureGES(),
-                 "Joint %s has no IMotionCube and no TemperatureGES. Please "
-                 "check its purpose.",
+  ROS_INFO("actuation mode: %s", actuationMode.c_str());
+  ROS_ASSERT_MSG(hasIMotionCube || hasTemperatureGes, "Joint %s has no IMotionCube and no TemperatureGES. Please "
+                                                      "check its purpose.",
                  jointName.c_str());
-
-  return joint;
+  if (hasTemperatureGes && hasIMotionCube)
+  {
+    if (hasNetNumber)
+    {
+      return march4cpp::Joint(jointName, allowActuation, temperatureGes, imc, netNumber, actuationMode);
+    }
+    else
+    {
+      return march4cpp::Joint(jointName, allowActuation, temperatureGes, imc, actuationMode);
+    }
+  }
+  if (hasTemperatureGes)
+  {
+    return march4cpp::Joint(jointName, allowActuation, temperatureGes, actuationMode);
+  }
+  if (hasNetNumber)
+  {
+    return march4cpp::Joint(jointName, allowActuation, imc, netNumber, actuationMode);
+  }
+  else
+  {
+    return march4cpp::Joint(jointName, allowActuation, imc, actuationMode);
+  }
 }
 
 march4cpp::IMotionCube HardwareBuilder::createIMotionCube(YAML::Node iMotionCubeConfig)

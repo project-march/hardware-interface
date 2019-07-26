@@ -1,5 +1,5 @@
 actuationMode: position
-allowActuation: false
+allowActuation: true
 imotioncube:
   slaveIndex: 2
   encoder:

@@ -1,6 +1,6 @@
 march4:
   ifName: enp2s0
-  ecatCycleTime: 4
+  ecatCycleTime: 2
 #  powerDistributionBoard:
 #    slaveIndex: 7
 #    bootShutdownOffsets:
@@ -19,18 +19,20 @@ march4:
 #    netDriverByteOffsets:
 #      lowVoltageNetOnOff: 4
 #      highVoltageNetOnOff: 3
-#      highVoltageNetEnableDisable: 2
+#      allHighVoltageOnOff: 2
   joints:
     - right_hip_aa:
         allowActuation: true
+        actuationMode: torque   # Make sure when you change the actuationMode, that you also must adjust the controllers.yaml
         netNumber: 1
-        temperatureges: {slaveIndex: 8, byteOffset: 4}
+        temperatureges: {slaveIndex: 8, byteOffset: 0}
         imotioncube:
           slaveIndex: 6
           encoder: {resolution: 12, minPositionIU: 3688, maxPositionIU: 4070, zeroPositionIU: 3884, safetyMarginRad: 0.05}
 
     - left_hip_aa:
         allowActuation: true
+        actuationMode: torque
         netNumber: 5
         temperatureges: {slaveIndex: 8, byteOffset: 0}
         imotioncube:
@@ -39,6 +41,7 @@ march4:
 
     - right_hip_fe:
         allowActuation: true
+        actuationMode: torque
         netNumber: 2
         temperatureges: {slaveIndex: 1, byteOffset: 0}
         imotioncube:
@@ -47,6 +50,7 @@ march4:
 
     - left_hip_fe:
         allowActuation: true
+        actuationMode: torque
         netNumber: 6
         temperatureges: {slaveIndex: 10, byteOffset: 0}
         imotioncube:
@@ -55,6 +59,7 @@ march4:
 
     - right_knee:
         allowActuation: true
+        actuationMode: torque
         netNumber: 3
         temperatureges: {slaveIndex: 1, byteOffset: 4}
         imotioncube:
@@ -63,6 +68,7 @@ march4:
 
     - left_knee:
         allowActuation: true
+        actuationMode: torque
         netNumber: 7
         temperatureges: {slaveIndex: 10, byteOffset: 4}
         imotioncube:
@@ -71,6 +77,7 @@ march4:
 
     - right_ankle:
         allowActuation: true
+        actuationMode: torque
         netNumber: 4
         temperatureges: {slaveIndex: 4, byteOffset: 0}
         imotioncube:
@@ -79,6 +86,7 @@ march4:
 
     - left_ankle:
         allowActuation: true
+        actuationMode: torque
         netNumber: 8
         temperatureges: {slaveIndex: 12, byteOffset: 0}
         imotioncube:

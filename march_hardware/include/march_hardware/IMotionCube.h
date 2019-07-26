@@ -10,6 +10,7 @@
 #include <march_hardware/Slave.h>
 #include <march_hardware/Encoder.h>
 #include <march_hardware/PDOmap.h>
+#include <march_hardware/ActuationMode.h>
 #include <march_hardware/IMotionCubeState.h>
 
 namespace march4cpp
@@ -26,12 +27,13 @@ private:
   void mapMosiPDOs();
   void validateMisoPDOs();
   void validateMosiPDOs();
-  void writeInitialSettings(uint8 ecatCycleTime);
-
+  void writeInitialSettings(uint8 ecatCycleTime, uint8_t modeofOp);
   bool get_bit(uint16 value, int index);
+  ActuationMode actuationMode;
 
 public:
   explicit IMotionCube(int slaveIndex, Encoder encoder);
+  explicit IMotionCube(int slaveIndex, Encoder encoder, ActuationMode actuationmode);
 
   IMotionCube()
   {
@@ -40,9 +42,10 @@ public:
 
   ~IMotionCube() = default;
 
-  void writeInitialSDOs(int ecatCycleTime) override;
+  void writeInitialSDOs(int ecatCycleTime, ActuationMode actuationmode);
 
   float getAngleRad();
+  float getTorque();
   int getAngleIU();
 
   uint16 getStatusWord();
@@ -55,6 +58,8 @@ public:
   void setControlWord(uint16 controlWord);
 
   void actuateRad(float targetRad);
+  void actuateTorque(int targetTorque);
+
   void actuateRadFixedSpeed(float targetRad, float radPerSec);
 
   std::string parseStatusWord(uint16 statusWord);

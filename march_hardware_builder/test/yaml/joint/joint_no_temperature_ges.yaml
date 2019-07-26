@@ -1,3 +1,4 @@
+actuationMode: "torque"
 allowActuation: true
 imotioncube:
   slaveIndex: 10

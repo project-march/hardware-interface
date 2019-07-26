@@ -2,12 +2,14 @@
 #define ROS_CONTROL__MARCH_HARDWARE_INTERFACE_H
 
 #include <control_toolbox/filters.h>
-#include <march_hardware_interface/march_hardware.h>
 #include <ros/ros.h>
+
+#include <march_hardware_interface/march_hardware.h>
+#include <march_hardware/ActuationMode.h>
 #include <realtime_tools/realtime_publisher.h>
 #include <march_shared_resources/ImcErrorState.h>
+//#include <march_shared_resources/AfterLimitCommand.h>
 #include <march_hardware_builder/HardwareBuilder.h>
-
 #include <march_hardware/MarchRobot.h>
 
 using namespace hardware_interface;
@@ -15,6 +17,8 @@ using joint_limits_interface::JointLimits;
 using joint_limits_interface::SoftJointLimits;
 using joint_limits_interface::PositionJointSoftLimitsHandle;
 using joint_limits_interface::PositionJointSoftLimitsInterface;
+using joint_limits_interface::EffortJointSoftLimitsHandle;
+using joint_limits_interface::EffortJointSoftLimitsInterface;
 
 namespace march_hardware_interface {
 static const double POSITION_STEP_FACTOR = 10;
@@ -61,13 +65,17 @@ protected:
   ros::Duration elapsed_time_;
   PositionJointInterface positionJointInterface;
   PositionJointSoftLimitsInterface positionJointSoftLimitsInterface;
+  EffortJointSoftLimitsInterface effortJointSoftLimitsInterface;
   double loop_hz_;
   bool hasPowerDistributionBoard = false;
   boost::shared_ptr<controller_manager::ControllerManager> controller_manager_;
-  typedef boost::shared_ptr<realtime_tools::RealtimePublisher<march_shared_resources::ImcErrorState> > RtPublisherPtr;
-  RtPublisherPtr imc_state_pub_;
+  typedef boost::shared_ptr<realtime_tools::RealtimePublisher<march_shared_resources::ImcErrorState> > RtPublisherImcStatePtr;
+  RtPublisherImcStatePtr imc_state_pub_;
+//  typedef boost::shared_ptr<realtime_tools::RealtimePublisher<march_shared_resources::AfterLimitCommand> > RtPublisherAfterLimitCommandPtr;
+//  RtPublisherAfterLimitCommandPtr after_limit_command_pub_;
   double p_error_, v_error_, e_error_;
   std::vector<SoftJointLimits> soft_limits_;
+  std::vector<JointLimits> joint_limits_;
 
 private:
   void updatePowerNet();

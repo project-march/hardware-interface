@@ -10,13 +10,26 @@ march:
       type: march_temperature_sensor_controller/MarchTemperatureSensorController
       publish_rate: 1
     trajectory:
-      type: position_controllers/JointTrajectoryController
+      type: effort_controllers/JointTrajectoryController
+      # When you switch to position actuationmode, 'effort_controllers' must be substituted with 'position_controllers' and the gains must be removed
+      state_publish_rate: 250
+      allow_partial_joints_goal: true   # Necessary for tuning
       joints:
+        - right_hip_aa
+        - left_hip_aa
         - right_hip_fe
         - left_hip_fe
         - right_knee
         - left_knee
         - right_ankle
         - left_ankle
-        - right_hip_aa
-        - left_hip_aa
+      gains: # Required because we're controlling an effort interface
+        right_hip_aa: {p: 80, i: 30, d: 5, i_clamp: 100, publish_state: true, antiwindup: true}
+        left_hip_aa: {p: 80, i: 30, d: 5, i_clamp: 100, publish_state: true, antiwindup: true}
+        right_hip_fe: {p: 80, i: 0, d: 10, i_clamp: 100, publish_state: true, antiwindup: true}
+        left_hip_fe: {p: 80, i: 0, d: 10, i_clamp: 100, publish_state: true, antiwindup: true}
+        right_knee: {p: 50, i: 0, d: 10, i_clamp: 100, publish_state: true, antiwindup: true}
+        left_knee: {p: 50, i: 0, d: 10, i_clamp: 100, publish_state: true, antiwindup: true}
+        right_ankle: {p: 50, i: 50, d: 3, i_clamp: 100, publish_state: true, antiwindup: true}
+        left_ankle: {p: 50, i: 50, d: 3, i_clamp: 100, publish_state: true, antiwindup: true}
+

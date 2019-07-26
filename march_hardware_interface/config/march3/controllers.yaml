@@ -11,6 +11,7 @@ march:
       publish_rate: 50
     trajectory:
       type: position_controllers/JointTrajectoryController
+      # When you switch to torque actuationmode, 'position_controllers' must be substituted with 'effort_controllers' and the gains must be added
       joints:
         - right_hip
         - left_hip
@@ -18,3 +19,10 @@ march:
         - left_knee
         - right_ankle
         - left_ankle
+#      gains: # These gains are tuned for the march iv, thus be careful
+#        right_hip_fe: {p: 80, i: 0, d: 10, i_clamp: 100, publish_state: true, antiwindup: true}
+#        left_hip_fe: {p: 80, i: 0, d: 10, i_clamp: 100, publish_state: true, antiwindup: true}
+#        right_knee: {p: 50, i: 0, d: 10, i_clamp: 100, publish_state: true, antiwindup: true}
+#        left_knee: {p: 50, i: 0, d: 10, i_clamp: 100, publish_state: true, antiwindup: true}
+#        right_ankle: {p: 50, i: 50, d: 3, i_clamp: 100, publish_state: true, antiwindup: true}
+#        left_ankle: {p: 50, i: 50, d: 3, i_clamp: 100, publish_state: true, antiwindup: true}

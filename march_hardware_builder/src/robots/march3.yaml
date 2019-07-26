@@ -3,6 +3,7 @@ march3:
   ecatCycleTime: 4
   joints:
     - right_hip:
+        actuationMode: position # Make sure when you change the actuationMode, that you also must adjust the controllers.yaml
         allowActuation: true
         imotioncube:
           slaveIndex: 8
@@ -13,6 +14,7 @@ march3:
             zeroPositionIU: 24515
             safetyMarginRad: 0.05
     - left_hip:
+        actuationMode: position
         allowActuation: true
         imotioncube:
           slaveIndex: 3
@@ -23,6 +25,7 @@ march3:
             zeroPositionIU: 11830
             safetyMarginRad: 0.05
     - right_knee:
+        actuationMode: position
         allowActuation: true
         imotioncube:
           slaveIndex: 10
@@ -34,6 +37,7 @@ march3:
             safetyMarginRad: 0.05
     - left_knee:
         allowActuation: true
+        actuationMode: position
         imotioncube:
           slaveIndex: 5
           encoder:
@@ -44,6 +48,7 @@ march3:
             safetyMarginRad: 0.05
     - right_ankle:
         allowActuation: true
+        actuationMode: position
         imotioncube:
           slaveIndex: 12
           encoder:
@@ -53,6 +58,7 @@ march3:
             zeroPositionIU: 1301
             safetyMarginRad: 0.005
     - left_ankle:
+        actuationMode: position
         allowActuation: true
         imotioncube:
           slaveIndex: 7

@@ -152,6 +152,7 @@ void PDOmap::initAllObjects()
   this->allObjects[IMCObjectName::TargetTorque] = IMCObject(0x6071, 16);
   this->allObjects[IMCObjectName::QuickStopDeceleration] = IMCObject(0x6085, 32);
   this->allObjects[IMCObjectName::QuickStopOption] = IMCObject(0x605A, 16);
+  this->allObjects[IMCObjectName::TargetTorque] = IMCObject(0x6071, 16);
   // etc...
   // If a new entry is added here, first add it to the enum (in the header file)!
 }

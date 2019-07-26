@@ -10,16 +10,15 @@
             name="record"
             type="record"
             output="screen"
-            args="-o /home/projectmarch/Documents/logs/Testjoint.bag /march/controller/trajectory/state /clock"
+            args="-o /home/projectmarch/Documents/logs/TestTorqueMode.bag /march/controller/trajectory/state"
     />
-
-    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
 
     <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="true" output="screen" ns="/"
           args="
                 /march/controller/joint_state
                 /march/controller/temperature_sensor
-                /march/controller/trajectory
+                /march/controller/trajectory_effort
+                /march/controller/trajectory_position
             "/>
 
     <node name="march_hardware_interface" pkg="march_hardware_interface" type="march_hardware_interface_node" args="testsetup" output="screen"/>

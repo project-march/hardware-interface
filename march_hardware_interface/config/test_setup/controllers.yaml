@@ -2,14 +2,23 @@ march:
   controller:
     joint_state:
       type: joint_state_controller/JointStateController
-      publish_rate: 50
+      publish_rate: 200
     temperature_sensor:
       type: march_temperature_sensor_controller/MarchTemperatureSensorController
       publish_rate: 50
     pdb_state:
       type: march_pdb_state_controller/MarchPdbStateController
       publish_rate: 50
-    trajectory:
-        type: position_controllers/JointTrajectoryController
-        joints:
-          - test_joint
+    effort_controller:
+      type: effort_controllers/JointEffortController
+      joint: test_joint
+    trajectory_effort:
+      type: effort_controllers/JointTrajectoryController
+      joints:
+        - test_joint
+      gains: # Required because we're controlling an effort interface
+          test_joint: {p: 80, i: 1, d: 0, i_clamp: 10, publish_state: true, antiwindup: true}
+    trajectory_position:
+      type: position_controllers/JointTrajectoryController
+      joints:
+        - test_joint

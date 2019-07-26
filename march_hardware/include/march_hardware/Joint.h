@@ -8,6 +8,7 @@
 #include <march_hardware/IMotionCube.h>
 #include <march_hardware/PowerDistributionBoard.h>
 #include <march_hardware/TemperatureGES.h>
+#include <march_hardware/ActuationMode.h>
 #include <march_hardware/IMotionCubeState.h>
 
 namespace march4cpp
@@ -17,16 +18,29 @@ class Joint
 {
 private:
   std::string name;
-  // Set this number via the hardware builder
-  int netNumber;
+  /**
+   * An explicit difference is made between allowActuation and actuationMode, since the situation can occur that
+   * controllers has to be tested, but the joint should not actuate. For example to see how it responds to the error.
+   * Both the actuationmode and allowactuation are defined in the .yaml in the hardware builder.
+   */
   bool allowActuation;
+  // Set this number via the hardware builder
+  int netNumber = -1;
+  std::string actuationModeName;
+  ActuationMode actuationMode;
   IMotionCube iMotionCube;
   TemperatureGES temperatureGES;
 
 public:
-  Joint(): name(""), netNumber(-1), allowActuation(false)
-  {
-  }
+  // TODO(Tim) pass by reference or pointer instead of making copy
+  // TODO(Isha) refactor to using proper initialization lists
+  Joint(std::string name, bool allowActuation, TemperatureGES temperatureGES, IMotionCube iMotionCube,
+        std::string actuationmode);
+  Joint(std::string name, bool allowActuation, TemperatureGES temperatureGES, IMotionCube iMotionCube, int netNumber,
+        std::string actuationmode);
+  Joint(std::string name, bool allowActuation, TemperatureGES temperatureGES, std::string actuationmode);
+  Joint(std::string name, bool allowActuation, IMotionCube iMotionCube, std::string actuationmode);
+  Joint(std::string name, bool allowActuation, IMotionCube iMotionCube, int netNumber, std::string actuationmode);
 
   void initialize(int ecatCycleTime);
   void prepareActuation();
@@ -34,9 +48,12 @@ public:
   void resetIMotionCube();
 
   void actuateRad(float targetPositionRad);
+  void actuateTorque(int targetTorque);
+  int getActuationMode();
 
   float getAngleRad();
   int getAngleIU();
+  float getTorque();
   float getTemperature();
   IMotionCubeState getIMotionCubeState();
 
@@ -56,7 +73,7 @@ public:
   friend bool operator==(const Joint& lhs, const Joint& rhs)
   {
     return lhs.name == rhs.name && lhs.iMotionCube == rhs.iMotionCube && lhs.temperatureGES == rhs.temperatureGES &&
-           lhs.allowActuation == rhs.allowActuation;
+           lhs.allowActuation == rhs.allowActuation && lhs.actuationMode.getValue() == rhs.actuationMode.getValue();
   }
 
   friend bool operator!=(const Joint& lhs, const Joint& rhs)
@@ -67,16 +84,11 @@ public:
   friend ::std::ostream& operator<<(std::ostream& os, const Joint& joint)
   {
     return os << "name: " << joint.name << ", "
+              << "ActuationMode: " << joint.actuationMode.toString() << ", "
               << "allowActuation: " << joint.allowActuation << ", "
               << "imotioncube: " << joint.iMotionCube << ","
               << "temperatureges: " << joint.temperatureGES;
   }
-
-  void setName(const std::string& name);
-  void setAllowActuation(bool allowActuation);
-  void setIMotionCube(const IMotionCube& iMotionCube);
-  void setTemperatureGes(const TemperatureGES& temperatureGes);
-  void setNetNumber(int netNumber);
 };
 
 }  // namespace march4cpp
