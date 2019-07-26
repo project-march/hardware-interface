@@ -33,7 +33,7 @@ void IMotionCube::mapMisoPDOs()
   PDOmap pdoMapMISO = PDOmap();
   pdoMapMISO.addObject(IMCObjectName::StatusWord);      // Compulsory!
   pdoMapMISO.addObject(IMCObjectName::ActualPosition);  // Compulsory!
-  pdoMapMISO.addObject(IMCObjectName::ActualTorque);
+  pdoMapMISO.addObject(IMCObjectName::ActualTorque);    // Compulsory!
   pdoMapMISO.addObject(IMCObjectName::MotionErrorRegister);
   pdoMapMISO.addObject(IMCObjectName::DetailedErrorRegister);
   this->misoByteOffsets = pdoMapMISO.map(this->slaveIndex, dataDirection::miso);
@@ -62,12 +62,14 @@ void IMotionCube::validateMosiPDOs()
 {
   ROS_ASSERT_MSG(this->mosiByteOffsets.count(IMCObjectName::ControlWord) == 1, "ControlWord not mapped");
 
-  if (this->actuationMode == ActuationMode::position){
-      ROS_ASSERT_MSG(this->mosiByteOffsets.count(IMCObjectName::TargetPosition) == 1, "TargetPosition not mapped");
+  if (this->actuationMode == ActuationMode::position)
+  {
+    ROS_ASSERT_MSG(this->mosiByteOffsets.count(IMCObjectName::TargetPosition) == 1, "TargetPosition not mapped");
   }
 
-  if (this->actuationMode == ActuationMode::torque){
-      ROS_ASSERT_MSG(this->mosiByteOffsets.count(IMCObjectName::TargetTorque) == 1, "TargetTorque not mapped");
+  if (this->actuationMode == ActuationMode::torque)
+  {
+    ROS_ASSERT_MSG(this->mosiByteOffsets.count(IMCObjectName::TargetTorque) == 1, "TargetTorque not mapped");
   }
 }
 
@@ -110,6 +112,7 @@ void IMotionCube::actuateRad(float targetRad)
                  this->actuationMode.toString().c_str());
   if (std::abs(targetRad - this->getAngleRad()) > 0.27)
   {
+    // TODO(bart): also build something like this for torque mode in the trajectory controller
     ROS_ERROR("Target %f exceeds max difference of 0.27 from Torque %f for slave %d", targetRad, this->getAngleRad(),
               this->slaveIndex);
     throw std::runtime_error("Target exceeds max difference of 0.27 from Torque position");
@@ -119,12 +122,12 @@ void IMotionCube::actuateRad(float targetRad)
 
 void IMotionCube::actuateTorque(int targetTorque)
 {
-  ROS_ASSERT_MSG(this->actuationMode == ActuationMode::torque, "trying to actuate Torque, while actuationmode = "
+  ROS_ASSERT_MSG(this->actuationMode == ActuationMode::torque, "trying to actuate torque, while actuationmode = "
                                                                "%s",
                  this->actuationMode.toString().c_str());
 
-  // The targetTorque must not exceed the value of 27300 IU, this is 25 A. This value could be increased in the future with good reasoning.
-  // TODO: @baco decide what the maximum Torque is that must not be exceeded
+  // The targetTorque must not exceed the value of 27300 IU, this is 25 A. This value could be increased in the future
+  // (to 30A) with good reasoning.
   ROS_ASSERT_MSG(targetTorque < 27300, "Torque of %d is too high.", targetTorque);
 
   union bit16 targetTorqueStruct;
@@ -138,8 +141,8 @@ void IMotionCube::actuateTorque(int targetTorque)
 
   int targetTorqueLocation = this->mosiByteOffsets[IMCObjectName::TargetTorque];
 
-  ROS_DEBUG("Trying to actuate slave %d, soem location %d with targetTorque%i", this->slaveIndex,
-            targetTorqueLocation, targetTorqueStruct.i);
+  ROS_DEBUG("Trying to actuate slave %d, soem location %d with targetTorque%i", this->slaveIndex, targetTorqueLocation,
+            targetTorqueStruct.i);
 
   set_output_bit16(this->slaveIndex, targetTorqueLocation, targetTorqueStruct);
 }

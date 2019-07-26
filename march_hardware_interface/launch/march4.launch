@@ -10,12 +10,11 @@
                 /march/controller/joint_state
                 /march/controller/temperature_sensor
                 /march/controller/trajectory
+                /march/controller/pdb_state
             "/>
-    <!--                /march/controller/pdb_state-->
-    <!--    /march/controller/trajectory_position-->
 
     <node name="march_hardware_interface" pkg="march_hardware_interface" type="march_hardware_interface_node" args="march4" output="screen">
-        <!--        <param name="loop_hz" value="250"/>-->
+                <param name="loop_hz" value="250"/>
     </node>
 
 </launch>

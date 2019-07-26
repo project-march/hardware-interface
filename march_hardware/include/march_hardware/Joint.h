@@ -18,7 +18,6 @@ class Joint
 {
 private:
   std::string name;
-  // TODO(bart) review this comment if it still makes sense
   /**
    * An explicit difference is made between allowActuation and actuationMode, since the situation can occur that
    * controllers has to be tested, but the joint should not actuate. For example to see how it responds to the error.
@@ -34,7 +33,7 @@ private:
 
 public:
   // TODO(Tim) pass by reference or pointer instead of making copy
-  // TODO refactor to using proper initialization lists
+  // TODO(Isha) refactor to using proper initialization lists
   Joint(std::string name, bool allowActuation, TemperatureGES temperatureGES, IMotionCube iMotionCube,
         std::string actuationmode);
   Joint(std::string name, bool allowActuation, TemperatureGES temperatureGES, IMotionCube iMotionCube, int netNumber,

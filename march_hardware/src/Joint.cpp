@@ -31,7 +31,7 @@ Joint::Joint(std::string name, bool allowActuation, TemperatureGES temperatureGE
 }
 
 // Only Temperature GES
-// TODO(bart): make sure these constructors make sense with actuationmode
+// TODO(bart): make sure these constructors make sense with actuationmode, can also be done after the initializer list
 Joint::Joint(std::string name, bool allowActuation, TemperatureGES temperatureGES, std::string actuationModeName)
   : temperatureGES(temperatureGES), actuationMode(ActuationMode(actuationModeName))
 {
@@ -73,7 +73,7 @@ void Joint::initialize(int ecatCycleTime)
 
 void Joint::prepareActuation()
 {
-    ROS_INFO("The mode of actuation for joint %s is: %s", this->name.c_str(), this->actuationModeName.c_str());
+  ROS_INFO("The mode of actuation for joint %s is: %s", this->name.c_str(), this->actuationModeName.c_str());
   if (this->allowActuation)
   {
     ROS_INFO("Preparing joint %s for actuation", this->name.c_str());
@@ -104,7 +104,6 @@ void Joint::actuateRad(float targetPositionRad)
 
 void Joint::actuateTorque(int targetTorque)
 {
-  // TODO(BaCo) check that the position is allowed and does not exceed (torque) limits.
   this->iMotionCube.actuateTorque(targetTorque);
 }
 
@@ -155,23 +154,23 @@ float Joint::getTemperature()
 
 IMotionCubeState Joint::getIMotionCubeState()
 {
-    // Return an object of strings:
-    // the literal bits of the Status Word, Detailed Error and Motion Error
-    // and the parsed interpretation of these bits
-    IMotionCubeState states;
+  // Return an object of strings:
+  // the literal bits of the Status Word, Detailed Error and Motion Error
+  // and the parsed interpretation of these bits
+  IMotionCubeState states;
 
-    std::bitset<16> statusWordBits = this->iMotionCube.getStatusWord();
-    states.statusWord = statusWordBits.to_string();
-    std::bitset<16> detailedErrorBits = this->iMotionCube.getDetailedError();
-    states.detailedError = detailedErrorBits.to_string();
-    std::bitset<16> motionErrorBits = this->iMotionCube.getMotionError();
-    states.motionError = motionErrorBits.to_string();
+  std::bitset<16> statusWordBits = this->iMotionCube.getStatusWord();
+  states.statusWord = statusWordBits.to_string();
+  std::bitset<16> detailedErrorBits = this->iMotionCube.getDetailedError();
+  states.detailedError = detailedErrorBits.to_string();
+  std::bitset<16> motionErrorBits = this->iMotionCube.getMotionError();
+  states.motionError = motionErrorBits.to_string();
 
-    states.state = this->iMotionCube.getState(this->iMotionCube.getStatusWord());
-    states.detailedErrorDescription = this->iMotionCube.parseDetailedError(this->iMotionCube.getDetailedError());
-    states.motionErrorDescription = this->iMotionCube.parseMotionError(this->iMotionCube.getMotionError());
+  states.state = this->iMotionCube.getState(this->iMotionCube.getStatusWord());
+  states.detailedErrorDescription = this->iMotionCube.parseDetailedError(this->iMotionCube.getDetailedError());
+  states.motionErrorDescription = this->iMotionCube.parseMotionError(this->iMotionCube.getMotionError());
 
-    return states;
+  return states;
 }
 
 int Joint::getTemperatureGESSlaveIndex()
