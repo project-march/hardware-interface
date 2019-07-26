@@ -45,9 +45,9 @@ void MarchHardwareInterface::init()
   imc_state_pub_ = RtPublisherImcStatePtr(
       new realtime_tools::RealtimePublisher<march_shared_resources::ImcErrorState>(this->nh_, "/march/imc_states/", 4));
 
-  after_limit_command_pub_ =
-      RtPublisherAfterLimitCommandPtr(new realtime_tools::RealtimePublisher<march_shared_resources::AfterLimitCommand>(
-          this->nh_, "/march/after_limit_command/", 4));
+//  after_limit_command_pub_ =
+//      RtPublisherAfterLimitCommandPtr(new realtime_tools::RealtimePublisher<march_shared_resources::AfterLimitCommand>(
+//          this->nh_, "/march/after_limit_command/", 4));
 
   // Start ethercat cycle in the hardware
   this->marchRobot.startEtherCAT();
