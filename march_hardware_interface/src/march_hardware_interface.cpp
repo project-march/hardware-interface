@@ -85,9 +85,9 @@ void MarchHardwareInterface::init()
 
     JointLimits joint_limits;
     getJointLimits(model.getJoint(joint_names_[i]), joint_limits);
-    ROS_INFO("%s joint_limits_ (%f, %f).", joint_names_[i].c_str(), joint_limits.min_position, joint_limits.max_position);
+    ROS_INFO("%s joint_limits_ (%f, %f).", joint_names_[i].c_str(), joint_limits.min_position,
+             joint_limits.max_position);
     joint_limits_[i] = joint_limits;
-
   }
 
   resetIMotionCubesUntilTheyWork();
