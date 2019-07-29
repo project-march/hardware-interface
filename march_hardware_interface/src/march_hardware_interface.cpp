@@ -74,6 +74,7 @@ void MarchHardwareInterface::init()
   joint_velocity_command_.resize(num_joints_);
   joint_effort_command_.resize(num_joints_);
   soft_limits_.resize(num_joints_);
+  joint_limits_.resize(num_joints_);
 
   for (int i = 0; i < num_joints_; ++i)
   {
@@ -81,6 +82,12 @@ void MarchHardwareInterface::init()
     getSoftJointLimits(model.getJoint(joint_names_[i]), soft_limits);
     ROS_INFO("%s soft_limits_ (%f, %f).", joint_names_[i].c_str(), soft_limits.min_position, soft_limits.max_position);
     soft_limits_[i] = soft_limits;
+
+    JointLimits joint_limits;
+    getJointLimits(model.getJoint(joint_names_[i]), joint_limits);
+    ROS_INFO("%s joint_limits_ (%f, %f).", joint_names_[i].c_str(), joint_limits.min_position, joint_limits.max_position);
+    joint_limits_[i] = joint_limits;
+
   }
 
   resetIMotionCubesUntilTheyWork();
@@ -424,18 +431,18 @@ void MarchHardwareInterface::iMotionCubeStateCheck(int joint_index)
 void MarchHardwareInterface::outsideLimitsCheck(int joint_index)
 {
   march4cpp::Joint joint = marchRobot.getJoint(joint_names_[joint_index]);
-  if (joint_position_[joint_index] < soft_limits_[joint_index].min_position ||
-      joint_position_[joint_index] > soft_limits_[joint_index].max_position)
+  if (joint_position_[joint_index] < joint_limits_[joint_index].min_position ||
+      joint_position_[joint_index] > joint_limits_[joint_index].max_position)
   {
-    ROS_ERROR_THROTTLE(1, "Joint %s is outside of its soft_limits_ (%f, %f). Actual position: %f",
-                       joint_names_[joint_index].c_str(), soft_limits_[joint_index].min_position,
-                       soft_limits_[joint_index].max_position, joint_position_[joint_index]);
+    ROS_ERROR_THROTTLE(1, "Joint %s is outside of its joint_limits_ (%f, %f). Actual position: %f",
+                       joint_names_[joint_index].c_str(), joint_limits_[joint_index].min_position,
+                       joint_limits_[joint_index].max_position, joint_position_[joint_index]);
 
     if (joint.canActuate())
     {
       std::ostringstream errorStream;
-      errorStream << "Joint " << joint_names_[joint_index].c_str() << " is out of its soft_limits_ ("
-                  << soft_limits_[joint_index].min_position << ", " << soft_limits_[joint_index].max_position
+      errorStream << "Joint " << joint_names_[joint_index].c_str() << " is out of its joint_limits_ ("
+                  << joint_limits_[joint_index].min_position << ", " << joint_limits_[joint_index].max_position
                   << "). Actual position: " << joint_position_[joint_index];
       throw ::std::runtime_error(errorStream.str());
     }
