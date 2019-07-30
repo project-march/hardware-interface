@@ -6,6 +6,7 @@
 #include <map>
 #include <string>
 
+#include <march_hardware/ActuationMode.h>
 #include <march_hardware/EtherCAT/EthercatIO.h>
 #include <march_hardware/Slave.h>
 #include <march_hardware/Encoder.h>
@@ -18,6 +19,8 @@ class IMotionCube : public Slave
 {
 private:
   Encoder encoder;
+  ActuationMode actuationMode;
+
   void actuateIU(int iu);
 
   std::map<IMCObjectName, int> misoByteOffsets;
@@ -49,6 +52,11 @@ public:
   uint16 getMotionError();
   uint16 getDetailedError();
 
+  ActuationMode getActuationMode() const
+  {
+    return this->actuationMode;
+  }
+
   float getMotorCurrent();
   float getMotorVoltage();
 
@@ -64,6 +72,11 @@ public:
 
   bool goToOperationEnabled();
   bool resetIMotionCube();
+
+  void setActuationMode(ActuationMode actuationMode)
+  {
+    this->actuationMode = actuationMode;
+  }
 
   /** @brief Override comparison operator */
   friend bool operator==(const IMotionCube& lhs, const IMotionCube& rhs)

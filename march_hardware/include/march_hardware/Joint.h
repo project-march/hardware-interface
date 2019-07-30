@@ -48,6 +48,19 @@ public:
     return netNumber;
   }
 
+  ActuationMode getActuationMode() const
+  {
+    return this->iMotionCube.getActuationMode();
+  }
+
+  void setActuationMode(ActuationMode actuationMode){
+    if (this->iMotionCube.getActuationMode() != ActuationMode::unknown){
+      throw std::runtime_error("Cannot change actuation mode at runtime");
+    }
+
+    this->iMotionCube.setActuationMode(actuationMode);
+  }
+
   bool hasIMotionCube();
   bool hasTemperatureGES();
   bool canActuate();
@@ -56,7 +69,8 @@ public:
   friend bool operator==(const Joint& lhs, const Joint& rhs)
   {
     return lhs.name == rhs.name && lhs.iMotionCube == rhs.iMotionCube && lhs.temperatureGES == rhs.temperatureGES &&
-           lhs.allowActuation == rhs.allowActuation;
+           lhs.allowActuation == rhs.allowActuation &&
+           lhs.getActuationMode().getValue() == rhs.getActuationMode().getValue();
   }
 
   friend bool operator!=(const Joint& lhs, const Joint& rhs)
@@ -67,6 +81,7 @@ public:
   friend ::std::ostream& operator<<(std::ostream& os, const Joint& joint)
   {
     return os << "name: " << joint.name << ", "
+              << "ActuationMode: " << joint.getActuationMode().toString() << ", "
               << "allowActuation: " << joint.allowActuation << ", "
               << "imotioncube: " << joint.iMotionCube << ","
               << "temperatureges: " << joint.temperatureGES;

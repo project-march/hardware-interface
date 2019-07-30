@@ -21,6 +21,8 @@ void Joint::initialize(int ecatCycleTime)
 
 void Joint::prepareActuation()
 {
+  ROS_ASSERT_MSG(this->getActuationMode() != ActuationMode::unknown, "The mode of actuation for joint %s is: %s",
+                 this->name.c_str(), this->getActuationMode().toString().c_str());
   if (this->allowActuation)
   {
     ROS_INFO("Preparing joint %s for actuation", this->name.c_str());
