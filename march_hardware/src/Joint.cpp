@@ -163,4 +163,15 @@ void Joint::setNetNumber(int netNumber)
 {
   Joint::netNumber = netNumber;
 }
+
+ActuationMode Joint::getActuationMode() const
+{
+  return this->iMotionCube.getActuationMode();
+}
+
+void Joint::setActuationMode(ActuationMode actuationMode)
+{
+  this->iMotionCube.setActuationMode(actuationMode);
+}
+
 }  // namespace march4cpp

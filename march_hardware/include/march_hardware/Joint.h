@@ -48,15 +48,9 @@ public:
     return netNumber;
   }
 
-  ActuationMode getActuationMode() const
-  {
-    return this->iMotionCube.getActuationMode();
-  }
+  ActuationMode getActuationMode() const;
 
-  void setActuationMode(ActuationMode actuationMode)
-  {
-    this->iMotionCube.setActuationMode(actuationMode);
-  }
+  void setActuationMode(ActuationMode actuationMode);
 
   bool hasIMotionCube();
   bool hasTemperatureGES();

@@ -513,6 +513,20 @@ bool IMotionCube::resetIMotionCube()
   sdo_bit16(slaveIndex, 0x2080, 0, 1);
 }
 
+ActuationMode IMotionCube::getActuationMode() const
+{
+  return this->actuationMode;
+}
+
+void IMotionCube::setActuationMode(ActuationMode mode)
+{
+  if (this->actuationMode != ActuationMode::unknown)
+  {
+    throw std::runtime_error("Cannot change actuation mode at runtime");
+  }
+  this->actuationMode = mode;
+}
+
 bool IMotionCube::get_bit(uint16 value, int index)
 {
   return static_cast<bool>(value & (1 << index));

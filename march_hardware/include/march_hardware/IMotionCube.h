@@ -52,10 +52,7 @@ public:
   uint16 getMotionError();
   uint16 getDetailedError();
 
-  ActuationMode getActuationMode() const
-  {
-    return this->actuationMode;
-  }
+  ActuationMode getActuationMode() const;
 
   float getMotorCurrent();
   float getMotorVoltage();
@@ -72,14 +69,7 @@ public:
   bool goToOperationEnabled();
   bool resetIMotionCube();
 
-  void setActuationMode(ActuationMode actuationMode)
-  {
-    if (this->actuationMode != ActuationMode::unknown)
-    {
-      throw std::runtime_error("Cannot change actuation mode at runtime");
-    }
-    this->actuationMode = actuationMode;
-  }
+  void setActuationMode(ActuationMode mode);
 
   /** @brief Override comparison operator */
   friend bool operator==(const IMotionCube& lhs, const IMotionCube& rhs)
