@@ -75,6 +75,10 @@ public:
 
   void setActuationMode(ActuationMode actuationMode)
   {
+    if (this->actuationMode != ActuationMode::unknown)
+    {
+      throw std::runtime_error("Cannot change actuation mode at runtime");
+    }
     this->actuationMode = actuationMode;
   }
 

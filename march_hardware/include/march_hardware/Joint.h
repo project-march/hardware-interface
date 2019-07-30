@@ -53,11 +53,8 @@ public:
     return this->iMotionCube.getActuationMode();
   }
 
-  void setActuationMode(ActuationMode actuationMode){
-    if (this->iMotionCube.getActuationMode() != ActuationMode::unknown){
-      throw std::runtime_error("Cannot change actuation mode at runtime");
-    }
-
+  void setActuationMode(ActuationMode actuationMode)
+  {
     this->iMotionCube.setActuationMode(actuationMode);
   }
 

@@ -3,7 +3,7 @@
 #ifndef MARCH_HARDWARE_INTERFACE_ACTUATIONMODE_H
 #define MARCH_HARDWARE_INTERFACE_ACTUATIONMODE_H
 
-#include <ros/package.h>
+#include <ros/console.h>
 
 namespace march4cpp
 {
