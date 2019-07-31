@@ -41,9 +41,9 @@ void MarchHardwareInterface::init()
   imc_state_pub_ = RtPublisherImcStatePtr(
       new realtime_tools::RealtimePublisher<march_shared_resources::ImcErrorState>(this->nh_, "/march/imc_states/", 4));
 
-  after_limit_command_pub_ =
-      RtPublisherAfterLimitCommandPtr(new realtime_tools::RealtimePublisher<march_shared_resources::AfterLimitCommand>(
-          this->nh_, "/march/after_limit_command/", 4));
+  after_limit_joint_command_pub_ = RtPublisherAfterLimitJointCommandPtr(
+      new realtime_tools::RealtimePublisher<march_shared_resources::AfterLimitJointCommand>(
+          this->nh_, "/march/after_limit_joint_command/", 4));
 
   // Start ethercat cycle in the hardware
   this->marchRobot.startEtherCAT();
@@ -251,15 +251,19 @@ void MarchHardwareInterface::read(ros::Duration elapsed_time)
 
 void MarchHardwareInterface::write(ros::Duration elapsed_time)
 {
+  for (int i = 0; i < num_joints_; i++)
+  {
+    ROS_DEBUG("Before limits: Trying to actuate joint %s, to %lf "
+              "rad, %f speed, %f effort.",
+              joint_names_[i].c_str(), joint_position_command_[i], joint_velocity_command_[i],
+              joint_effort_command_[i]);
+  }
+
   positionJointSoftLimitsInterface.enforceLimits(elapsed_time);
 
-  ROS_DEBUG("Before limits: Trying to actuate joint %s, to %lf "
-            "rad, %f speed, %f effort.",
-            joint_names_[0].c_str(), joint_position_command_[0], joint_velocity_command_[0], joint_effort_command_[0]);
-
-  after_limit_command_pub_->msg_.name.clear();
-  after_limit_command_pub_->msg_.position_command.clear();
-  after_limit_command_pub_->msg_.effort_command.clear();
+  after_limit_joint_command_pub_->msg_.name.clear();
+  after_limit_joint_command_pub_->msg_.position_command.clear();
+  after_limit_joint_command_pub_->msg_.effort_command.clear();
 
   for (int i = 0; i < num_joints_; i++)
   {
@@ -273,15 +277,15 @@ void MarchHardwareInterface::write(ros::Duration elapsed_time)
                 joint_effort_command_[i]);
       marchRobot.getJoint(joint_names_[i]).actuateRad(static_cast<float>(joint_position_command_[i]));
 
-      after_limit_command_pub_->msg_.name.push_back(singleJoint.getName());
-      after_limit_command_pub_->msg_.position_command.push_back(joint_position_command_[i]);
-      after_limit_command_pub_->msg_.effort_command.push_back(0);
+      after_limit_joint_command_pub_->msg_.name.push_back(singleJoint.getName());
+      after_limit_joint_command_pub_->msg_.position_command.push_back(joint_position_command_[i]);
+      after_limit_joint_command_pub_->msg_.effort_command.push_back(0);
     }
   }
 
-  if (after_limit_command_pub_->trylock())
+  if (after_limit_joint_command_pub_->trylock())
   {
-    after_limit_command_pub_->unlockAndPublish();
+    after_limit_joint_command_pub_->unlockAndPublish();
   }
 
   if (hasPowerDistributionBoard)

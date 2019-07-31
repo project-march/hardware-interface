@@ -6,7 +6,7 @@
 #include <ros/ros.h>
 #include <realtime_tools/realtime_publisher.h>
 #include <march_shared_resources/ImcErrorState.h>
-#include <march_shared_resources/AfterLimitCommand.h>
+#include <march_shared_resources/AfterLimitJointCommand.h>
 #include <march_hardware_builder/HardwareBuilder.h>
 
 #include <march_hardware/MarchRobot.h>
@@ -67,8 +67,8 @@ protected:
   boost::shared_ptr<controller_manager::ControllerManager> controller_manager_;
   typedef boost::shared_ptr<realtime_tools::RealtimePublisher<march_shared_resources::ImcErrorState> > RtPublisherImcStatePtr;
   RtPublisherImcStatePtr imc_state_pub_;
-  typedef boost::shared_ptr<realtime_tools::RealtimePublisher<march_shared_resources::AfterLimitCommand> > RtPublisherAfterLimitCommandPtr;
-  RtPublisherAfterLimitCommandPtr after_limit_command_pub_;
+  typedef boost::shared_ptr<realtime_tools::RealtimePublisher<march_shared_resources::AfterLimitJointCommand> > RtPublisherAfterLimitJointCommandPtr;
+  RtPublisherAfterLimitJointCommandPtr after_limit_joint_command_pub_;
   double p_error_, v_error_, e_error_;
   std::vector<SoftJointLimits> soft_limits_;
 
