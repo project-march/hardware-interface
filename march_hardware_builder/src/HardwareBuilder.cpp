@@ -78,17 +78,6 @@ march4cpp::Joint HardwareBuilder::createJoint(YAML::Node jointConfig, std::strin
   bool allowActuation = jointConfig["allowActuation"].as<bool>();
   joint.setAllowActuation(allowActuation);
 
-  if (jointConfig["actuationMode"].Type() != YAML::NodeType::Undefined)
-  {
-    std::string mode = jointConfig["actuationMode"].as<std::string>();
-    joint.setActuationMode(march4cpp::ActuationMode(mode));
-  }
-  else
-  {
-    joint.setActuationMode(march4cpp::ActuationMode("unknown"));
-  }
-
-
   if (jointConfig["imotioncube"].Type() == YAML::NodeType::Undefined)
   {
     ROS_WARN("Joint %s does not have a configuration for an IMotionCube", jointName.c_str());
@@ -97,6 +86,16 @@ march4cpp::Joint HardwareBuilder::createJoint(YAML::Node jointConfig, std::strin
   {
     imc = this->createIMotionCube(jointConfig["imotioncube"]);
     joint.setIMotionCube(imc);
+  }
+
+  if (jointConfig["actuationMode"].Type() != YAML::NodeType::Undefined)
+  {
+    std::string mode = jointConfig["actuationMode"].as<std::string>();
+    joint.setActuationMode(march4cpp::ActuationMode(mode));
+  }
+  else
+  {
+    joint.setActuationMode(march4cpp::ActuationMode("unknown"));
   }
 
   if (jointConfig["netNumber"].Type() == YAML::NodeType::Undefined)
