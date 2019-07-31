@@ -11,6 +11,7 @@
 #include <march_hardware/Encoder.h>
 #include <march_hardware/PDOmap.h>
 #include <march_hardware/IMotionCubeState.h>
+#include <march_hardware/IMotionCubeTargetState.h>
 
 namespace march4cpp
 {
@@ -55,7 +56,6 @@ public:
   void setControlWord(uint16 controlWord);
 
   void actuateRad(float targetRad);
-  void actuateRadFixedSpeed(float targetRad, float radPerSec);
 
   std::string parseStatusWord(uint16 statusWord);
   IMCState getState(uint16 statusWord);
@@ -76,6 +76,7 @@ public:
     return os << "slaveIndex: " << iMotionCube.slaveIndex << ", "
               << "encoder: " << iMotionCube.encoder;
   }
+  bool goToTargetState(march4cpp::IMotionCubeTargetState targetState);
 };
 
 }  // namespace march4cpp

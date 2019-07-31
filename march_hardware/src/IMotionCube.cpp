@@ -83,9 +83,9 @@ void IMotionCube::writeInitialSettings(uint8 ecatCycleTime)
   success &= sdo_bit32(slaveIndex, 0x6093, 2, 1);
 
   // position limit -- min position
-  success &= sdo_bit32(slaveIndex, 0x607D, 1, this->encoder.getMinPositionIU());
+  success &= sdo_bit32(slaveIndex, 0x607D, 1, this->encoder.getLowerSoftLimitIU());
   // position limit -- max position
-  success &= sdo_bit32(slaveIndex, 0x607D, 2, this->encoder.getMaxPositionIU());
+  success &= sdo_bit32(slaveIndex, 0x607D, 2, this->encoder.getUpperSoftLimitIU());
 
   // Quick stop option
   success &= sdo_bit16(slaveIndex, 0x605A, 0, 6);
@@ -111,45 +111,12 @@ void IMotionCube::actuateRad(float targetRad)
   this->actuateIU(this->encoder.RadtoIU(targetRad));
 }
 
-void IMotionCube::actuateRadFixedSpeed(float targetRad, float radPerSec)
-{
-  if (radPerSec <= 0)
-  {
-    ROS_ERROR("Rad per sec must be bigger than 0, given: %f", radPerSec);
-    return;
-  }
-  if (radPerSec > 0.5)
-  {
-    ROS_ERROR("Rad per sec must be smaller than 0.5, given: %f", radPerSec);
-    return;
-  }
-  if (!this->encoder.isValidTargetPositionIU(this->encoder.RadtoIU(targetRad)))
-  {
-    ROS_ERROR("Target position is outside the allowed range of motion, given: %f", targetRad);
-    return;
-  }
-  float currentRad = this->getAngleRad();
-  ROS_INFO("Trying to go from position %f to position %f with speed %f", currentRad, targetRad, radPerSec);
-  float distance = targetRad - currentRad;
-  int resolution = 250;
-  int cycles = std::floor(std::abs(distance) / radPerSec * resolution) + 1;
-  for (int i = 0; i < cycles; i++)
-  {
-    float index = i;
-    float calculatedTarget = currentRad + (index / cycles * distance);
-    ROS_INFO_STREAM("Target: " << calculatedTarget);
-    ROS_INFO_STREAM("Current: " << this->getAngleRad());
-    usleep(static_cast<__useconds_t>(1000000 / resolution));
-    this->actuateRad(calculatedTarget);
-  }
-}
-
 void IMotionCube::actuateIU(int targetIU)
 {
-  if (!this->encoder.isValidTargetPositionIU(targetIU))
+  if (!this->encoder.isWithinSoftLimitsIU(targetIU))
   {
     ROS_ERROR("Position %i is invalid for slave %d. (%d, %d)", targetIU, this->slaveIndex,
-              this->encoder.getMinPositionIU(), this->encoder.getMaxPositionIU());
+              this->encoder.getLowerSoftLimitIU(), this->encoder.getUpperSoftLimitIU());
     throw std::runtime_error("Invalid IU actuate command.");
   }
 
@@ -446,49 +413,25 @@ std::string IMotionCube::parseDetailedError(uint16 detailedError)
   return errorDescription;
 }
 
+bool IMotionCube::goToTargetState(IMotionCubeTargetState targetState)
+{
+  ROS_INFO("\tTry to go to '%s'", targetState.getDescription().c_str());
+  while (!targetState.isReached(this->getStatusWord()))
+  {
+    this->setControlWord(targetState.getControlWord());
+    ROS_INFO_THROTTLE(0.5, "\tWaiting for '%s': %s", targetState.getDescription().c_str(),
+                      std::bitset<16>(this->getStatusWord()).to_string().c_str());
+  }
+  ROS_INFO("\tReached '%s'!", targetState.getDescription().c_str());
+}
+
 bool IMotionCube::goToOperationEnabled()
 {
   this->setControlWord(128);
 
-  ROS_INFO("\tTry to go to 'Switch on Disabled'");
-  bool switchOnDisabled = false;
-  while (!switchOnDisabled)
-  {
-    this->setControlWord(128);
-    int statusWord = this->getStatusWord();
-    int switchOnDisabledMask = 0b0000000001001111;
-    int switchOnDisabledState = 64;
-    switchOnDisabled = (statusWord & switchOnDisabledMask) == switchOnDisabledState;
-    ROS_INFO_STREAM_THROTTLE(0.5, "\tWaiting for 'Switch on Disabled': " << std::bitset<16>(statusWord));
-  }
-  ROS_INFO("\tSwitch on Disabled!");
-
-  ROS_INFO("\tTry to go to 'Ready to Switch On'");
-  bool readyToSwitchOn = false;
-  while (!readyToSwitchOn)
-  {
-    this->setControlWord(6);
-    int statusWord = this->getStatusWord();
-    int readyToSwitchOnMask = 0b0000000001101111;
-    int readyToSwitchOnState = 33;
-    readyToSwitchOn = (statusWord & readyToSwitchOnMask) == readyToSwitchOnState;
-    ROS_INFO_STREAM_THROTTLE(0.5, "\tWaiting for 'Ready to Switch On': " << std::bitset<16>(statusWord));
-  }
-  ROS_INFO("\tReady to Switch On!");
-
-  ROS_INFO("\tTry to go to 'Switched On'");
-  bool switchedOn = false;
-  while (!switchedOn)
-  {
-    this->setControlWord(7);
-    int statusWord = this->getStatusWord();
-    int switchedOnMask = 0b0000000001101111;
-    int switchedOnState = 35;
-    switchedOn = (statusWord & switchedOnMask) == switchedOnState;
-    ROS_INFO_STREAM_THROTTLE(0.5, "\tWaiting for 'Switched On': " << std::bitset<16>(statusWord));
-  }
-  ROS_INFO("\tSwitched On!");
-
+  this->goToTargetState(IMotionCubeTargetState::SWITCH_ON_DISABLED);
+  this->goToTargetState(IMotionCubeTargetState::READY_TO_SWITCH_ON);
+  this->goToTargetState(IMotionCubeTargetState::SWITCHED_ON);
   // If ActualPosition is not defined in PDOmapping, a fatal error is thrown
   // because of safety reasons
   ROS_ASSERT_MSG(this->misoByteOffsets.count(IMCObjectName::ActualPosition) == 1, "ActualPosition not defined in PDO "
@@ -497,7 +440,7 @@ bool IMotionCube::goToOperationEnabled()
   int angleRead = this->encoder.getAngleIU(this->misoByteOffsets[IMCObjectName::ActualPosition]);
   //  If the encoder is functioning correctly, move the joint to its current
   //  position. Otherwise shutdown
-  if (this->encoder.isValidTargetPositionIU(angleRead) && angleRead != 0)
+  if (this->encoder.isWithinHardLimitsIU(angleRead) && angleRead != 0)
   {
     this->actuateIU(angleRead);
   }
@@ -505,22 +448,11 @@ bool IMotionCube::goToOperationEnabled()
   {
     ROS_FATAL("Encoder of iMotionCube (with slaveindex %d) is not functioning properly, read value %d, min value "
               "is %d, max value is %d. Shutting down",
-              this->slaveIndex, angleRead, this->encoder.getMinPositionIU(), this->encoder.getMaxPositionIU());
+              this->slaveIndex, angleRead, this->encoder.getLowerHardLimitIU(), this->encoder.getUpperHardLimitIU());
     throw std::domain_error("Encoder is not functioning properly");
   }
 
-  ROS_INFO("\tTry to go to 'Operation Enabled'");
-  bool operationEnabled = false;
-  while (!operationEnabled)
-  {
-    this->setControlWord(15);
-    int statusWord = this->getStatusWord();
-    int operationEnabledMask = 0b0000000001101111;
-    int operationEnabledState = 39;
-    operationEnabled = (statusWord & operationEnabledMask) == operationEnabledState;
-    ROS_INFO_STREAM_THROTTLE(0.5, "\tWaiting for 'Operation Enabled': " << std::bitset<16>(statusWord));
-  }
-  ROS_INFO("\tOperation Enabled!");
+  this->goToTargetState(IMotionCubeTargetState::OPERATION_ENABLED);
 }
 
 bool IMotionCube::resetIMotionCube()
