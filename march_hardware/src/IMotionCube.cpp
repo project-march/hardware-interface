@@ -32,8 +32,10 @@ void IMotionCube::mapMisoPDOs()
   PDOmap pdoMapMISO = PDOmap();
   pdoMapMISO.addObject(IMCObjectName::StatusWord);      // Compulsory!
   pdoMapMISO.addObject(IMCObjectName::ActualPosition);  // Compulsory!
+  pdoMapMISO.addObject(IMCObjectName::ActualTorque);    // Compulsory!
   pdoMapMISO.addObject(IMCObjectName::MotionErrorRegister);
   pdoMapMISO.addObject(IMCObjectName::DetailedErrorRegister);
+  pdoMapMISO.addObject(IMCObjectName::DCLinkVoltage);
   this->misoByteOffsets = pdoMapMISO.map(this->slaveIndex, dataDirection::miso);
 }
 
@@ -44,6 +46,7 @@ void IMotionCube::mapMosiPDOs()
   PDOmap pdoMapMOSI = PDOmap();
   pdoMapMOSI.addObject(IMCObjectName::ControlWord);  // Compulsory!
   pdoMapMOSI.addObject(IMCObjectName::TargetPosition);
+  pdoMapMOSI.addObject(IMCObjectName::TargetTorque);
   this->mosiByteOffsets = pdoMapMOSI.map(this->slaveIndex, dataDirection::mosi);
 }
 
@@ -52,6 +55,8 @@ void IMotionCube::validateMisoPDOs()
 {
   ROS_ASSERT_MSG(this->misoByteOffsets.count(IMCObjectName::StatusWord) == 1, "StatusWord not mapped");
   ROS_ASSERT_MSG(this->misoByteOffsets.count(IMCObjectName::ActualPosition) == 1, "ActualPosition not mapped");
+  ROS_ASSERT_MSG(this->mosiByteOffsets.count(IMCObjectName::TargetPosition) == 1, "TargetPosition not mapped");
+  ROS_ASSERT_MSG(this->mosiByteOffsets.count(IMCObjectName::TargetTorque) == 1, "TargetTorque not mapped");
 }
 
 // Checks if the compulsory MOSI PDO objects are mapped
@@ -202,6 +207,36 @@ uint16 IMotionCube::getDetailedError()
     return 0xFFFF;  // Not fatal, so can return
   }
   return get_input_bit16(this->slaveIndex, this->misoByteOffsets[IMCObjectName::DetailedErrorRegister]).ui;
+}
+
+float IMotionCube::getMotorCurrent()
+{
+  const float PEAK_CURRENT = 40.0;  // Peak current of iMC drive
+  const float IU_CONVERSION_CONST = 65520.0;   // Conversion parameter, see Technosoft CoE programming manual
+  if (this->misoByteOffsets.count(IMCObjectName::ActualTorque) != 1)
+  {
+    ROS_WARN("ActualTorque not defined in PDO mapping, so can't read it");
+    return 0xFFFF;  // Not fatal, so can return
+  }
+  int16_t motorCurrentIU = get_input_bit16(this->slaveIndex, this->misoByteOffsets[IMCObjectName::ActualTorque]).i;
+  float motorCurrentA = (2.0 * PEAK_CURRENT / IU_CONVERSION_CONST) *
+                        motorCurrentIU;  // Conversion to Amp, see Technosoft CoE programming manual
+  return motorCurrentA;
+}
+
+float IMotionCube::getMotorVoltage()
+{
+  const float V_DC_MAX_MEASURABLE = 102.3;  // maximum measurable DC voltage found in EMS Setup/Drive info button
+  const float IU_CONVERSION_CONST = 65520.0;  // Conversion parameter, see Technosoft CoE programming manual
+  if (this->misoByteOffsets.count(IMCObjectName::DCLinkVoltage) != 1)
+  {
+    ROS_WARN("DC-link Voltage not defined in PDO mapping, so can't read it");
+    return 0xFFFF;  // Not fatal, so can return
+  }
+  uint16_t motorVoltageIU = get_input_bit16(this->slaveIndex, this->misoByteOffsets[IMCObjectName::DCLinkVoltage]).ui;
+  float motorVoltageV = (V_DC_MAX_MEASURABLE / IU_CONVERSION_CONST) *
+                        motorVoltageIU;  // Conversion to Volt, see Technosoft CoE programming manual
+  return motorVoltageV;
 }
 
 void IMotionCube::setControlWord(uint16 controlWord)
@@ -469,8 +504,8 @@ bool IMotionCube::goToOperationEnabled()
   else
   {
     ROS_FATAL("Encoder of iMotionCube (with slaveindex %d) is not functioning properly, read value %d, min value "
-              "is %d, max value is %d. Shutting down", this->slaveIndex,
-              angleRead, this->encoder.getMinPositionIU(), this->encoder.getMaxPositionIU());
+              "is %d, max value is %d. Shutting down",
+              this->slaveIndex, angleRead, this->encoder.getMinPositionIU(), this->encoder.getMaxPositionIU());
     throw std::domain_error("Encoder is not functioning properly");
   }
 
