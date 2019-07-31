@@ -27,6 +27,10 @@ public:
     {
       this->value = position;
     }
+    else if (actuationMode == "unknown")
+    {
+      this->value = unknown;
+    }
     else
     {
       ROS_WARN("Actuation mode (%s) is not recognized, setting to unknown mode", actuationMode.c_str());
