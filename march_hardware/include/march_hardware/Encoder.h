@@ -22,10 +22,7 @@ private:
   float safetyMarginRad;
 
 public:
-  Encoder() : slaveIndex(-1), totalPositions(0), minPositionIU(0), maxPositionIU(0),
-  zeroPositionIU(0), safetyMarginRad(0)
-  {
-  }
+  Encoder() = default;
 
   Encoder(int numberOfBits, int minPositionIU, int maxPositionIU, int zeroPositionIU, float safetyMarginRad);
 
