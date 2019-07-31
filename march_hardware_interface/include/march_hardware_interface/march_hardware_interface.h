@@ -77,6 +77,7 @@ private:
   void updateHighVoltageEnable();
   void updatePowerDistributionBoard();
   void updateIMotionCubeState();
+  void updateAfterLimitJointCommand();
   void resetIMotionCubesUntilTheyWork();
   void outsideLimitsCheck(int joint_index);
   void iMotionCubeStateCheck(int joint_index);

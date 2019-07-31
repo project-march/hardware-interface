@@ -251,221 +251,236 @@ void MarchHardwareInterface::read(ros::Duration elapsed_time)
 
 void MarchHardwareInterface::write(ros::Duration elapsed_time)
 {
-  for (int i = 0; i < num_joints_; i++)
-  {
-    ROS_DEBUG("Before limits: Trying to actuate joint %s, to %lf "
-              "rad, %f speed, %f effort.",
-              joint_names_[i].c_str(), joint_position_command_[i], joint_velocity_command_[i],
-              joint_effort_command_[i]);
-  }
-
-  positionJointSoftLimitsInterface.enforceLimits(elapsed_time);
-
-  after_limit_joint_command_pub_->msg_.name.clear();
-  after_limit_joint_command_pub_->msg_.position_command.clear();
-  after_limit_joint_command_pub_->msg_.effort_command.clear();
-
-  for (int i = 0; i < num_joints_; i++)
-  {
-    march4cpp::Joint singleJoint = marchRobot.getJoint(joint_names_[i]);
-
-    if (marchRobot.getJoint(joint_names_[i]).canActuate())
+    for (int i = 0; i < num_joints_; i++)
     {
-      ROS_DEBUG("After limits: Trying to actuate joint %s, to %lf rad, %f "
-                "speed, %f effort.",
-                joint_names_[i].c_str(), joint_position_command_[i], joint_velocity_command_[i],
-                joint_effort_command_[i]);
-      marchRobot.getJoint(joint_names_[i]).actuateRad(static_cast<float>(joint_position_command_[i]));
-
-      after_limit_joint_command_pub_->msg_.name.push_back(singleJoint.getName());
-      after_limit_joint_command_pub_->msg_.position_command.push_back(joint_position_command_[i]);
-      after_limit_joint_command_pub_->msg_.effort_command.push_back(0);
+        ROS_DEBUG("Before limits: Trying to actuate joint %s, to %lf "
+                  "rad, %f speed, %f effort.",
+                  joint_names_[i].c_str(), joint_position_command_[i], joint_velocity_command_[i],
+                  joint_effort_command_[i]);
     }
-  }
 
-  if (after_limit_joint_command_pub_->trylock())
-  {
-    after_limit_joint_command_pub_->unlockAndPublish();
-  }
+    positionJointSoftLimitsInterface.enforceLimits(elapsed_time);
 
-  if (hasPowerDistributionBoard)
-  {
-    updatePowerDistributionBoard();
-  }
+    for (int i = 0; i < num_joints_; i++)
+    {
+        march4cpp::Joint singleJoint = marchRobot.getJoint(joint_names_[i]);
+
+        if (marchRobot.getJoint(joint_names_[i]).canActuate())
+        {
+            ROS_DEBUG("After limits: Trying to actuate joint %s, to %lf rad, %f "
+                      "speed, %f effort.",
+                      joint_names_[i].c_str(), joint_position_command_[i], joint_velocity_command_[i],
+                      joint_effort_command_[i]);
+            marchRobot.getJoint(joint_names_[i]).actuateRad(static_cast<float>(joint_position_command_[i]));
+        }
+
+        this->updateAfterLimitJointCommand();
+
+        if (hasPowerDistributionBoard)
+        {
+            updatePowerDistributionBoard();
+        }
+    }
 }
 
-void MarchHardwareInterface::resetIMotionCubesUntilTheyWork()
-{
-  bool encoderSetCorrectly = false;
-
-  while (!encoderSetCorrectly)
+  void MarchHardwareInterface::resetIMotionCubesUntilTheyWork()
   {
-    encoderSetCorrectly = true;
-    for (int i = 0; i < num_joints_; ++i)
+    bool encoderSetCorrectly = false;
+
+    while (!encoderSetCorrectly)
     {
-      march4cpp::Joint joint = marchRobot.getJoint(joint_names_[i]);
-      if (joint.getAngleIU() == 0)
-      {
-        ROS_ERROR("Joint %s failed (encoder reset)", joint_names_[i].c_str());
-        encoderSetCorrectly = false;
-      }
-    }
-    if (!encoderSetCorrectly)
-    {
-      // TODO(Martijn) check if you need to reset all joints.
+      encoderSetCorrectly = true;
       for (int i = 0; i < num_joints_; ++i)
       {
         march4cpp::Joint joint = marchRobot.getJoint(joint_names_[i]);
-        joint.resetIMotionCube();
+        if (joint.getAngleIU() == 0)
+        {
+          ROS_ERROR("Joint %s failed (encoder reset)", joint_names_[i].c_str());
+          encoderSetCorrectly = false;
+        }
       }
-      ROS_INFO("Restarting EtherCAT");
-      marchRobot.stopEtherCAT();
-      marchRobot.startEtherCAT();
+      if (!encoderSetCorrectly)
+      {
+        // TODO(Martijn) check if you need to reset all joints.
+        for (int i = 0; i < num_joints_; ++i)
+        {
+          march4cpp::Joint joint = marchRobot.getJoint(joint_names_[i]);
+          joint.resetIMotionCube();
+        }
+        ROS_INFO("Restarting EtherCAT");
+        marchRobot.stopEtherCAT();
+        marchRobot.startEtherCAT();
+      }
     }
   }
-}
 
-void MarchHardwareInterface::updatePowerDistributionBoard()
-{
-  marchRobot.getPowerDistributionBoard()->setMasterOnline();
-  marchRobot.getPowerDistributionBoard()->setMasterShutDownAllowed(master_shutdown_allowed_command);
-  updateHighVoltageEnable();
-  updatePowerNet();
-}
-
-void MarchHardwareInterface::updateHighVoltageEnable()
-{
-  try
+  void MarchHardwareInterface::updatePowerDistributionBoard()
   {
-    if (marchRobot.getPowerDistributionBoard()->getHighVoltage().getHighVoltageEnabled() != enable_high_voltage_command)
-    {
-      marchRobot.getPowerDistributionBoard()->getHighVoltage().enableDisableHighVoltage(enable_high_voltage_command);
-    }
-    else if (!marchRobot.getPowerDistributionBoard()->getHighVoltage().getHighVoltageEnabled())
-    {
-      ROS_WARN_THROTTLE(2, "High voltage disabled");
-    }
+    marchRobot.getPowerDistributionBoard()->setMasterOnline();
+    marchRobot.getPowerDistributionBoard()->setMasterShutDownAllowed(master_shutdown_allowed_command);
+    updateHighVoltageEnable();
+    updatePowerNet();
   }
-  catch (std::exception& exception)
-  {
-    ROS_ERROR("%s", exception.what());
-    ROS_DEBUG("Reverting the enable_high_voltage_command input, in attempt to prevent this exception is thrown "
-              "again");
-    enable_high_voltage_command = !enable_high_voltage_command;
-  }
-}
 
-void MarchHardwareInterface::updatePowerNet()
-{
-  if (power_net_on_off_command_.getType() == PowerNetType::high_voltage)
+  void MarchHardwareInterface::updateHighVoltageEnable()
   {
     try
     {
-      if (marchRobot.getPowerDistributionBoard()->getHighVoltage().getNetOperational(
-              power_net_on_off_command_.getNetNumber()) != power_net_on_off_command_.isOnOrOff())
+      if (marchRobot.getPowerDistributionBoard()->getHighVoltage().getHighVoltageEnabled() !=
+          enable_high_voltage_command)
       {
-        marchRobot.getPowerDistributionBoard()->getHighVoltage().setNetOnOff(power_net_on_off_command_.isOnOrOff(),
-                                                                             power_net_on_off_command_.getNetNumber());
+        marchRobot.getPowerDistributionBoard()->getHighVoltage().enableDisableHighVoltage(enable_high_voltage_command);
+      }
+      else if (!marchRobot.getPowerDistributionBoard()->getHighVoltage().getHighVoltageEnabled())
+      {
+        ROS_WARN_THROTTLE(2, "High voltage disabled");
       }
     }
     catch (std::exception& exception)
     {
       ROS_ERROR("%s", exception.what());
-      ROS_DEBUG("Reset power net command, in attempt to prevent this exception is thrown again");
-      power_net_on_off_command_.reset();
+      ROS_DEBUG("Reverting the enable_high_voltage_command input, in attempt to prevent this exception is thrown "
+                "again");
+      enable_high_voltage_command = !enable_high_voltage_command;
     }
   }
-  else if (power_net_on_off_command_.getType() == PowerNetType::low_voltage)
+
+  void MarchHardwareInterface::updatePowerNet()
   {
-    try
+    if (power_net_on_off_command_.getType() == PowerNetType::high_voltage)
     {
-      if (marchRobot.getPowerDistributionBoard()->getLowVoltage().getNetOperational(
-              power_net_on_off_command_.getNetNumber()) != power_net_on_off_command_.isOnOrOff())
+      try
       {
-        marchRobot.getPowerDistributionBoard()->getLowVoltage().setNetOnOff(power_net_on_off_command_.isOnOrOff(),
-                                                                            power_net_on_off_command_.getNetNumber());
+        if (marchRobot.getPowerDistributionBoard()->getHighVoltage().getNetOperational(
+                power_net_on_off_command_.getNetNumber()) != power_net_on_off_command_.isOnOrOff())
+        {
+          marchRobot.getPowerDistributionBoard()->getHighVoltage().setNetOnOff(
+              power_net_on_off_command_.isOnOrOff(), power_net_on_off_command_.getNetNumber());
+        }
+      }
+      catch (std::exception& exception)
+      {
+        ROS_ERROR("%s", exception.what());
+        ROS_DEBUG("Reset power net command, in attempt to prevent this exception is thrown again");
+        power_net_on_off_command_.reset();
       }
     }
-    catch (std::exception& exception)
+    else if (power_net_on_off_command_.getType() == PowerNetType::low_voltage)
     {
-      ROS_ERROR("%s", exception.what());
-      ROS_WARN("Reset power net command, in attempt to prevent this exception is thrown again");
-      power_net_on_off_command_.reset();
+      try
+      {
+        if (marchRobot.getPowerDistributionBoard()->getLowVoltage().getNetOperational(
+                power_net_on_off_command_.getNetNumber()) != power_net_on_off_command_.isOnOrOff())
+        {
+          marchRobot.getPowerDistributionBoard()->getLowVoltage().setNetOnOff(power_net_on_off_command_.isOnOrOff(),
+                                                                              power_net_on_off_command_.getNetNumber());
+        }
+      }
+      catch (std::exception& exception)
+      {
+        ROS_ERROR("%s", exception.what());
+        ROS_WARN("Reset power net command, in attempt to prevent this exception is thrown again");
+        power_net_on_off_command_.reset();
+      }
     }
   }
-}
 
-void MarchHardwareInterface::updateIMotionCubeState()
-{
-  if (!imc_state_pub_->trylock())
+  void MarchHardwareInterface::updateAfterLimitJointCommand()
   {
-    return;
-  }
-  // Clear msg of IMotionCubeStates
-  imc_state_pub_->msg_.joint_names.clear();
-  imc_state_pub_->msg_.status_word.clear();
-  imc_state_pub_->msg_.detailed_error.clear();
-  imc_state_pub_->msg_.motion_error.clear();
-  imc_state_pub_->msg_.state.clear();
-  imc_state_pub_->msg_.detailed_error_description.clear();
-  imc_state_pub_->msg_.motion_error_description.clear();
-  imc_state_pub_->msg_.motor_current.clear();
-  imc_state_pub_->msg_.motor_voltage.clear();
-
-  for (int i = 0; i < num_joints_; i++)
-  {
-    march4cpp::IMotionCubeState iMotionCubeState = marchRobot.getJoint(joint_names_[i]).getIMotionCubeState();
-    imc_state_pub_->msg_.joint_names.push_back(joint_names_[i]);
-    imc_state_pub_->msg_.status_word.push_back(iMotionCubeState.statusWord);
-    imc_state_pub_->msg_.detailed_error.push_back(iMotionCubeState.detailedError);
-    imc_state_pub_->msg_.motion_error.push_back(iMotionCubeState.motionError);
-    imc_state_pub_->msg_.state.push_back(iMotionCubeState.state.getString());
-    imc_state_pub_->msg_.detailed_error_description.push_back(iMotionCubeState.detailedErrorDescription);
-    imc_state_pub_->msg_.motion_error_description.push_back(iMotionCubeState.motionErrorDescription);
-    imc_state_pub_->msg_.motor_current.push_back(iMotionCubeState.motorCurrent);
-    imc_state_pub_->msg_.motor_voltage.push_back(iMotionCubeState.motorVoltage);
-  }
-
-  imc_state_pub_->unlockAndPublish();
-}
-
-void MarchHardwareInterface::iMotionCubeStateCheck(int joint_index)
-{
-  {
-    march4cpp::IMotionCubeState iMotionCubeState = marchRobot.getJoint(joint_names_[joint_index]).getIMotionCubeState();
-    if (iMotionCubeState.state == march4cpp::IMCState::fault)
+    if (!after_limit_joint_command_pub_->trylock())
     {
-      std::ostringstream errorStream;
-      errorStream << "IMotionCube of joint " << joint_names_[joint_index].c_str() << " is in fault state "
-                  << iMotionCubeState.state.getString() << std::endl;
-      errorStream << "Detailed Error: " << iMotionCubeState.detailedErrorDescription << "("
-                  << iMotionCubeState.detailedError << ")" << std::endl;
-      errorStream << "Motion Error: " << iMotionCubeState.motionErrorDescription << "(" << iMotionCubeState.motionError
-                  << ")" << std::endl;
+      return;
+    }
 
-      throw std::runtime_error(errorStream.str());
+    // Clear msg of AfterLimitJointCommand
+    after_limit_joint_command_pub_->msg_.name.clear();
+    after_limit_joint_command_pub_->msg_.position_command.clear();
+    after_limit_joint_command_pub_->msg_.effort_command.clear();
+
+    for (int i = 0; i < num_joints_; i++)
+    {
+      march4cpp::Joint singleJoint = marchRobot.getJoint(joint_names_[i]);
+
+      after_limit_joint_command_pub_->msg_.name.push_back(singleJoint.getName());
+      after_limit_joint_command_pub_->msg_.position_command.push_back(joint_position_command_[i]);
+      after_limit_joint_command_pub_->msg_.effort_command.push_back(joint_effort_command_[i]);
+    }
+
+    after_limit_joint_command_pub_->unlockAndPublish();
+  }
+
+  void MarchHardwareInterface::updateIMotionCubeState()
+  {
+    if (!imc_state_pub_->trylock())
+    {
+      return;
+    }
+    // Clear msg of IMotionCubeStates
+    imc_state_pub_->msg_.joint_names.clear();
+    imc_state_pub_->msg_.status_word.clear();
+    imc_state_pub_->msg_.detailed_error.clear();
+    imc_state_pub_->msg_.motion_error.clear();
+    imc_state_pub_->msg_.state.clear();
+    imc_state_pub_->msg_.detailed_error_description.clear();
+    imc_state_pub_->msg_.motion_error_description.clear();
+    imc_state_pub_->msg_.motor_current.clear();
+    imc_state_pub_->msg_.motor_voltage.clear();
+
+    for (int i = 0; i < num_joints_; i++)
+    {
+      march4cpp::IMotionCubeState iMotionCubeState = marchRobot.getJoint(joint_names_[i]).getIMotionCubeState();
+      imc_state_pub_->msg_.joint_names.push_back(joint_names_[i]);
+      imc_state_pub_->msg_.status_word.push_back(iMotionCubeState.statusWord);
+      imc_state_pub_->msg_.detailed_error.push_back(iMotionCubeState.detailedError);
+      imc_state_pub_->msg_.motion_error.push_back(iMotionCubeState.motionError);
+      imc_state_pub_->msg_.state.push_back(iMotionCubeState.state.getString());
+      imc_state_pub_->msg_.detailed_error_description.push_back(iMotionCubeState.detailedErrorDescription);
+      imc_state_pub_->msg_.motion_error_description.push_back(iMotionCubeState.motionErrorDescription);
+      imc_state_pub_->msg_.motor_current.push_back(iMotionCubeState.motorCurrent);
+      imc_state_pub_->msg_.motor_voltage.push_back(iMotionCubeState.motorVoltage);
+    }
+
+    imc_state_pub_->unlockAndPublish();
+  }
+
+  void MarchHardwareInterface::iMotionCubeStateCheck(int joint_index)
+  {
+    {
+      march4cpp::IMotionCubeState iMotionCubeState =
+          marchRobot.getJoint(joint_names_[joint_index]).getIMotionCubeState();
+      if (iMotionCubeState.state == march4cpp::IMCState::fault)
+      {
+        std::ostringstream errorStream;
+        errorStream << "IMotionCube of joint " << joint_names_[joint_index].c_str() << " is in fault state "
+                    << iMotionCubeState.state.getString() << std::endl;
+        errorStream << "Detailed Error: " << iMotionCubeState.detailedErrorDescription << "("
+                    << iMotionCubeState.detailedError << ")" << std::endl;
+        errorStream << "Motion Error: " << iMotionCubeState.motionErrorDescription << "("
+                    << iMotionCubeState.motionError << ")" << std::endl;
+
+        throw std::runtime_error(errorStream.str());
+      }
     }
   }
-}
 
-void MarchHardwareInterface::outsideLimitsCheck(int joint_index)
-{
-  march4cpp::Joint joint = marchRobot.getJoint(joint_names_[joint_index]);
-  if (joint_position_[joint_index] < soft_limits_[joint_index].min_position ||
-      joint_position_[joint_index] > soft_limits_[joint_index].max_position)
+  void MarchHardwareInterface::outsideLimitsCheck(int joint_index)
   {
-    ROS_ERROR_THROTTLE(1, "Joint %s is outside of its soft_limits_ (%f, %f). Actual position: %f",
-                       joint_names_[joint_index].c_str(), soft_limits_[joint_index].min_position,
-                       soft_limits_[joint_index].max_position, joint_position_[joint_index]);
-
-    if (joint.canActuate())
+    march4cpp::Joint joint = marchRobot.getJoint(joint_names_[joint_index]);
+    if (joint_position_[joint_index] < soft_limits_[joint_index].min_position ||
+        joint_position_[joint_index] > soft_limits_[joint_index].max_position)
     {
-      std::ostringstream errorStream;
-      errorStream << "Joint " << joint_names_[joint_index].c_str() << " is out of its soft_limits_ ("
-                  << soft_limits_[joint_index].min_position << ", " << soft_limits_[joint_index].max_position
-                  << "). Actual position: " << joint_position_[joint_index];
-      throw ::std::runtime_error(errorStream.str());
+      ROS_ERROR_THROTTLE(1, "Joint %s is outside of its soft_limits_ (%f, %f). Actual position: %f",
+                         joint_names_[joint_index].c_str(), soft_limits_[joint_index].min_position,
+                         soft_limits_[joint_index].max_position, joint_position_[joint_index]);
+
+      if (joint.canActuate())
+      {
+        std::ostringstream errorStream;
+        errorStream << "Joint " << joint_names_[joint_index].c_str() << " is out of its soft_limits_ ("
+                    << soft_limits_[joint_index].min_position << ", " << soft_limits_[joint_index].max_position
+                    << "). Actual position: " << joint_position_[joint_index];
+        throw ::std::runtime_error(errorStream.str());
+      }
     }
   }
-}
 }  // namespace march_hardware_interface
