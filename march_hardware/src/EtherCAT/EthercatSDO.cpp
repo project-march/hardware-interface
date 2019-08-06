@@ -16,7 +16,8 @@ bool sendSDOMessage(int slave, uint32_t index, uint8_t sub, SDOMessageLength len
   uint8_t value8bit;
   uint16_t value16bit;
   uint32_t value32bit;
-  switch (length){
+  switch (length)
+  {
     case SDOMessageLength::bit8 :
       byteLength = 1;
       value8bit = static_cast<uint8_t>(value);
