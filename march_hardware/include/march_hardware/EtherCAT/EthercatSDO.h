@@ -7,11 +7,12 @@
 namespace march4cpp
 {
 
-enum class SDOMessageLength
+enum SDOMessageLength
 {
-  bit8,
-  bit16,
-  bit32
+  // Give enum value of amount of bytes
+  bit8 = 1,
+  bit16 = 2,
+  bit32 = 4
 };
 
 bool sendSDOMessage(int slave, uint32_t index, uint8_t sub, SDOMessageLength length, uint32_t value);
