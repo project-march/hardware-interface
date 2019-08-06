@@ -46,7 +46,7 @@ std::map<enum IMCObjectName, int> PDOmap::map(int slaveIndex, enum dataDirection
     ROS_ERROR("Invalid dataDirection argument");
   }
   // Clear SyncManager Object
-  sendSDOMessage(slaveIndex, SMAddress, 0, SDOMessageLength::bit8, 0);
+  sendSDOMessage(slaveIndex, SMAddress, 0, SDOMessageLength::bit_8, 0);
   int startReg = reg;
   int lastFilledReg = reg;
   int sizeleft = this->bitsPerReg;
@@ -57,14 +57,14 @@ std::map<enum IMCObjectName, int> PDOmap::map(int slaveIndex, enum dataDirection
     // Check if register is still empty
     if (sizeleft == this->bitsPerReg)
     {
-      sendSDOMessage(slaveIndex, reg, 0, SDOMessageLength::bit32, 0);
+      sendSDOMessage(slaveIndex, reg, 0, SDOMessageLength::bit_32, 0);
     }
     // Get next object (from end, because sorted from small to large)
     std::pair<IMCObjectName, IMCObject> nextObject = this->sortedPDOObjects.back();
     this->sortedPDOObjects.pop_back();
     // Add next object to map
     counter++;
-    sendSDOMessage(slaveIndex, reg, counter, SDOMessageLength::bit32,
+    sendSDOMessage(slaveIndex, reg, counter, SDOMessageLength::bit_32,
               this->combineAddressLength(nextObject.second.address, nextObject.second.length));
     this->byteOffsets[nextObject.first] = byteOffset;
     byteOffset += nextObject.second.length / 8;
@@ -72,14 +72,14 @@ std::map<enum IMCObjectName, int> PDOmap::map(int slaveIndex, enum dataDirection
     // Check if this was the last object of the list
     if (this->sortedPDOObjects.size() == 0)
     {
-      sendSDOMessage(slaveIndex, reg, 0, SDOMessageLength::bit32, counter);
+      sendSDOMessage(slaveIndex, reg, 0, SDOMessageLength::bit_32, counter);
       lastFilledReg = reg;
       reg++;
     }
     // else, check if register is full
     else if (sizeleft <= 0)
     {
-      sendSDOMessage(slaveIndex, reg, 0, SDOMessageLength::bit32, counter);
+      sendSDOMessage(slaveIndex, reg, 0, SDOMessageLength::bit_32, counter);
       reg++;
       counter = 0;
       sizeleft = this->bitsPerReg;
@@ -88,16 +88,16 @@ std::map<enum IMCObjectName, int> PDOmap::map(int slaveIndex, enum dataDirection
   // For the unused registers, set count to zero
   for (int i = reg; i < startReg + this->nrofRegs; i++)
   {
-    sendSDOMessage(slaveIndex, i, 0, SDOMessageLength::bit32, 0);
+    sendSDOMessage(slaveIndex, i, 0, SDOMessageLength::bit_32, 0);
   }
   // For all filled registers, set data to Sync Manager object
   int count = 0;
   for (int i = startReg; i <= lastFilledReg; i++)
   {
     count++;
-    sendSDOMessage(slaveIndex, SMAddress, count, SDOMessageLength::bit16, 0x1600);
+    sendSDOMessage(slaveIndex, SMAddress, count, SDOMessageLength::bit_16, 0x1600);
   }
-  sendSDOMessage(slaveIndex, SMAddress, 0, SDOMessageLength::bit8, count);
+  sendSDOMessage(slaveIndex, SMAddress, 0, SDOMessageLength::bit_8, count);
   return this->byteOffsets;
 }
 

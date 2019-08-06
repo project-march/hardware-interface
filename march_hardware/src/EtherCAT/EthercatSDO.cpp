@@ -17,11 +17,11 @@ bool sendSDOMessage(int slave, uint32_t index, uint8_t sub, SDOMessageLength len
   uint32_t value32bit = static_cast<uint32_t>(value);
   switch (length)
   {
-    case SDOMessageLength::bit8 :
+    case SDOMessageLength::bit_8 :
       return ec_SDOwrite(slave, index, sub, FALSE, length, &value8bit, EC_TIMEOUTRXM);
-    case SDOMessageLength::bit16 :
+    case SDOMessageLength::bit_16 :
       return ec_SDOwrite(slave, index, sub, FALSE, length, &value16bit, EC_TIMEOUTRXM);
-    case SDOMessageLength::bit32 :
+    case SDOMessageLength::bit_32 :
       return ec_SDOwrite(slave, index, sub, FALSE, length, &value32bit, EC_TIMEOUTRXM);
     default :
       ROS_WARN("SDO message length not defined. Message not sent");
