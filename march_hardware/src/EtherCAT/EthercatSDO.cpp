@@ -23,6 +23,9 @@ bool sendSDOMessage(int slave, uint32_t index, uint8_t sub, SDOMessageLength len
       return ec_SDOwrite(slave, index, sub, FALSE, length, &value16bit, EC_TIMEOUTRXM);
     case SDOMessageLength::bit32 :
       return ec_SDOwrite(slave, index, sub, FALSE, length, &value32bit, EC_TIMEOUTRXM);
+    default :
+      ROS_WARN("SDO message length not defined. Message not sent");
+      return false;
   }
 }
 
