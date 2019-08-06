@@ -82,30 +82,30 @@ void IMotionCube::writeInitialSettings(uint8 ecatCycleTime)
   }
 
   // mode of operation
-  success &= sdo_bit8(slaveIndex, 0x6060, 0, this->actuationMode.toModeNumber());
+  success &= sendSDOMessage(slaveIndex, 0x6060, 0, SDOMessageLength::bit8, this->actuationMode.toModeNumber());
 
   // position dimension index
-  success &= sdo_bit8(slaveIndex, 0x608A, 0, 1);
+  success &= sendSDOMessage(slaveIndex, 0x608A, 0, SDOMessageLength::bit8, 1);
 
   // position factor -- scaling factor numerator
-  success &= sdo_bit32(slaveIndex, 0x6093, 1, 1);
+  success &= sendSDOMessage(slaveIndex, 0x6093, 1, SDOMessageLength::bit32, 1);
   // position factor -- scaling factor denominator
-  success &= sdo_bit32(slaveIndex, 0x6093, 2, 1);
+  success &= sendSDOMessage(slaveIndex, 0x6093, 2, SDOMessageLength::bit32, 1);
 
   // position limit -- min position
-  success &= sdo_bit32(slaveIndex, 0x607D, 1, this->encoder.getLowerSoftLimitIU());
+  success &= sendSDOMessage(slaveIndex, 0x607D, 1, SDOMessageLength::bit32, this->encoder.getLowerSoftLimitIU());
   // position limit -- max position
-  success &= sdo_bit32(slaveIndex, 0x607D, 2, this->encoder.getUpperSoftLimitIU());
+  success &= sendSDOMessage(slaveIndex, 0x607D, 2, SDOMessageLength::bit32, this->encoder.getUpperSoftLimitIU());
 
   // Quick stop option
-  success &= sdo_bit16(slaveIndex, 0x605A, 0, 6);
+  success &= sendSDOMessage(slaveIndex, 0x605A, 0, SDOMessageLength::bit16, 6);
 
   // Quick stop deceleration
-  success &= sdo_bit32(slaveIndex, 0x6085, 0, 0x7FFFFFFF);
+  success &= sendSDOMessage(slaveIndex, 0x6085, 0, SDOMessageLength::bit32, 0x7FFFFFFF);
 
   // set the ethercat rate of encoder in form x*10^y
-  success &= sdo_bit8(slaveIndex, 0x60C2, 1, ecatCycleTime);
-  success &= sdo_bit8(slaveIndex, 0x60C2, 2, -3);
+  success &= sendSDOMessage(slaveIndex, 0x60C2, 1, SDOMessageLength::bit8, ecatCycleTime);
+  success &= sendSDOMessage(slaveIndex, 0x60C2, 2, SDOMessageLength::bit8, -3);
 
   ROS_ASSERT_MSG(success, "Writing initial settings to IMC %d failed", this->slaveIndex);
 }
@@ -508,7 +508,7 @@ bool IMotionCube::resetIMotionCube()
 {
   this->setControlWord(0);
   ROS_DEBUG("Slave: %d, Try to reset IMC", this->slaveIndex);
-  sdo_bit16(slaveIndex, 0x2080, 0, 1);
+  sendSDOMessage(slaveIndex, 0x2080, 0, SDOMessageLength::bit16, 1);
 }
 
 ActuationMode IMotionCube::getActuationMode() const
