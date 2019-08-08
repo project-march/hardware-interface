@@ -266,7 +266,7 @@ void MarchHardwareInterface::write(ros::Duration elapsed_time)
   }
 }
 
-bool MarchHardwareInterface::prepareJointsForActuation()
+void MarchHardwareInterface::prepareJointsForActuation()
 {
   for (int i = 0; i < num_joints_; ++i)
   {
@@ -290,7 +290,6 @@ bool MarchHardwareInterface::prepareJointsForActuation()
       joint.prepareActuation();
     }
   }
-
 }
 bool MarchHardwareInterface::IMotionCubesWorkingCorrectly()
 {
