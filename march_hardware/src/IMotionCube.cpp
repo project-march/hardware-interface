@@ -498,10 +498,12 @@ bool IMotionCube::goToOperationEnabled()
     ROS_FATAL("Encoder of iMotionCube (with slaveindex %d) is not functioning properly, read value %d, min value "
               "is %d, max value is %d. Shutting down",
               this->slaveIndex, angleRead, this->encoder.getLowerHardLimitIU(), this->encoder.getUpperHardLimitIU());
-    throw std::domain_error("Encoder is not functioning properly");
+    return false;
   }
 
   this->goToTargetState(IMotionCubeTargetState::OPERATION_ENABLED);
+  return true;
+
 }
 
 bool IMotionCube::resetIMotionCube()

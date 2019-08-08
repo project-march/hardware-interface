@@ -29,7 +29,7 @@ public:
   }
 
   void initialize(int ecatCycleTime);
-  void prepareActuation();
+  bool prepareActuation();
   // TODO(Martijn) Refactor this to make joint less dependent on knowledge of the IMC
   void resetIMotionCube();
 

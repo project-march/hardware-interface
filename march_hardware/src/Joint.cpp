@@ -19,15 +19,19 @@ void Joint::initialize(int ecatCycleTime)
   }
 }
 
-void Joint::prepareActuation()
+bool Joint::prepareActuation()
 {
   ROS_ASSERT_MSG(this->getActuationMode() != ActuationMode::unknown, "The mode of actuation for joint %s is: %s",
                  this->name.c_str(), this->getActuationMode().toString().c_str());
   if (this->allowActuation)
   {
     ROS_INFO("Preparing joint %s for actuation", this->name.c_str());
-    this->iMotionCube.goToOperationEnabled();
-    ROS_INFO("\tJoint %s successfully prepared for actuation", this->name.c_str());
+    bool operationEnabled = this->iMotionCube.goToOperationEnabled();
+    if(operationEnabled)
+    {
+      ROS_INFO("\tJoint %s successfully prepared for actuation", this->name.c_str());
+    }
+    return operationEnabled;
   }
   else
   {
@@ -35,6 +39,7 @@ void Joint::prepareActuation()
               "allowed to actuate",
               this->name.c_str());
   }
+  return false;
 }
 
 void Joint::resetIMotionCube()

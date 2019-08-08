@@ -166,16 +166,15 @@ void MarchHardwareInterface::init()
     march_temperature_interface.registerHandle(marchTemperatureSensorHandle);
   }
 
-  this->prepareJointsForActuation();
+  bool jointsPrepared = this->prepareJointsForActuation();
   bool encoderSetCorrectly = this->IMotionCubesWorkingCorrectly();
 
-  while (!encoderSetCorrectly)
+  while (!encoderSetCorrectly || !jointsPrepared)
   {
     ROS_INFO("Resetting IMotionCubes");
     this->resetIMotionCubes();
 
-    this->prepareJointsForActuation();
-
+    jointsPrepared = this->prepareJointsForActuation();
     encoderSetCorrectly = this->IMotionCubesWorkingCorrectly();
   }
 }
@@ -264,7 +263,7 @@ void MarchHardwareInterface::write(ros::Duration elapsed_time)
   }
 }
 
-void MarchHardwareInterface::prepareJointsForActuation()
+bool MarchHardwareInterface::prepareJointsForActuation()
 {
   for (int i = 0; i < num_joints_; ++i)
   {
@@ -285,9 +284,13 @@ void MarchHardwareInterface::prepareJointsForActuation()
           throw std::runtime_error("Joint has no high voltage net number");
         }
       }
-      joint.prepareActuation();
+      bool prepareActuation = joint.prepareActuation();
+      if (!prepareActuation){
+        return false;
+      }
     }
   }
+  return true;
 }
 bool MarchHardwareInterface::IMotionCubesWorkingCorrectly()
 {

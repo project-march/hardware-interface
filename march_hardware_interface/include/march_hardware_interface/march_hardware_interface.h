@@ -83,7 +83,7 @@ private:
   void updateIMotionCubeState();
   bool IMotionCubesWorkingCorrectly();
   void resetIMotionCubes();
-  void prepareJointsForActuation();
+  bool prepareJointsForActuation();
   void outsideLimitsCheck(int joint_index);
   void iMotionCubeStateCheck(int joint_index);
 };
