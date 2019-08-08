@@ -173,8 +173,6 @@ void MarchHardwareInterface::init()
   {
     ROS_INFO("Resetting IMotionCubes");
     this->resetIMotionCubes();
-    marchRobot.stopEtherCAT();
-    marchRobot.startEtherCAT();
 
     this->prepareJointsForActuation();
 
