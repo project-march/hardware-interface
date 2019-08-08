@@ -285,7 +285,8 @@ bool MarchHardwareInterface::prepareJointsForActuation()
         }
       }
       bool prepareActuation = joint.prepareActuation();
-      if (!prepareActuation){
+      if (!prepareActuation)
+      {
         return false;
       }
     }
