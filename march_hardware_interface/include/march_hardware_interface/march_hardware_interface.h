@@ -81,7 +81,9 @@ private:
   void updatePowerDistributionBoard();
   void updateAfterLimitJointCommand();
   void updateIMotionCubeState();
-  void resetIMotionCubesUntilTheyWork();
+  bool IMotionCubesWorkingCorrectly();
+  void resetIMotionCubes();
+  void prepareJointsForActuation();
   void outsideLimitsCheck(int joint_index);
   void iMotionCubeStateCheck(int joint_index);
 };

@@ -87,15 +87,6 @@ void MarchHardwareInterface::init()
     soft_limits_[i] = soft_limits;
   }
 
-  resetIMotionCubesUntilTheyWork();
-
-  // Print all joint positions on startup in case initialization fails.
-  this->read();
-  for (int i = 0; i < num_joints_; ++i)
-  {
-    ROS_INFO("Joint %s: first read position: %f", joint_names_[i].c_str(), joint_position_[i]);
-  }
-
   // Create march_pdb_state interface
   MarchPdbStateHandle marchPdbStateHandle("PDBhandle", &power_distribution_board_read_,
                                           &master_shutdown_allowed_command, &enable_high_voltage_command,
@@ -173,25 +164,21 @@ void MarchHardwareInterface::init()
     MarchTemperatureSensorHandle marchTemperatureSensorHandle(joint_names_[i], &joint_temperature_[i],
                                                               &joint_temperature_variance_[i]);
     march_temperature_interface.registerHandle(marchTemperatureSensorHandle);
+  }
 
-    // Enable high voltage on the IMC
-    if (joint.canActuate())
-    {
-      if (hasPowerDistributionBoard)
-      {
-        int net_number = joint.getNetNumber();
-        if (net_number != -1)
-        {
-          marchRobot.getPowerDistributionBoard()->getHighVoltage().setNetOnOff(true, net_number);
-        }
-        else
-        {
-          ROS_FATAL("Joint %s has no high voltage net number", joint.getName().c_str());
-          throw std::runtime_error("Joint has no high voltage net number");
-        }
-      }
-      joint.prepareActuation();
-    }
+  this->prepareJointsForActuation();
+  bool encoderSetCorrectly = this->IMotionCubesWorkingCorrectly();
+
+  while (!encoderSetCorrectly)
+  {
+    ROS_INFO("Resetting IMotionCubes");
+    this->resetIMotionCubes();
+    marchRobot.stopEtherCAT();
+    marchRobot.startEtherCAT();
+
+    this->prepareJointsForActuation();
+
+    encoderSetCorrectly = this->IMotionCubesWorkingCorrectly();
   }
 }
 
@@ -279,35 +266,57 @@ void MarchHardwareInterface::write(ros::Duration elapsed_time)
   }
 }
 
-void MarchHardwareInterface::resetIMotionCubesUntilTheyWork()
+bool MarchHardwareInterface::prepareJointsForActuation()
 {
-  bool encoderSetCorrectly = false;
-
-  while (!encoderSetCorrectly)
+  for (int i = 0; i < num_joints_; ++i)
   {
-    encoderSetCorrectly = true;
-    for (int i = 0; i < num_joints_; ++i)
+    march4cpp::Joint joint = marchRobot.getJoint(joint_names_[i]);
+
+    if (joint.canActuate())
     {
-      march4cpp::Joint joint = marchRobot.getJoint(joint_names_[i]);
-      if (joint.getAngleIU() == 0)
+      if (hasPowerDistributionBoard)
       {
-        ROS_ERROR("Joint %s failed (encoder reset)", joint_names_[i].c_str());
-        encoderSetCorrectly = false;
+        int net_number = joint.getNetNumber();
+        if (net_number != -1)
+        {
+          marchRobot.getPowerDistributionBoard()->getHighVoltage().setNetOnOff(true, net_number);
+        }
+        else
+        {
+          ROS_FATAL("Joint %s has no high voltage net number", joint.getName().c_str());
+          throw std::runtime_error("Joint has no high voltage net number");
+        }
       }
-    }
-    if (!encoderSetCorrectly)
-    {
-      // TODO(Martijn) check if you need to reset all joints.
-      for (int i = 0; i < num_joints_; ++i)
-      {
-        march4cpp::Joint joint = marchRobot.getJoint(joint_names_[i]);
-        joint.resetIMotionCube();
-      }
-      ROS_INFO("Restarting EtherCAT");
-      marchRobot.stopEtherCAT();
-      marchRobot.startEtherCAT();
+      joint.prepareActuation();
     }
   }
+
+}
+bool MarchHardwareInterface::IMotionCubesWorkingCorrectly()
+{
+  for (int i = 0; i < num_joints_; ++i)
+  {
+    march4cpp::Joint joint = marchRobot.getJoint(joint_names_[i]);
+    if (joint.getAngleIU() == 0)
+    {
+      ROS_ERROR("Joint %s failed (encoder reset)", joint_names_[i].c_str());
+      return false;
+    }
+  }
+  return true;
+}
+
+void MarchHardwareInterface::resetIMotionCubes()
+{
+  // TODO(Martijn) check if you need to reset all joints.
+  for (int i = 0; i < num_joints_; ++i)
+  {
+    march4cpp::Joint joint = marchRobot.getJoint(joint_names_[i]);
+    joint.resetIMotionCube();
+  }
+  ROS_INFO("Restarting EtherCAT");
+  marchRobot.stopEtherCAT();
+  marchRobot.startEtherCAT();
 }
 
 void MarchHardwareInterface::updatePowerDistributionBoard()
