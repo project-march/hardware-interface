@@ -27,7 +27,7 @@ bool Joint::prepareActuation()
   {
     ROS_INFO("Preparing joint %s for actuation", this->name.c_str());
     bool operationEnabled = this->iMotionCube.goToOperationEnabled();
-    if(operationEnabled)
+    if (operationEnabled)
     {
       ROS_INFO("\tJoint %s successfully prepared for actuation", this->name.c_str());
     }

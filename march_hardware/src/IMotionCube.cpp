@@ -503,7 +503,6 @@ bool IMotionCube::goToOperationEnabled()
 
   this->goToTargetState(IMotionCubeTargetState::OPERATION_ENABLED);
   return true;
-
 }
 
 bool IMotionCube::resetIMotionCube()
