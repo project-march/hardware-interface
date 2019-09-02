@@ -20,7 +20,7 @@ march:
         - left_ankle
         - right_hip_aa
         - left_hip_aa
-        -
+
       constraints:
         right_hip_fe:
           trajectory: 0.27
