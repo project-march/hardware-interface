@@ -69,8 +69,19 @@ install(DIRECTORY config launch
     DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
+if($ENV{ETHERCAT_GRANT})
+    message("Granting raw ethernet port")
+    # Give sudo access to ethernet port
+    add_custom_command(
+        TARGET ${PROJECT_NAME}_node
+        COMMAND sudo setcap cap_net_raw+ep ${PROJECT_NAME}_node
+        WORKING_DIRECTORY ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_BIN_DESTINATION}
+        POST_BUILD
+    )
+endif()
+
 ## Add gtest based cpp test target and link libraries
-if (CATKIN_ENABLE_TESTING)
+if(CATKIN_ENABLE_TESTING)
     find_package(code_coverage REQUIRED)
     find_package(rostest REQUIRED)
 
@@ -93,4 +104,4 @@ if (CATKIN_ENABLE_TESTING)
             DEPENDS tests
         )
     endif()
-endif ()
+endif()
