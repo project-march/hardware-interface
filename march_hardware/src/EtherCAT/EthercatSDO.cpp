@@ -24,7 +24,7 @@ int sdo_bit8(int slave, uint32_t index, uint8_t sub, uint8_t value)
   ReceivedWorkingCounter = ec_SDOwrite(slave, index, sub, FALSE, 1, &value, EC_TIMEOUTRXM);
   if (ReceivedWorkingCounter == 0)
   {
-      ROS_FATAL("Error occurred when writing ID 0x%X to slave %i", slave, index);
+    ROS_FATAL("Error occurred when writing ID 0x%X to slave %i", slave, index);
   }
   return ReceivedWorkingCounter;
 }
@@ -35,7 +35,7 @@ int sdo_bit16(int slave, uint32_t index, uint8_t sub, uint16_t value)
   ReceivedWorkingCounter = ec_SDOwrite(slave, index, sub, FALSE, 2, &value, EC_TIMEOUTRXM);
   if (ReceivedWorkingCounter == 0)
   {
-      ROS_FATAL("Error occurred when writing ID 0x%X to slave %i", slave, index);
+    ROS_FATAL("Error occurred when writing ID 0x%X to slave %i", slave, index);
   }
   return ReceivedWorkingCounter;
 }
@@ -46,7 +46,7 @@ int sdo_bit32(int slave, uint32_t index, uint8_t sub, uint32_t value)
   ReceivedWorkingCounter = ec_SDOwrite(slave, index, sub, FALSE, 4, &value, EC_TIMEOUTRXM);
   if (ReceivedWorkingCounter == 0)
   {
-      ROS_FATAL("Error occurred when writing ID 0x%X to slave %i", slave, index);
+    ROS_FATAL("Error occurred when writing ID 0x%X to slave %i", slave, index);
   }
   return ReceivedWorkingCounter;
 }
