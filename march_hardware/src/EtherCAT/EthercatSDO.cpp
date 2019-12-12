@@ -50,4 +50,4 @@ int sdo_bit32(int slave, uint32_t index, uint8_t sub, uint32_t value)
   }
   return ReceivedWorkingCounter;
 }
-}
+}  // namespace march4cpp
