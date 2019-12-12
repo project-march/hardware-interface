@@ -14,7 +14,6 @@
 
 namespace march4cpp
 {
-
 int ReceivedWorkingCounter;
 
 // TODO(Isha, Martijn, Tim) refactor this with more generic types
