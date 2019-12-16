@@ -84,7 +84,7 @@ void MarchHardwareInterface::init()
     soft_limits_[i] = soft_limits;
   }
 
-  resetIMotionCubesUntilTheyWork();
+  initiateIMC();
 
   // Print all joint positions on startup in case initialization fails.
   this->read();
@@ -317,33 +317,34 @@ void MarchHardwareInterface::write(const ros::Duration& elapsed_time)
   }
 }
 
-void MarchHardwareInterface::resetIMotionCubesUntilTheyWork()
+void MarchHardwareInterface::initiateIMC()
 {
-  bool encoderSetCorrectly = false;
-
-  while (!encoderSetCorrectly)
+  for (int i = 0; i < num_joints_; ++i)
   {
-    encoderSetCorrectly = true;
-    for (int i = 0; i < num_joints_; ++i)
+    march4cpp::Joint joint = marchRobot.getJoint(joint_names_[i]);
+    if (joint.getAngleIU() == 0)
     {
-      march4cpp::Joint joint = marchRobot.getJoint(joint_names_[i]);
-      if (joint.getAngleIU() == 0)
-      {
-        ROS_ERROR("[%s] Failed (encoder reset)", joint_names_[i].c_str());
-        encoderSetCorrectly = false;
-      }
+      ROS_WARN_THROTTLE(1, "[%s] has encoder value 0 ", joint_names_[i].c_str());
     }
-    if (!encoderSetCorrectly)
+  }
+
+  ROS_INFO("Resetting all IMC on initialization");
+  for (int i = 0; i < num_joints_; ++i)
+  {
+    march4cpp::Joint joint = marchRobot.getJoint(joint_names_[i]);
+    joint.resetIMotionCube();
+  }
+
+  ROS_INFO("Restarting EtherCAT");
+  marchRobot.stopEtherCAT();
+  marchRobot.startEtherCAT();
+
+  for (int i = 0; i < num_joints_; ++i)
+  {
+    march4cpp::Joint joint = marchRobot.getJoint(joint_names_[i]);
+    if (joint.getAngleIU() == 0)
     {
-      // TODO(Martijn) check if you need to reset all joints.
-      for (int i = 0; i < num_joints_; ++i)
-      {
-        march4cpp::Joint joint = marchRobot.getJoint(joint_names_[i]);
-        joint.resetIMotionCube();
-      }
-      ROS_INFO("Restarting EtherCAT");
-      marchRobot.stopEtherCAT();
-      marchRobot.startEtherCAT();
+      ROS_WARN_THROTTLE(1, "[%s] still has encoder value 0 after initiation", joint_names_[i].c_str());
     }
   }
 }
