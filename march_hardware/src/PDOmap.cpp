@@ -109,7 +109,9 @@ std::map<enum IMCObjectName, int> PDOmap::map(int slaveIndex, enum dataDirection
     ROS_INFO("reg 0x%X, index %i, length %i,  0x%X", currentReg, nextObject.second.address, nextObject.second.length,
              this->combineAddressLength(nextObject.second.address, nextObject.second.length));
 
-    this->byteOffsets[nextObject.first] = nextObject.second.length / 8;
+    int byteOffset = (bitsPerReg -(sizeLeft + nextObject.second.length)) / 8;
+    this->byteOffsets[nextObject.first] = byteOffset;
+
     sdo_bit32(slaveIndex, currentReg, counter,
               this->combineAddressLength(nextObject.second.address, nextObject.second.length));
     counter++;
