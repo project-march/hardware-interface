@@ -86,7 +86,7 @@ std::map<enum IMCObjectName, int> PDOmap::map(int slaveIndex, enum dataDirection
     if (sizeLeft < 0)
     {
       // PDO is filled so it can be enabled again
-      sdo_bit8(slaveIndex, currentReg, 0, counter-1);
+      sdo_bit8(slaveIndex, currentReg, 0, counter - 1);
 
       // Change the sync manager accordingly
       sdo_bit8(slaveIndex, SMAddress, 0, 0);
@@ -105,24 +105,22 @@ std::map<enum IMCObjectName, int> PDOmap::map(int slaveIndex, enum dataDirection
 
       sdo_bit8(slaveIndex, currentReg, 0, 0);
       ROS_INFO("current reg: 0x%4.4x", currentReg);
-
     }
-    ROS_INFO("reg 0x%X, index %i, length %i,  0x%X", currentReg, nextObject.second.address, nextObject.second.length
-    , this->combineAddressLength(nextObject.second.address, nextObject.second.length));
+    ROS_INFO("reg 0x%X, index %i, length %i,  0x%X", currentReg, nextObject.second.address, nextObject.second.length,
+             this->combineAddressLength(nextObject.second.address, nextObject.second.length));
 
     this->byteOffsets[nextObject.first] = nextObject.second.length / 8;
     sdo_bit32(slaveIndex, currentReg, counter,
               this->combineAddressLength(nextObject.second.address, nextObject.second.length));
     counter++;
-
   }
-  sdo_bit8(slaveIndex, currentReg, 0, counter-1);
+  sdo_bit8(slaveIndex, currentReg, 0, counter - 1);
 
   sdo_bit8(slaveIndex, SMAddress, 0, 0);
   int currentPDONr = (currentReg - reg) + 1;
   sdo_bit16(slaveIndex, SMAddress, currentPDONr, currentReg);
 
-  // explicitly disable PDO and corresponding sync managers
+  // explicitly disable PDO
   currentReg++;
   if (currentReg <= (reg + nrofRegs))
   {

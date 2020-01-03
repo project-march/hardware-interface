@@ -13,7 +13,6 @@
 
 namespace march4cpp
 {
-
 /**
  * Store IMC data as a struct to prevent data overlap
  */
@@ -73,8 +72,8 @@ public:
 
 private:
   /**
- * Initiate all the entered IMC objects to prepare the PDO
- */
+   * Initiate all the entered IMC objects to prepare the PDO
+   */
   void initAllObjects();
 
   /**
@@ -84,8 +83,8 @@ private:
   void sortPDOObjects();
 
   /**
- * Combine the address(hex), sub-index(hex) and length(hex). Example control word: 60400010h
- */
+   * Combine the address(hex), sub-index(hex) and length(hex). Example control word: 60400010h
+   */
   uint32_t combineAddressLength(uint16_t address, uint16_t length);
 
   std::map<IMCObjectName, IMCObject> PDOObjects;
