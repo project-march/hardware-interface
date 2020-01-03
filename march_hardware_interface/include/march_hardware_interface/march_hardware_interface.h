@@ -26,6 +26,8 @@ namespace march_hardware_interface
 {
 static const double POSITION_STEP_FACTOR = 10;
 static const double VELOCITY_STEP_FACTOR = 10;
+static const int LOWER_BOUNDARY_ANGLE_IU = -2;
+static const int UPPER_BOUNDARY_ANGLE_IU = 2;
 
 /**
  * @brief HardwareInterface to allow ros_control to actuate our hardware.

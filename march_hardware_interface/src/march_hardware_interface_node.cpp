@@ -42,7 +42,7 @@ int main(int argc, char** argv)
     }
     catch (const std::exception& e)
     {
-      ROS_FATAL("Hardware interface caught an exception during init: %s", e.what());
+      ROS_FATAL("Hardware interface caught an exception during update: %s", e.what());
       return 1;
     }
   }

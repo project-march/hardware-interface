@@ -342,9 +342,10 @@ void MarchHardwareInterface::initiateIMC()
   for (int i = 0; i < num_joints_; ++i)
   {
     march4cpp::Joint joint = marchRobot.getJoint(joint_names_[i]);
-    if (joint.getAngleIU() == 0)
+    if (LOWER_BOUNDARY_ANGLE_IU <= joint.getAngleIU() && joint.getAngleIU() <= UPPER_BOUNDARY_ANGLE_IU)
     {
-      ROS_WARN_THROTTLE(1, "[%s] still has encoder value 0 after initiation", joint_names_[i].c_str());
+      ROS_WARN_THROTTLE(1, "Joint: [%s] has angle-value of: %i. Which is within boundary of lower: %i and upper: %i"
+          , joint_names_[i].c_str(), joint.getAngleIU(), LOWER_BOUNDARY_ANGLE_IU, UPPER_BOUNDARY_ANGLE_IU);
     }
   }
 }
