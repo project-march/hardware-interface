@@ -13,9 +13,7 @@
 
 namespace march4cpp
 {
-/**
- * Store IMC data as a struct to prevent data overlap
- */
+/** Store IMC data as a struct to prevent data overlap.*/
 struct IMCObject
 {
   int address;  // in IMC memory (see IMC manual)
@@ -32,19 +30,14 @@ struct IMCObject
   }
 };
 
-/**
- * The data direction to which the PDO is specified is restricted to master in slave out and slave out master in
- */
+/** The data direction to which the PDO is specified is restricted to master in slave out and slave out master in.*/
 enum class dataDirection
 {
   miso,
   mosi
 };
 
-/**
- * All the available IMC object names divided over the PDO maps
- * Note: If a new object is added to this enum, make sure to also add it to PDOmap::initAllObjects()!
- */
+/** All the available IMC object names divided over the PDO maps. make sure to also add it to PDOmap constructor.*/
 enum class IMCObjectName
 {
   StatusWord,
@@ -66,25 +59,19 @@ enum class IMCObjectName
 class PDOmap
 {
 public:
+  /** Initiate all the entered IMC objects to prepare the PDO.*/
   PDOmap();
   void addObject(IMCObjectName objectName);
   std::map<IMCObjectName, int> map(int slaveIndex, dataDirection direction);
 
 private:
-  /**
-   * Initiate all the entered IMC objects to prepare the PDO
-   */
-  void initAllObjects();
-
-  /**
-   * This function is used to sort the objects in the allObjects according to data length. This should optimize the
-   * usage of storage
-   */
+  /** This function is used to sort the objects in the allObjects according to data length.*/
   void sortPDOObjects();
 
-  /**
-   * Combine the address(hex), sub-index(hex) and length(hex). Example control word: 60400010h
-   */
+  /** This function configures the PDO in the IMC using the given base register address and sync manager address.*/
+  std::map<IMCObjectName, int> configurePDO(int slaveIndex, int baseRegister, int baseSyncManager);
+
+  /** Combine the address(hex), sub-index(hex) and length(hex). Example control word: 60400010h.*/
   uint32_t combineAddressLength(uint16_t address, uint16_t length);
 
   std::map<IMCObjectName, IMCObject> PDOObjects;

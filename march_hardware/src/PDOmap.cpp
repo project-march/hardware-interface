@@ -8,12 +8,6 @@ namespace march4cpp
 {
 PDOmap::PDOmap()
 {
-  this->initAllObjects();
-}
-
-void PDOmap::initAllObjects()
-{
-  // Object(address, length);
   this->allObjects[IMCObjectName::StatusWord] = IMCObject(0x6041, 16);
   this->allObjects[IMCObjectName::ActualPosition] = IMCObject(0x6064, 32);
   this->allObjects[IMCObjectName::MotionErrorRegister] = IMCObject(0x2000, 16);
@@ -28,8 +22,6 @@ void PDOmap::initAllObjects()
   this->allObjects[IMCObjectName::TargetTorque] = IMCObject(0x6071, 16);
   this->allObjects[IMCObjectName::QuickStopDeceleration] = IMCObject(0x6085, 32);
   this->allObjects[IMCObjectName::QuickStopOption] = IMCObject(0x605A, 16);
-  // etc...
-  // If a new entry is added here, first add it to the enum (in the header file)!
 }
 
 void PDOmap::addObject(IMCObjectName objectName)
@@ -53,33 +45,31 @@ void PDOmap::addObject(IMCObjectName objectName)
 std::map<enum IMCObjectName, int> PDOmap::map(int slaveIndex, enum dataDirection direction)
 {
   this->sortPDOObjects();
-  int reg{};
-  int SMAddress{};
 
   if (direction == dataDirection::miso)
   {
     ROS_INFO("Mapping miso");
-    reg = 0x1A00;
-    SMAddress = 0x1C13;
+    return configurePDO(slaveIndex, 0x1A00, 0x1C13);
   }
   else if (direction == dataDirection::mosi)
   {
     ROS_INFO("Mapping mosi");
-    reg = 0x1600;
-    SMAddress = 0x1C12;
+    return configurePDO(slaveIndex, 0x1600, 0x1C12);
   }
   else
   {
-    ROS_ERROR("Invalid dataDirection argument");
+    throw std::runtime_error("Invalid dataDirection argument in PDO mapping");
   }
+}
 
+std::map<IMCObjectName, int> PDOmap::configurePDO(int slaveIndex, int baseRegister, int baseSyncManager)
+{
   int counter = 1;
-  int currentReg = reg;
+  int currentReg = baseRegister;
   int sizeLeft = this->bitsPerReg;
 
-  sdo_bit8(slaveIndex, currentReg, 0, 0);
+  sdo_bit8(slaveIndex, baseRegister, 0, 0);
 
-  ROS_INFO("current reg: 0x%4.4x", currentReg);
   for (const auto& nextObject : sortedPDOObjects)
   {
     sizeLeft -= nextObject.second.length;
@@ -88,14 +78,14 @@ std::map<enum IMCObjectName, int> PDOmap::map(int slaveIndex, enum dataDirection
       // PDO is filled so it can be enabled again
       sdo_bit8(slaveIndex, currentReg, 0, counter - 1);
 
-      // Change the sync manager accordingly
-      sdo_bit8(slaveIndex, SMAddress, 0, 0);
-      int currentPDONr = (currentReg - reg) + 1;
-      sdo_bit16(slaveIndex, SMAddress, currentPDONr, currentReg);
+      // Update the sync manager with the just configured PDO
+      sdo_bit8(slaveIndex, baseSyncManager, 0, 0);
+      int currentPDONr = (currentReg - baseRegister) + 1;
+      sdo_bit16(slaveIndex, baseSyncManager, currentPDONr, currentReg);
 
-      // Move to the next PDO
+      // Move to the next PDO register by incrementing with one
       currentReg++;
-      if (currentReg > (reg + nrofRegs))
+      if (currentReg > (baseRegister + nrofRegs))
       {
         ROS_ERROR("Amount of registers was overwritten, amount of parameters does not fit in the PDO messages.");
       }
@@ -104,10 +94,7 @@ std::map<enum IMCObjectName, int> PDOmap::map(int slaveIndex, enum dataDirection
       counter = 1;
 
       sdo_bit8(slaveIndex, currentReg, 0, 0);
-      ROS_INFO("current reg: 0x%4.4x", currentReg);
     }
-    ROS_INFO("reg 0x%X, index %i, length %i,  0x%X", currentReg, nextObject.second.address, nextObject.second.length,
-             this->combineAddressLength(nextObject.second.address, nextObject.second.length));
 
     int byteOffset = (bitsPerReg - (sizeLeft + nextObject.second.length)) / 8;
     this->byteOffsets[nextObject.first] = byteOffset;
@@ -116,28 +103,26 @@ std::map<enum IMCObjectName, int> PDOmap::map(int slaveIndex, enum dataDirection
               this->combineAddressLength(nextObject.second.address, nextObject.second.length));
     counter++;
   }
+
+  // Make sure the last PDO and sync manager are activated
   sdo_bit8(slaveIndex, currentReg, 0, counter - 1);
+  sdo_bit8(slaveIndex, baseSyncManager, 0, 0);
+  int currentPDONr = (currentReg - baseRegister) + 1;
+  sdo_bit16(slaveIndex, baseSyncManager, currentPDONr, currentReg);
 
-  sdo_bit8(slaveIndex, SMAddress, 0, 0);
-  int currentPDONr = (currentReg - reg) + 1;
-  sdo_bit16(slaveIndex, SMAddress, currentPDONr, currentReg);
-
-  // explicitly disable PDO
+  // Explicitly disable PDO registers which are not used
   currentReg++;
-  if (currentReg <= (reg + nrofRegs))
+  if (currentReg <= (baseRegister + nrofRegs))
   {
-    for (int unusedRegister = currentReg; unusedRegister < reg + this->nrofRegs; unusedRegister++)
+    for (int unusedRegister = currentReg; unusedRegister < baseRegister + this->nrofRegs; unusedRegister++)
     {
-      int PDO = unusedRegister - reg;
-      ROS_INFO("unused reg: 0x%4.4x, PDO: %i", unusedRegister, PDO);
       sdo_bit8(slaveIndex, unusedRegister, 0, 0);
     }
   }
 
   // Active the sync manager again
-  int totalAmountPDO = (currentReg - reg);
-  sdo_bit8(slaveIndex, SMAddress, 0, totalAmountPDO);
-  ROS_INFO("total amount of PDO: %i", totalAmountPDO);
+  int totalAmountPDO = (currentReg - baseRegister);
+  sdo_bit8(slaveIndex, baseSyncManager, 0, totalAmountPDO);
 
   return this->byteOffsets;
 }
@@ -145,21 +130,18 @@ std::map<enum IMCObjectName, int> PDOmap::map(int slaveIndex, enum dataDirection
 void PDOmap::sortPDOObjects()
 {
   int totalBits = 0;
-  for (int i = 0; i < (sizeof(this->objectSizes) / sizeof(this->objectSizes[0])); i++)
+  for (int objectSize : this->objectSizes)
   {
-    std::map<IMCObjectName, IMCObject>::iterator j;
-    for (j = this->PDOObjects.begin(); j != this->PDOObjects.end(); j++)
+    for (const auto& object : PDOObjects)
     {
-      if (j->second.length == this->objectSizes[i])
+      if (object.second.length == objectSize)
       {
-        std::pair<IMCObjectName, IMCObject> nextObject{};
-        nextObject.first = j->first;
-        nextObject.second = j->second;
-        this->sortedPDOObjects.push_back(nextObject);
-        totalBits += this->objectSizes[i];
+        this->sortedPDOObjects.emplace_back(object);
+        totalBits += objectSize;
       }
     }
   }
+
   if (totalBits > this->nrofRegs * this->bitsPerReg)
   {
     ROS_FATAL("Too many objects in PDO Map (total bits %d, only %d allowed)", totalBits,
