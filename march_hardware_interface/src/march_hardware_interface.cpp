@@ -344,8 +344,8 @@ void MarchHardwareInterface::initiateIMC()
     march4cpp::Joint joint = marchRobot.getJoint(joint_names_[i]);
     if (LOWER_BOUNDARY_ANGLE_IU <= joint.getAngleIU() && joint.getAngleIU() <= UPPER_BOUNDARY_ANGLE_IU)
     {
-      ROS_WARN_THROTTLE(1, "Joint: [%s] has angle-value of: %i. Which is within boundary of lower: %i and upper: %i"
-          , joint_names_[i].c_str(), joint.getAngleIU(), LOWER_BOUNDARY_ANGLE_IU, UPPER_BOUNDARY_ANGLE_IU);
+      ROS_WARN_THROTTLE(1, "Joint: [%s] has angle-value of: %i. Which is within boundary of lower: %i and upper: %i",
+                        joint_names_[i].c_str(), joint.getAngleIU(), LOWER_BOUNDARY_ANGLE_IU, UPPER_BOUNDARY_ANGLE_IU);
     }
   }
 }
