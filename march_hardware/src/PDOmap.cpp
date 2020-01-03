@@ -58,11 +58,13 @@ std::map<enum IMCObjectName, int> PDOmap::map(int slaveIndex, enum dataDirection
 
   if (direction == dataDirection::miso)
   {
+    ROS_INFO("Mapping miso");
     reg = 0x1A00;
     SMAddress = 0x1C13;
   }
   else if (direction == dataDirection::mosi)
   {
+    ROS_INFO("Mapping mosi");
     reg = 0x1600;
     SMAddress = 0x1C12;
   }
@@ -73,17 +75,18 @@ std::map<enum IMCObjectName, int> PDOmap::map(int slaveIndex, enum dataDirection
 
   int counter = 1;
   int currentReg = reg;
-  int byteOffset = 0;
   int sizeLeft = this->bitsPerReg;
 
   sdo_bit8(slaveIndex, currentReg, 0, 0);
+
+  ROS_INFO("current reg: 0x%4.4x", currentReg);
   for (const auto& nextObject : sortedPDOObjects)
   {
     sizeLeft -= nextObject.second.length;
-    if (byteOffset < 0)
+    if (sizeLeft < 0)
     {
       // PDO is filled so it can be enabled again
-      sdo_bit8(slaveIndex, currentReg, 0, counter);
+      sdo_bit8(slaveIndex, currentReg, 0, counter-1);
 
       // Change the sync manager accordingly
       sdo_bit8(slaveIndex, SMAddress, 0, 0);
@@ -98,27 +101,43 @@ std::map<enum IMCObjectName, int> PDOmap::map(int slaveIndex, enum dataDirection
       }
 
       sizeLeft = this->bitsPerReg - nextObject.second.length;
-      byteOffset = 0;
       counter = 1;
-      sdo_bit8(slaveIndex, currentReg, 0, 0);
-    }
 
+      sdo_bit8(slaveIndex, currentReg, 0, 0);
+      ROS_INFO("current reg: 0x%4.4x", currentReg);
+
+    }
+    ROS_INFO("reg 0x%X, index %i, length %i,  0x%X", currentReg, nextObject.second.address, nextObject.second.length
+    , this->combineAddressLength(nextObject.second.address, nextObject.second.length));
+
+    this->byteOffsets[nextObject.first] = nextObject.second.length / 8;
     sdo_bit32(slaveIndex, currentReg, counter,
               this->combineAddressLength(nextObject.second.address, nextObject.second.length));
     counter++;
 
-    byteOffset += nextObject.second.length / 8;
-    this->byteOffsets[nextObject.first] = byteOffset;
   }
+  sdo_bit8(slaveIndex, currentReg, 0, counter-1);
 
+  sdo_bit8(slaveIndex, SMAddress, 0, 0);
+  int currentPDONr = (currentReg - reg) + 1;
+  sdo_bit16(slaveIndex, SMAddress, currentPDONr, currentReg);
+
+  // explicitly disable PDO and corresponding sync managers
   currentReg++;
   if (currentReg <= (reg + nrofRegs))
   {
-    for (int unusedRegister = reg; unusedRegister < reg + this->nrofRegs; unusedRegister++)
+    for (int unusedRegister = currentReg; unusedRegister < reg + this->nrofRegs; unusedRegister++)
     {
+      int PDO = unusedRegister - reg;
+      ROS_INFO("unused reg: 0x%4.4x, PDO: %i", unusedRegister, PDO);
       sdo_bit8(slaveIndex, unusedRegister, 0, 0);
     }
   }
+
+  // Active the sync manager again
+  int totalAmountPDO = (currentReg - reg);
+  sdo_bit8(slaveIndex, SMAddress, 0, totalAmountPDO);
+  ROS_INFO("total amount of PDO: %i", totalAmountPDO);
 
   return this->byteOffsets;
 }
