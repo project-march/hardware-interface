@@ -76,8 +76,6 @@ void IMotionCube::validateMosiPDOs()
 void IMotionCube::writeInitialSettings(uint8 ecatCycleTime)
 {
   ROS_DEBUG("IMotionCube::writeInitialSettings");
-  bool success = true;
-  // sdo_bit32(slaveIndex, address, subindex, value);
 
   if (this->actuationMode == ActuationMode::unknown)
   {
@@ -85,32 +83,32 @@ void IMotionCube::writeInitialSettings(uint8 ecatCycleTime)
   }
 
   // mode of operation
-  success &= sdo_bit8(slaveIndex, 0x6060, 0, this->actuationMode.toModeNumber());
+  sdo_bit8(slaveIndex, 0x6060, 0, this->actuationMode.toModeNumber());
 
   // position dimension index
-  success &= sdo_bit8(slaveIndex, 0x608A, 0, 1);
+  sdo_bit8(slaveIndex, 0x608A, 0, 1);
 
   // position factor -- scaling factor numerator
-  success &= sdo_bit32(slaveIndex, 0x6093, 1, 1);
+  sdo_bit32(slaveIndex, 0x6093, 1, 1);
+
   // position factor -- scaling factor denominator
-  success &= sdo_bit32(slaveIndex, 0x6093, 2, 1);
+  sdo_bit32(slaveIndex, 0x6093, 2, 1);
 
   // position limit -- min position
-  success &= sdo_bit32(slaveIndex, 0x607D, 1, this->encoder.getLowerSoftLimitIU());
+  sdo_bit32(slaveIndex, 0x607D, 1, this->encoder.getLowerSoftLimitIU());
+
   // position limit -- max position
-  success &= sdo_bit32(slaveIndex, 0x607D, 2, this->encoder.getUpperSoftLimitIU());
+  sdo_bit32(slaveIndex, 0x607D, 2, this->encoder.getUpperSoftLimitIU());
 
   // Quick stop option
-  success &= sdo_bit16(slaveIndex, 0x605A, 0, 6);
+  sdo_bit16(slaveIndex, 0x605A, 0, 6);
 
   // Quick stop deceleration
-  success &= sdo_bit32(slaveIndex, 0x6085, 0, 0x7FFFFFFF);
+  sdo_bit32(slaveIndex, 0x6085, 0, 0x7FFFFFFF);
 
   // set the ethercat rate of encoder in form x*10^y
-  success &= sdo_bit8(slaveIndex, 0x60C2, 1, ecatCycleTime);
-  success &= sdo_bit8(slaveIndex, 0x60C2, 2, -3);
-
-  ROS_ASSERT_MSG(success, "Writing initial settings to IMC %d failed", this->slaveIndex);
+  sdo_bit8(slaveIndex, 0x60C2, 1, ecatCycleTime);
+  sdo_bit8(slaveIndex, 0x60C2, 2, -3);
 }
 
 void IMotionCube::actuateRad(float targetRad)
