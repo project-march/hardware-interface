@@ -61,11 +61,11 @@ class PDOmap
 public:
   /** Initiate all the entered IMC objects to prepare the PDO.*/
   PDOmap();
-  void addObject(IMCObjectName objectName);
+  void addObject(IMCObjectName object_name);
   std::map<IMCObjectName, int> map(int slaveIndex, dataDirection direction);
 
 private:
-  /** This function is used to sort the objects in the allObjects according to data length.*/
+  /** This function is used to sort the objects in the all_objects according to data length.*/
   void sortPDOObjects();
 
   /** This function configures the PDO in the IMC using the given base register address and sync manager address.*/
@@ -74,14 +74,14 @@ private:
   /** Combine the address(hex), sub-index(hex) and length(hex). Example control word: 60400010h.*/
   uint32_t combineAddressLength(uint16_t address, uint16_t length);
 
-  std::map<IMCObjectName, IMCObject> PDOObjects;
-  std::map<IMCObjectName, IMCObject> allObjects;
-  std::vector<std::pair<IMCObjectName, IMCObject>> sortedPDOObjects;
-  std::map<IMCObjectName, int> byteOffsets;
+  std::map<IMCObjectName, IMCObject> PDO_objects;
+  std::map<IMCObjectName, IMCObject> all_objects;
+  std::vector<std::pair<IMCObjectName, IMCObject>> sorted_PDO_objects;
+  std::map<IMCObjectName, int> byte_offsets;
 
-  const int bitsPerReg = 64;                 // Maximum amount of bits that  constructed in one PDO message.
-  const int nrofRegs = 4;                    // Amount of registers available.
-  const int objectSizes[3] = { 32, 16, 8 };  // Available sizes.
+  const int bits_per_register = 64;           // Maximum amount of bits that can be constructed in one PDO message.
+  const int nr_of_regs = 4;                   // Amount of registers available.
+  const int object_sizes[3] = { 32, 16, 8 };  // Available sizes.
 };
 }  // namespace march4cpp
 
