@@ -24,9 +24,7 @@ struct IMCObject
   {
   }
 
-  IMCObject()
-  {
-  };
+  IMCObject(){};
 };
 
 /** The data direction to which the PDO is specified is restricted to master in slave out and slave out master in.*/

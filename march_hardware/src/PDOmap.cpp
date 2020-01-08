@@ -6,8 +6,7 @@
 
 namespace march4cpp
 {
-std::unordered_map<IMCObjectName, IMCObject> PDOmap::all_objects =
-{
+std::unordered_map<IMCObjectName, IMCObject> PDOmap::all_objects = {
   { IMCObjectName::StatusWord, IMCObject(0x6041, 16) },
   { IMCObjectName::ActualPosition, IMCObject(0x6064, 32) },
   { IMCObjectName::MotionErrorRegister, IMCObject(0x2000, 16) },
@@ -38,7 +37,7 @@ void PDOmap::add_object(IMCObjectName object_name)
     return;
   }
 
-  this->PDO_objects.insert({ object_name, PDOmap::all_objects[object_name] }); // NOLINT(whitespace/braces)
+  this->PDO_objects.insert({ object_name, PDOmap::all_objects[object_name] });  // NOLINT(whitespace/braces)
 
   int total_used_bits = 0;
   for (std::pair<IMCObjectName, IMCObject> PDO_object : this->PDO_objects)
