@@ -23,6 +23,10 @@ struct IMCObject
   explicit IMCObject(int _address, int _length) : address(_address), length(_length)
   {
   }
+
+  IMCObject()
+  {
+  };
 };
 
 /** The data direction to which the PDO is specified is restricted to master in slave out and slave out master in.*/
