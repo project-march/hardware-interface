@@ -23,6 +23,7 @@ using joint_limits_interface::JointLimits;
 using joint_limits_interface::PositionJointSoftLimitsHandle;
 using joint_limits_interface::PositionJointSoftLimitsInterface;
 using joint_limits_interface::SoftJointLimits;
+using march4cpp::Joint;
 
 namespace march_hardware_interface
 {
@@ -123,7 +124,7 @@ void MarchHardwareInterface::init()
       {
         marchRobot.getPowerDistributionBoard()->getHighVoltage().setNetOnOff(true, netNumber);
         usleep(100000);
-        ROS_INFO_THROTTLE(1, "[%s] Waiting on high voltage", joint_names_[i].c_str());
+        ROS_WARN("[%s] Waiting on high voltage", joint_names_[i].c_str());
       }
     }
   }
@@ -319,19 +320,17 @@ void MarchHardwareInterface::write(const ros::Duration& elapsed_time)
 
 void MarchHardwareInterface::initiateIMC()
 {
-  for (int i = 0; i < num_joints_; ++i)
-  {
-    march4cpp::Joint joint = marchRobot.getJoint(joint_names_[i]);
-    if (joint.getAngleIU() == 0)
-    {
-      ROS_WARN_THROTTLE(1, "[%s] has encoder value 0 ", joint_names_[i].c_str());
-    }
-  }
-
   ROS_INFO("Resetting all IMC on initialization");
-  for (int i = 0; i < num_joints_; ++i)
+  for (const std::string& joint_name : joint_names_)
   {
-    march4cpp::Joint joint = marchRobot.getJoint(joint_names_[i]);
+    Joint joint = marchRobot.getJoint(joint_name);
+
+    if (LOWER_BOUNDARY_ANGLE_IU <= joint.getAngleIU() && joint.getAngleIU() <= UPPER_BOUNDARY_ANGLE_IU)
+    {
+      ROS_WARN("Before reset joint: [%s] has angle-value of: %i. Which is within boundary of lower: %i and upper: %i",
+               joint_name.c_str(), joint.getAngleIU(), LOWER_BOUNDARY_ANGLE_IU, UPPER_BOUNDARY_ANGLE_IU);
+    }
+
     joint.resetIMotionCube();
   }
 
@@ -339,13 +338,14 @@ void MarchHardwareInterface::initiateIMC()
   marchRobot.stopEtherCAT();
   marchRobot.startEtherCAT();
 
-  for (int i = 0; i < num_joints_; ++i)
+  for (const std::string& joint_name : joint_names_)
   {
-    march4cpp::Joint joint = marchRobot.getJoint(joint_names_[i]);
+    Joint joint = marchRobot.getJoint(joint_name);
+
     if (LOWER_BOUNDARY_ANGLE_IU <= joint.getAngleIU() && joint.getAngleIU() <= UPPER_BOUNDARY_ANGLE_IU)
     {
-      ROS_WARN_THROTTLE(1, "Joint: [%s] has angle-value of: %i. Which is within boundary of lower: %i and upper: %i",
-                        joint_names_[i].c_str(), joint.getAngleIU(), LOWER_BOUNDARY_ANGLE_IU, UPPER_BOUNDARY_ANGLE_IU);
+      ROS_WARN("After reset joint: [%s] has angle-value of: %i. Which is within boundary of lower: %i and upper: %i",
+               joint_name.c_str(), joint.getAngleIU(), LOWER_BOUNDARY_ANGLE_IU, UPPER_BOUNDARY_ANGLE_IU);
     }
   }
 }

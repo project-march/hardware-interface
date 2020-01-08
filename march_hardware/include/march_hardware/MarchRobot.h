@@ -19,9 +19,9 @@ class MarchRobot
 private:
   std::unique_ptr<EthercatMaster> ethercatMaster;
   std::unique_ptr<PowerDistributionBoard> powerDistributionBoard;
+  ::std::vector<Joint> jointList;
 
 public:
-  ::std::vector<Joint> jointList;
 
   MarchRobot(::std::vector<Joint> jointList, ::std::string ifName, int ecatCycleTime);
 
