@@ -2,49 +2,59 @@
 #include <march_hardware/PDOmap.h>
 
 #include <map>
-#include <utility>
 
 namespace march4cpp
 {
-PDOmap::PDOmap()
-{
-  this->all_objects[IMCObjectName::StatusWord] = IMCObject(0x6041, 16);
-  this->all_objects[IMCObjectName::ActualPosition] = IMCObject(0x6064, 32);
-  this->all_objects[IMCObjectName::MotionErrorRegister] = IMCObject(0x2000, 16);
-  this->all_objects[IMCObjectName::DetailedErrorRegister] = IMCObject(0x2002, 16);
-  this->all_objects[IMCObjectName::DCLinkVoltage] = IMCObject(0x2055, 16);
-  this->all_objects[IMCObjectName::DriveTemperature] = IMCObject(0x2058, 16);
-  this->all_objects[IMCObjectName::ActualTorque] = IMCObject(0x6077, 16);
-  this->all_objects[IMCObjectName::CurrentLimit] = IMCObject(0x207F, 16);
-  this->all_objects[IMCObjectName::MotorPosition] = IMCObject(0x2088, 32);
-  this->all_objects[IMCObjectName::ControlWord] = IMCObject(0x6040, 16);
-  this->all_objects[IMCObjectName::TargetPosition] = IMCObject(0x607A, 32);
-  this->all_objects[IMCObjectName::TargetTorque] = IMCObject(0x6071, 16);
-  this->all_objects[IMCObjectName::QuickStopDeceleration] = IMCObject(0x6085, 32);
-  this->all_objects[IMCObjectName::QuickStopOption] = IMCObject(0x605A, 16);
-}
+std::unordered_map<IMCObjectName, IMCObject> PDOmap::all_objects = {
+  { IMCObjectName::StatusWord, IMCObject(0x6041, 16) },
+  { IMCObjectName::ActualPosition, IMCObject(0x6064, 32) },
+  { IMCObjectName::MotionErrorRegister, IMCObject(0x2000, 16) },
+  { IMCObjectName::DetailedErrorRegister, IMCObject(0x2002, 16) },
+  { IMCObjectName::DCLinkVoltage, IMCObject(0x2055, 16) },
+  { IMCObjectName::DriveTemperature, IMCObject(0x2058, 16) },
+  { IMCObjectName::ActualTorque, IMCObject(0x6077, 16) },
+  { IMCObjectName::CurrentLimit, IMCObject(0x207F, 16) },
+  { IMCObjectName::MotorPosition, IMCObject(0x2088, 32) },
+  { IMCObjectName::ControlWord, IMCObject(0x6040, 16) },
+  { IMCObjectName::TargetPosition, IMCObject(0x607A, 32) },
+  { IMCObjectName::TargetTorque, IMCObject(0x6071, 16) },
+  { IMCObjectName::QuickStopDeceleration, IMCObject(0x6085, 32) },
+  { IMCObjectName::QuickStopOption, IMCObject(0x605A, 16) }
+};
 
-void PDOmap::addObject(IMCObjectName object_name)
+void PDOmap::add_object(IMCObjectName object_name)
 {
-  if (this->all_objects.count(object_name) != 1)
+  if (PDOmap::all_objects.find(object_name) == PDOmap::all_objects.end())
   {
-    ROS_WARN("IMC object does not exist (yet), or multiple exist");
+    ROS_WARN("IMC does not exists in in initialised objects so can not be added to PDO");
     return;
   }
-  else if (this->PDO_objects.count(object_name) != 0)
+
+  if (this->PDO_objects.count(object_name) != 0)
   {
-    ROS_WARN("IMC object is already added to PDO map");
+    ROS_WARN("IMC object %i is already added to PDO map", object_name);
     return;
   }
-  else
+
+  PDOmap::PDO_objects[object_name] = PDOmap::all_objects[object_name];
+
+  int total_used_bits = 0;
+  for (std::pair<IMCObjectName, IMCObject> PDO_object : PDO_objects)
   {
-    this->PDO_objects[object_name] = this->all_objects[object_name];
+    total_used_bits = total_used_bits + PDO_object.second.length;
+  }
+
+  if (total_used_bits > this->nr_of_regs * this->bits_per_register)
+  {
+    ROS_FATAL("Too many objects in PDO Map (total bits %d, only %d allowed), PDO object: %i could not be added",
+              total_used_bits, this->nr_of_regs * this->bits_per_register, object_name);
+    throw std::exception();
   }
 }
 
-std::map<enum IMCObjectName, int> PDOmap::map(int slaveIndex, enum dataDirection direction)
+std::map<IMCObjectName, int> PDOmap::map(int slaveIndex, enum dataDirection direction)
 {
-  this->sortPDOObjects();
+  this->sort_PDO_objects();
 
   if (direction == dataDirection::miso)
   {
@@ -65,6 +75,7 @@ std::map<IMCObjectName, int> PDOmap::configurePDO(int slaveIndex, int baseRegist
   int counter = 1;
   int currentReg = baseRegister;
   int sizeLeft = this->bits_per_register;
+  std::map<IMCObjectName, int> byte_offsets;
 
   sdo_bit8(slaveIndex, baseRegister, 0, 0);
 
@@ -95,10 +106,10 @@ std::map<IMCObjectName, int> PDOmap::configurePDO(int slaveIndex, int baseRegist
     }
 
     int byteOffset = (bits_per_register - (sizeLeft + nextObject.second.length)) / 8;
-    this->byte_offsets[nextObject.first] = byteOffset;
+    byte_offsets[nextObject.first] = byteOffset;
 
     sdo_bit32(slaveIndex, currentReg, counter,
-              this->combineAddressLength(nextObject.second.address, nextObject.second.length));
+              PDOmap::combineAddressLength(nextObject.second.address, nextObject.second.length));
     counter++;
   }
 
@@ -118,14 +129,14 @@ std::map<IMCObjectName, int> PDOmap::configurePDO(int slaveIndex, int baseRegist
     }
   }
 
-  // Active the sync manager again
+  // Activate the sync manager again
   int totalAmountPDO = (currentReg - baseRegister);
   sdo_bit8(slaveIndex, baseSyncManager, 0, totalAmountPDO);
 
-  return this->byte_offsets;
+  return byte_offsets;
 }
 
-void PDOmap::sortPDOObjects()
+void PDOmap::sort_PDO_objects()
 {
   int totalBits = 0;
   for (int objectSize : this->object_sizes)
@@ -138,13 +149,6 @@ void PDOmap::sortPDOObjects()
         totalBits += objectSize;
       }
     }
-  }
-
-  if (totalBits > this->nr_of_regs * this->bits_per_register)
-  {
-    ROS_FATAL("Too many objects in PDO Map (total bits %d, only %d allowed)", totalBits,
-              this->nr_of_regs * this->bits_per_register);
-    throw std::exception();
   }
 }
 

@@ -33,12 +33,12 @@ void IMotionCube::writeInitialSDOs(int ecatCycleTime)
 void IMotionCube::mapMisoPDOs()
 {
   PDOmap pdoMapMISO = PDOmap();
-  pdoMapMISO.addObject(IMCObjectName::StatusWord);      // Compulsory!
-  pdoMapMISO.addObject(IMCObjectName::ActualPosition);  // Compulsory!
-  pdoMapMISO.addObject(IMCObjectName::ActualTorque);    // Compulsory!
-  pdoMapMISO.addObject(IMCObjectName::MotionErrorRegister);
-  pdoMapMISO.addObject(IMCObjectName::DetailedErrorRegister);
-  pdoMapMISO.addObject(IMCObjectName::DCLinkVoltage);
+  pdoMapMISO.add_object(IMCObjectName::StatusWord);      // Compulsory!
+  pdoMapMISO.add_object(IMCObjectName::ActualPosition);  // Compulsory!
+  pdoMapMISO.add_object(IMCObjectName::ActualTorque);    // Compulsory!
+  pdoMapMISO.add_object(IMCObjectName::MotionErrorRegister);
+  pdoMapMISO.add_object(IMCObjectName::DetailedErrorRegister);
+  pdoMapMISO.add_object(IMCObjectName::DCLinkVoltage);
   this->misoByteOffsets = pdoMapMISO.map(this->slaveIndex, dataDirection::miso);
 }
 
@@ -47,9 +47,9 @@ void IMotionCube::mapMisoPDOs()
 void IMotionCube::mapMosiPDOs()
 {
   PDOmap pdoMapMOSI = PDOmap();
-  pdoMapMOSI.addObject(IMCObjectName::ControlWord);  // Compulsory!
-  pdoMapMOSI.addObject(IMCObjectName::TargetPosition);
-  pdoMapMOSI.addObject(IMCObjectName::TargetTorque);
+  pdoMapMOSI.add_object(IMCObjectName::ControlWord);  // Compulsory!
+  pdoMapMOSI.add_object(IMCObjectName::TargetPosition);
+  pdoMapMOSI.add_object(IMCObjectName::TargetTorque);
   this->mosiByteOffsets = pdoMapMOSI.map(this->slaveIndex, dataDirection::mosi);
 }
 
@@ -83,23 +83,28 @@ void IMotionCube::writeInitialSettings(uint8 ecatCycleTime)
   }
 
   // mode of operation
-  sdo_bit8(slaveIndex, 0x6060, 0, this->actuationMode.toModeNumber());
+  int mode_of_op = sdo_bit8(slaveIndex, 0x6060, 0, this->actuationMode.toModeNumber());
 
   // position limit -- min position
-  sdo_bit32(slaveIndex, 0x607D, 1, this->encoder.getLowerSoftLimitIU());
+  int max_pos_lim = sdo_bit32(slaveIndex, 0x607D, 1, this->encoder.getLowerSoftLimitIU());
 
   // position limit -- max position
-  sdo_bit32(slaveIndex, 0x607D, 2, this->encoder.getUpperSoftLimitIU());
+  int min_pos_lim = sdo_bit32(slaveIndex, 0x607D, 2, this->encoder.getUpperSoftLimitIU());
 
   // Quick stop option
-  sdo_bit16(slaveIndex, 0x605A, 0, 6);
+  int stop_options = sdo_bit16(slaveIndex, 0x605A, 0, 6);
 
   // Quick stop deceleration
-  sdo_bit32(slaveIndex, 0x6085, 0, 0x7FFFFFFF);
+  int stop_decl = sdo_bit32(slaveIndex, 0x6085, 0, 0x7FFFFFFF);
 
   // set the ethercat rate of encoder in form x*10^y
-  sdo_bit8(slaveIndex, 0x60C2, 1, ecatCycleTime);
-  sdo_bit8(slaveIndex, 0x60C2, 2, -3);
+  int rate_ec_x = sdo_bit8(slaveIndex, 0x60C2, 1, ecatCycleTime);
+  int rate_ec_y = sdo_bit8(slaveIndex, 0x60C2, 2, -3);
+
+  if ((mode_of_op && max_pos_lim && min_pos_lim && stop_options && stop_decl && rate_ec_x && rate_ec_y) == 0)
+  {
+    ROS_ERROR("Failed writing initial settings to IMC of slave %i", slaveIndex);
+  }
 }
 
 void IMotionCube::actuateRad(float targetRad)
