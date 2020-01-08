@@ -85,15 +85,6 @@ void IMotionCube::writeInitialSettings(uint8 ecatCycleTime)
   // mode of operation
   sdo_bit8(slaveIndex, 0x6060, 0, this->actuationMode.toModeNumber());
 
-  // position dimension index
-  sdo_bit8(slaveIndex, 0x608A, 0, 1);
-
-  // position factor -- scaling factor numerator
-  sdo_bit32(slaveIndex, 0x6093, 1, 1);
-
-  // position factor -- scaling factor denominator
-  sdo_bit32(slaveIndex, 0x6093, 2, 1);
-
   // position limit -- min position
   sdo_bit32(slaveIndex, 0x607D, 1, this->encoder.getLowerSoftLimitIU());
 
