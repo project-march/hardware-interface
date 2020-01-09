@@ -57,26 +57,26 @@ class PDOmap
 {
 public:
   /** Initiate all the entered IMC objects to prepare the PDO.*/
-  void add_object(IMCObjectName object_name);
+  void addObject(IMCObjectName object_name);
 
-  std::map<IMCObjectName, int> map(int slaveIndex, dataDirection direction);
+  std::map<IMCObjectName, int> map(int slave_index, dataDirection direction);
 
   static std::unordered_map<IMCObjectName, IMCObject> all_objects;
 
 private:
-  /** Used to sort the objects in the all_objects according to data length.*/
-  void sort_PDO_objects();
+  /** Used to sort the objects in the all_objects according to data length.
+   * @return list of pairs <IMCObjectName, IMCObjects> according from object sizes */
+  std::vector<std::pair<IMCObjectName, IMCObject>> sortPDOObjects();
 
   /** Configures the PDO in the IMC using the given base register address and sync manager address.
    * @return map of the IMC PDO object name in combination with the byte-offset in the PDO register */
-  std::map<IMCObjectName, int> configurePDO(int slaveIndex, int baseRegister, int baseSyncManager);
+  std::map<IMCObjectName, int> configurePDO(int slave_index, int base_register, int base_sync_manager);
 
   /** Combine the address(hex), sub-index(hex) and length(hex). *
    * @return combination of both address, sub-index and length (Example control word: 60400010h.) */
   static uint32_t combineAddressLength(uint16_t address, uint16_t length);
 
   std::unordered_map<IMCObjectName, IMCObject> PDO_objects;
-  std::vector<std::pair<IMCObjectName, IMCObject>> sorted_PDO_objects;
 
   const int bits_per_register = 64;           // Maximum amount of bits that can be constructed in one PDO message.
   const int nr_of_regs = 4;                   // Amount of registers available.

@@ -23,7 +23,7 @@ std::unordered_map<IMCObjectName, IMCObject> PDOmap::all_objects = {
   { IMCObjectName::QuickStopOption, IMCObject(0x605A, 16) }
 };
 
-void PDOmap::add_object(IMCObjectName object_name)
+void PDOmap::addObject(IMCObjectName object_name)
 {
   if (PDOmap::all_objects.find(object_name) == PDOmap::all_objects.end())
   {
@@ -53,17 +53,15 @@ void PDOmap::add_object(IMCObjectName object_name)
   }
 }
 
-std::map<IMCObjectName, int> PDOmap::map(int slaveIndex, enum dataDirection direction)
+std::map<IMCObjectName, int> PDOmap::map(int slave_index, enum dataDirection direction)
 {
-  this->sort_PDO_objects();
-
   if (direction == dataDirection::miso)
   {
-    return configurePDO(slaveIndex, 0x1A00, 0x1C13);
+    return configurePDO(slave_index, 0x1A00, 0x1C13);
   }
   else if (direction == dataDirection::mosi)
   {
-    return configurePDO(slaveIndex, 0x1600, 0x1C12);
+    return configurePDO(slave_index, 0x1600, 0x1C12);
   }
   else
   {
@@ -71,14 +69,16 @@ std::map<IMCObjectName, int> PDOmap::map(int slaveIndex, enum dataDirection dire
   }
 }
 
-std::map<IMCObjectName, int> PDOmap::configurePDO(int slaveIndex, int baseRegister, int baseSyncManager)
+std::map<IMCObjectName, int> PDOmap::configurePDO(int slave_index, int base_register, int base_sync_manager)
 {
   int counter = 1;
-  int currentReg = baseRegister;
+  int currentReg = base_register;
   int sizeLeft = this->bits_per_register;
-  std::map<IMCObjectName, int> byte_offsets;
 
-  sdo_bit8(slaveIndex, baseRegister, 0, 0);
+  std::map<IMCObjectName, int> byte_offsets;
+  std::vector<std::pair<IMCObjectName, IMCObject>> sorted_PDO_objects = this->sortPDOObjects();
+
+  sdo_bit8(slave_index, base_register, 0, 0);
 
   for (const auto& nextObject : sorted_PDO_objects)
   {
@@ -86,16 +86,16 @@ std::map<IMCObjectName, int> PDOmap::configurePDO(int slaveIndex, int baseRegist
     if (sizeLeft < 0)
     {
       // PDO is filled so it can be enabled again
-      sdo_bit8(slaveIndex, currentReg, 0, counter - 1);
+      sdo_bit8(slave_index, currentReg, 0, counter - 1);
 
       // Update the sync manager with the just configured PDO
-      sdo_bit8(slaveIndex, baseSyncManager, 0, 0);
-      int currentPDONr = (currentReg - baseRegister) + 1;
-      sdo_bit16(slaveIndex, baseSyncManager, currentPDONr, currentReg);
+      sdo_bit8(slave_index, base_sync_manager, 0, 0);
+      int currentPDONr = (currentReg - base_register) + 1;
+      sdo_bit16(slave_index, base_sync_manager, currentPDONr, currentReg);
 
       // Move to the next PDO register by incrementing with one
       currentReg++;
-      if (currentReg > (baseRegister + nr_of_regs))
+      if (currentReg > (base_register + nr_of_regs))
       {
         ROS_ERROR("Amount of registers was overwritten, amount of parameters does not fit in the PDO messages.");
       }
@@ -103,56 +103,59 @@ std::map<IMCObjectName, int> PDOmap::configurePDO(int slaveIndex, int baseRegist
       sizeLeft = this->bits_per_register - nextObject.second.length;
       counter = 1;
 
-      sdo_bit8(slaveIndex, currentReg, 0, 0);
+      sdo_bit8(slave_index, currentReg, 0, 0);
     }
 
     int byteOffset = (bits_per_register - (sizeLeft + nextObject.second.length)) / 8;
     byte_offsets[nextObject.first] = byteOffset;
 
-    sdo_bit32(slaveIndex, currentReg, counter,
+    sdo_bit32(slave_index, currentReg, counter,
               PDOmap::combineAddressLength(nextObject.second.address, nextObject.second.length));
     counter++;
   }
 
   // Make sure the last PDO is activated
-  sdo_bit8(slaveIndex, currentReg, 0, counter - 1);
+  sdo_bit8(slave_index, currentReg, 0, counter - 1);
 
   // Deactivated the sync manager and configure with the new PDO
-  sdo_bit8(slaveIndex, baseSyncManager, 0, 0);
-  int currentPDONr = (currentReg - baseRegister) + 1;
-  sdo_bit16(slaveIndex, baseSyncManager, currentPDONr, currentReg);
+  sdo_bit8(slave_index, base_sync_manager, 0, 0);
+  int currentPDONr = (currentReg - base_register) + 1;
+  sdo_bit16(slave_index, base_sync_manager, currentPDONr, currentReg);
 
   // Explicitly disable PDO registers which are not used
   currentReg++;
-  if (currentReg <= (baseRegister + nr_of_regs))
+  if (currentReg <= (base_register + nr_of_regs))
   {
-    for (int unusedRegister = currentReg; unusedRegister <= (baseRegister + this->nr_of_regs); unusedRegister++)
+    for (int unusedRegister = currentReg; unusedRegister <= (base_register + this->nr_of_regs); unusedRegister++)
     {
-      sdo_bit8(slaveIndex, unusedRegister, 0, 0);
+      sdo_bit8(slave_index, unusedRegister, 0, 0);
     }
   }
 
   // Activate the sync manager again
-  int totalAmountPDO = (currentReg - baseRegister);
-  sdo_bit8(slaveIndex, baseSyncManager, 0, totalAmountPDO);
+  int totalAmountPDO = (currentReg - base_register);
+  sdo_bit8(slave_index, base_sync_manager, 0, totalAmountPDO);
 
   return byte_offsets;
 }
 
-void PDOmap::sort_PDO_objects()
+std::vector<std::pair<IMCObjectName, IMCObject>> PDOmap::sortPDOObjects()
 {
   int totalBits = 0;
+  std::vector<std::pair<IMCObjectName, IMCObject>> sorted_PDO_objects;
+
   for (int objectSize : this->object_sizes)
   {
     for (const auto& object : PDO_objects)
     {
       if (object.second.length == objectSize)
       {
-        this->sorted_PDO_objects.emplace_back(object);
+        sorted_PDO_objects.emplace_back(object);
         totalBits += objectSize;
       }
     }
   }
+  return sorted_PDO_objects;
 }
 
 uint32_t PDOmap::combineAddressLength(uint16_t address, uint16_t length)
