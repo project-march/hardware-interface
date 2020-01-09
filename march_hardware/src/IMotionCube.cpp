@@ -92,16 +92,19 @@ void IMotionCube::writeInitialSettings(uint8 ecatCycleTime)
   int min_pos_lim = sdo_bit32(slaveIndex, 0x607D, 2, this->encoder.getUpperSoftLimitIU());
 
   // Quick stop option
-  int stop_options = sdo_bit16(slaveIndex, 0x605A, 0, 6);
+  int stop_opt = sdo_bit16(slaveIndex, 0x605A, 0, 6);
 
   // Quick stop deceleration
   int stop_decl = sdo_bit32(slaveIndex, 0x6085, 0, 0x7FFFFFFF);
+
+  // Abort connection option code
+  int abort_con = sdo_bit16(slaveIndex, 0x6007, 0, 1);
 
   // set the ethercat rate of encoder in form x*10^y
   int rate_ec_x = sdo_bit8(slaveIndex, 0x60C2, 1, ecatCycleTime);
   int rate_ec_y = sdo_bit8(slaveIndex, 0x60C2, 2, -3);
 
-  if ((mode_of_op && max_pos_lim && min_pos_lim && stop_options && stop_decl && rate_ec_x && rate_ec_y) == 0)
+  if ((mode_of_op && max_pos_lim && min_pos_lim && stop_opt && stop_decl && abort_con && rate_ec_x && rate_ec_y) == 0)
   {
     ROS_ERROR("Failed writing initial settings to IMC of slave %i", slaveIndex);
   }
