@@ -114,8 +114,10 @@ std::map<IMCObjectName, int> PDOmap::configurePDO(int slaveIndex, int baseRegist
     counter++;
   }
 
-  // Make sure the last PDO and sync manager are activated
+  // Make sure the last PDO is activated
   sdo_bit8(slaveIndex, currentReg, 0, counter - 1);
+
+  // Deactivated the sync manager and configure with the new PDO
   sdo_bit8(slaveIndex, baseSyncManager, 0, 0);
   int currentPDONr = (currentReg - baseRegister) + 1;
   sdo_bit16(slaveIndex, baseSyncManager, currentPDONr, currentReg);
@@ -124,7 +126,7 @@ std::map<IMCObjectName, int> PDOmap::configurePDO(int slaveIndex, int baseRegist
   currentReg++;
   if (currentReg <= (baseRegister + nr_of_regs))
   {
-    for (int unusedRegister = currentReg; unusedRegister < baseRegister + this->nr_of_regs; unusedRegister++)
+    for (int unusedRegister = currentReg; unusedRegister <= (baseRegister + this->nr_of_regs); unusedRegister++)
     {
       sdo_bit8(slaveIndex, unusedRegister, 0, 0);
     }
