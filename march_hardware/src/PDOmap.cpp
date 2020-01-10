@@ -141,7 +141,6 @@ std::map<IMCObjectName, int> PDOmap::configurePDO(int slave_index, int base_regi
 
 std::vector<std::pair<IMCObjectName, IMCObject>> PDOmap::sortPDOObjects()
 {
-  int totalBits = 0;
   std::vector<std::pair<IMCObjectName, IMCObject>> sorted_PDO_objects;
 
   for (int objectSize : this->object_sizes)
@@ -151,7 +150,6 @@ std::vector<std::pair<IMCObjectName, IMCObject>> PDOmap::sortPDOObjects()
       if (object.second.length == objectSize)
       {
         sorted_PDO_objects.emplace_back(object);
-        totalBits += objectSize;
       }
     }
   }

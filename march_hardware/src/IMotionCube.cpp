@@ -104,7 +104,7 @@ void IMotionCube::writeInitialSettings(uint8 ecatCycleTime)
   int rate_ec_x = sdo_bit8(slaveIndex, 0x60C2, 1, ecatCycleTime);
   int rate_ec_y = sdo_bit8(slaveIndex, 0x60C2, 2, -3);
 
-  if ((mode_of_op && max_pos_lim && min_pos_lim && stop_opt && stop_decl && abort_con && rate_ec_x && rate_ec_y) == 0)
+  if (mode_of_op && max_pos_lim && min_pos_lim && stop_opt && stop_decl && abort_con && rate_ec_x && rate_ec_y)
   {
     ROS_ERROR("Failed writing initial settings to IMC of slave %i", slaveIndex);
   }
