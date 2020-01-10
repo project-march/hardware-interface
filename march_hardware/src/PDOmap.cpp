@@ -124,9 +124,9 @@ std::map<IMCObjectName, int> PDOmap::configurePDO(int slave_index, int base_regi
 
   // Explicitly disable PDO registers which are not used
   currentReg++;
-  if (currentReg <= (base_register + nr_of_regs))
+  if (currentReg < (base_register + nr_of_regs))
   {
-    for (int unusedRegister = currentReg; unusedRegister <= (base_register + this->nr_of_regs); unusedRegister++)
+    for (int unusedRegister = currentReg; unusedRegister < (base_register + this->nr_of_regs); unusedRegister++)
     {
       sdo_bit8(slave_index, unusedRegister, 0, 0);
     }
