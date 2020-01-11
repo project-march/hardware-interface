@@ -76,7 +76,7 @@ private:
    * @return combination of both address, sub-index and length (Example control word: 60400010h.) */
   static uint32_t combineAddressLength(uint16_t address, uint16_t length);
 
-  std::unordered_map<IMCObjectName, IMCObject> PDO_objects;
+  std::map<IMCObjectName, IMCObject> PDO_objects;
 
   const int bits_per_register = 64;           // Maximum amount of bits that can be constructed in one PDO message.
   const int nr_of_regs = 4;                   // Amount of registers available.
