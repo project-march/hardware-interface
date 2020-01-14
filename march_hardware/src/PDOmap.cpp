@@ -108,8 +108,7 @@ std::map<IMCObjectName, int> PDOmap::configurePDO(int slave_index, int base_regi
     int byteOffset = (bits_per_register - (size_left + nextObject.second.length)) / 8;
     byte_offsets[nextObject.first] = byteOffset;
 
-    sdo_bit32(slave_index, current_register, counter,
-              PDOmap::combineAddressLength(nextObject.second.address, nextObject.second.length));
+    sdo_bit32(slave_index, current_register, counter, nextObject.second.combined_address);
     counter++;
   }
 
@@ -154,12 +153,4 @@ std::vector<std::pair<IMCObjectName, IMCObject>> PDOmap::sortPDOObjects()
   }
   return sorted_PDO_objects;
 }
-
-uint32_t PDOmap::combineAddressLength(uint16_t address, uint16_t length)
-{
-  uint32_t MSword = ((address & 0xFFFF) << 16);  // Shift 16 bits left for most significant word
-  uint32_t LSword = (length & 0xFFFF);
-  return (MSword | LSword);
-}
-
 }  // namespace march4cpp

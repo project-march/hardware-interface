@@ -17,11 +17,16 @@ namespace march4cpp
 /** Store IMC data as a struct to prevent data overlap.*/
 struct IMCObject
 {
-  int address;  // in IMC memory (see IMC manual)
-  int length;   // bits (see IMC manual)
+  uint16_t address;           // in IMC memory (see IMC manual)
+  uint16_t length;            // bits (see IMC manual)
+  uint32_t combined_address;  // combine the address(hex), sub-index(hex) and length(hex)
 
-  explicit IMCObject(int _address, int _length) : address(_address), length(_length)
+  explicit IMCObject(uint16_t _address, uint16_t _length) : address(_address), length(_length)
   {
+    uint32_t MSword = ((address & 0xFFFF) << 16);  // Shift 16 bits left for most significant word
+    uint32_t LSword = (length & 0xFFFF);
+
+    combined_address = (MSword | LSword);
   }
 
   IMCObject(){};
@@ -71,10 +76,6 @@ private:
   /** Configures the PDO in the IMC using the given base register address and sync manager address.
    * @return map of the IMC PDO object name in combination with the byte-offset in the PDO register */
   std::map<IMCObjectName, int> configurePDO(int slave_index, int base_register, int base_sync_manager);
-
-  /** Combine the address(hex), sub-index(hex) and length(hex). *
-   * @return combination of both address, sub-index and length (Example control word: 60400010h.) */
-  static uint32_t combineAddressLength(uint16_t address, uint16_t length);
 
   std::map<IMCObjectName, IMCObject> PDO_objects;
 
