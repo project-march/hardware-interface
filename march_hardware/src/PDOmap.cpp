@@ -40,7 +40,7 @@ void PDOmap::addObject(IMCObjectName object_name)
   this->PDO_objects.insert({ object_name, PDOmap::all_objects[object_name] });  // NOLINT(whitespace/braces)
 
   int total_used_bits = 0;
-  for (std::pair<IMCObjectName, IMCObject> PDO_object : this->PDO_objects)
+  for (const std::pair<IMCObjectName, IMCObject> PDO_object : this->PDO_objects)
   {
     total_used_bits = total_used_bits + PDO_object.second.length;
   }
