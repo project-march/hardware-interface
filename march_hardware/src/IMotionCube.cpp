@@ -176,8 +176,8 @@ float IMotionCube::getAngleRad()
 {
   ROS_ASSERT_MSG(this->misoByteOffsets.count(IMCObjectName::ActualPosition) == 1, "ActualPosition not defined in PDO "
                                                                                   "mapping, so can't get angle");
-  if(!IMotionCubeTargetState::SWITCHED_ON.getState().isReached(this->getStatusWord()) ||
-    !IMotionCubeTargetState::OPERATION_ENABLED.getState().isReached(this->getStatusWord()))
+  if (!IMotionCubeTargetState::SWITCHED_ON.isReached(this->getStatusWord()) ||
+      !IMotionCubeTargetState::OPERATION_ENABLED.isReached(this->getStatusWord()))
   {
     throw std::runtime_error("Invalid use of encoders, you're not in the correct state.");
   }
