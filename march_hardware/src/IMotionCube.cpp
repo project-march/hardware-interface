@@ -176,6 +176,11 @@ float IMotionCube::getAngleRad()
 {
   ROS_ASSERT_MSG(this->misoByteOffsets.count(IMCObjectName::ActualPosition) == 1, "ActualPosition not defined in PDO "
                                                                                   "mapping, so can't get angle");
+  if(!IMotionCubeTargetState::SWITCHED_ON.getState().isReached(this->getStatusWord()) ||
+    !IMotionCubeTargetState::OPERATION_ENABLED.getState().isReached(this->getStatusWord()))
+  {
+    throw std::runtime_error("Invalid use of encoders, you're not in the correct state.");
+  }
   return this->encoder.getAngleRad(this->misoByteOffsets[IMCObjectName::ActualPosition]);
 }
 
@@ -506,19 +511,17 @@ bool IMotionCube::goToOperationEnabled()
               this->slaveIndex, angleRead, this->encoder.getLowerHardLimitIU(), this->encoder.getUpperHardLimitIU());
     throw std::domain_error("Joint outside hard limits");
   }
-  else
-  {
-    if (this->actuationMode == ActuationMode::position)
-    {
-      this->actuateIU(angleRead);
-    }
-    if (this->actuationMode == ActuationMode::torque)
-    {
-      this->actuateTorque(0);
-    }
-  }
 
   this->goToTargetState(IMotionCubeTargetState::OPERATION_ENABLED);
+
+  if (this->actuationMode == ActuationMode::position)
+  {
+    this->actuateIU(angleRead);
+  }
+  if (this->actuationMode == ActuationMode::torque)
+  {
+    this->actuateTorque(0);
+  }
 }
 
 bool IMotionCube::resetIMotionCube()
