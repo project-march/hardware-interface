@@ -97,6 +97,18 @@ void IMotionCube::writeInitialSettings(uint8 ecatCycleTime)
   // Quick stop deceleration
   int stop_decl = sdo_bit32(slaveIndex, 0x6085, 0, 0x7FFFFFFF);
 
+  // No FUCKING HOMING
+  int no_hom_pos = sdo_bit8(slaveIndex, 0x6098, 0, 0);
+
+  // No FUCKING HOMING
+  int no_hom_vel1 = sdo_bit32(slaveIndex, 0x6099, 1, 0);
+
+  // No FUCKING HOMING
+  int no_hom_vel2 = sdo_bit32(slaveIndex, 0x6099, 2, 0);
+
+  // No FUCKING HOMING
+  int no_hom_acc = sdo_bit32(slaveIndex, 0x609A, 0, 0);
+
   // Abort connection option code
   int abort_con = sdo_bit16(slaveIndex, 0x6007, 0, 1);
 
@@ -104,7 +116,8 @@ void IMotionCube::writeInitialSettings(uint8 ecatCycleTime)
   int rate_ec_x = sdo_bit8(slaveIndex, 0x60C2, 1, ecatCycleTime);
   int rate_ec_y = sdo_bit8(slaveIndex, 0x60C2, 2, -3);
 
-  if (!(mode_of_op && max_pos_lim && min_pos_lim && stop_opt && stop_decl && abort_con && rate_ec_x && rate_ec_y))
+  if (!(mode_of_op && max_pos_lim && min_pos_lim && stop_opt && stop_decl && abort_con && rate_ec_x && rate_ec_y &&
+        no_hom_pos && no_hom_vel1 && no_hom_vel2 && no_hom_acc))
   {
     ROS_ERROR("Failed writing initial settings to IMC of slave %i", slaveIndex);
   }
@@ -121,6 +134,7 @@ void IMotionCube::actuateRad(float targetRad)
               this->slaveIndex);
     throw std::runtime_error("Target exceeds max difference of 0.393 from current position");
   }
+  // ROS_INFO("Actuating rad: %f", targetRad);
   this->actuateIU(this->encoder.RadtoIU(targetRad));
 }
 
@@ -145,6 +159,7 @@ void IMotionCube::actuateIU(int targetIU)
 
   ROS_DEBUG("Trying to actuate slave %d, soem location %d to targetposition %d", this->slaveIndex,
             targetPositionLocation, targetPosition.i);
+  // ROS_INFO("Actuating IU: %d", targetIU);
   set_output_bit32(this->slaveIndex, targetPositionLocation, targetPosition);
 }
 
@@ -176,10 +191,10 @@ float IMotionCube::getAngleRad()
 {
   ROS_ASSERT_MSG(this->misoByteOffsets.count(IMCObjectName::ActualPosition) == 1, "ActualPosition not defined in PDO "
                                                                                   "mapping, so can't get angle");
-  if (!IMotionCubeTargetState::SWITCHED_ON.isReached(this->getStatusWord()) ||
+  if (!IMotionCubeTargetState::SWITCHED_ON.isReached(this->getStatusWord()) &&
       !IMotionCubeTargetState::OPERATION_ENABLED.isReached(this->getStatusWord()))
   {
-    throw std::runtime_error("Invalid use of encoders, you're not in the correct state.");
+    ROS_WARN_THROTTLE(10, "Invalid use of encoders, you're not in the correct state.");
   }
   return this->encoder.getAngleRad(this->misoByteOffsets[IMCObjectName::ActualPosition]);
 }
@@ -512,16 +527,17 @@ bool IMotionCube::goToOperationEnabled()
     throw std::domain_error("Joint outside hard limits");
   }
 
-  this->goToTargetState(IMotionCubeTargetState::OPERATION_ENABLED);
-
+  angleRead = this->encoder.getAngleIU(this->misoByteOffsets[IMCObjectName::ActualPosition]);
   if (this->actuationMode == ActuationMode::position)
   {
     this->actuateIU(angleRead);
+    angleRead = this->encoder.getAngleIU(this->misoByteOffsets[IMCObjectName::ActualPosition]);
   }
   if (this->actuationMode == ActuationMode::torque)
   {
     this->actuateTorque(0);
   }
+  this->goToTargetState(IMotionCubeTargetState::OPERATION_ENABLED);
 }
 
 bool IMotionCube::resetIMotionCube()

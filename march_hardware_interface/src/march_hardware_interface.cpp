@@ -84,15 +84,6 @@ void MarchHardwareInterface::init()
     soft_limits_[i] = soft_limits;
   }
 
-  //  initiateIMC();
-  //
-  //  // Print all joint positions on startup in case initialization fails.
-  //  this->read();
-  //  for (int i = 0; i < num_joints_; ++i)
-  //  {
-  //    ROS_DEBUG("[%s] First read position: %f", joint_names_[i].c_str(), joint_position_[i]);
-  //  }
-
   // Create march_pdb_state interface
   MarchPdbStateHandle marchPdbStateHandle("PDBhandle", &power_distribution_board_read_,
                                           &master_shutdown_allowed_command, &enable_high_voltage_command,
