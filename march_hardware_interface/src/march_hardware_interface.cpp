@@ -205,7 +205,7 @@ void MarchHardwareInterface::init()
 void MarchHardwareInterface::update(const ros::Duration& elapsed_time)
 {
   read(elapsed_time);
-  validate();
+  validate();8
   controller_manager_->update(ros::Time::now(), elapsed_time);
   write(elapsed_time);
 }
@@ -307,38 +307,6 @@ void MarchHardwareInterface::write(const ros::Duration& elapsed_time)
     updatePowerDistributionBoard();
   }
 }
-
-// void MarchHardwareInterface::initiateIMC()
-//{
-//  ROS_INFO("Resetting all IMC on initialization");
-//  for (const std::string& joint_name : joint_names_)
-//  {
-//    Joint joint = marchRobot.getJoint(joint_name);
-//
-//    if (LOWER_BOUNDARY_ANGLE_IU <= joint.getAngleIU() && joint.getAngleIU() <= UPPER_BOUNDARY_ANGLE_IU)
-//    {
-//      ROS_WARN("Before reset joint: [%s] has angle-value of: %i. Which is within boundary of lower: %i and upper: %i",
-//               joint_name.c_str(), joint.getAngleIU(), LOWER_BOUNDARY_ANGLE_IU, UPPER_BOUNDARY_ANGLE_IU);
-//    }
-//
-//    joint.resetIMotionCube();
-//  }
-//
-//  ROS_INFO("Restarting EtherCAT");
-//  marchRobot.stopEtherCAT();
-//  marchRobot.startEtherCAT();
-//
-//  for (const std::string& joint_name : joint_names_)
-//  {
-//    Joint joint = marchRobot.getJoint(joint_name);
-//
-//    if (LOWER_BOUNDARY_ANGLE_IU <= joint.getAngleIU() && joint.getAngleIU() <= UPPER_BOUNDARY_ANGLE_IU)
-//    {
-//      ROS_WARN("After reset joint: [%s] has angle-value of: %i. Which is within boundary of lower: %i and upper: %i",
-//               joint_name.c_str(), joint.getAngleIU(), LOWER_BOUNDARY_ANGLE_IU, UPPER_BOUNDARY_ANGLE_IU);
-//    }
-//  }
-//}
 
 void MarchHardwareInterface::updatePowerDistributionBoard()
 {

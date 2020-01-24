@@ -29,7 +29,7 @@ int main(int argc, char** argv)
     ROS_FATAL("Hardware interface caught an exception during init: %s", e.what());
     return 1;
   }
-
+  // return 0;
   const double loop_hz = ros::param::param("~loop_hz", 100.0);
   ros::Rate rate(loop_hz);
 
