@@ -3,7 +3,7 @@
 #ifndef MARCH_HARDWARE_IMOTIONCUBE_H
 #define MARCH_HARDWARE_IMOTIONCUBE_H
 
-#include <map>
+#include <unordered_map>
 #include <string>
 
 #include <march_hardware/ActuationMode.h>
@@ -14,7 +14,7 @@
 #include <march_hardware/IMotionCubeState.h>
 #include <march_hardware/IMotionCubeTargetState.h>
 
-namespace march4cpp
+namespace march
 {
 class IMotionCube : public Slave
 {
@@ -24,8 +24,8 @@ private:
 
   void actuateIU(int iu);
 
-  std::map<IMCObjectName, int> misoByteOffsets;
-  std::map<IMCObjectName, int> mosiByteOffsets;
+  std::unordered_map<IMCObjectName, int> misoByteOffsets;
+  std::unordered_map<IMCObjectName, int> mosiByteOffsets;
   void mapMisoPDOs();
   void mapMosiPDOs();
   void validateMisoPDOs();
@@ -85,8 +85,8 @@ public:
     return os << "slaveIndex: " << iMotionCube.slaveIndex << ", "
               << "encoder: " << iMotionCube.encoder;
   }
-  bool goToTargetState(march4cpp::IMotionCubeTargetState targetState);
+  bool goToTargetState(march::IMotionCubeTargetState targetState);
 };
 
-}  // namespace march4cpp
+}  // namespace march
 #endif  // MARCH_HARDWARE_IMOTIONCUBE_H

@@ -11,7 +11,7 @@
 #include <march_hardware/IMotionCube.h>
 #include <unistd.h>
 
-namespace march4cpp
+namespace march
 {
 IMotionCube::IMotionCube(int slaveIndex, Encoder encoder) : Slave(slaveIndex), actuationMode("unknown")
 {
@@ -86,10 +86,10 @@ void IMotionCube::writeInitialSettings(uint8 ecatCycleTime)
   int mode_of_op = sdo_bit8(slaveIndex, 0x6060, 0, this->actuationMode.toModeNumber());
 
   // position limit -- min position
-  int max_pos_lim = sdo_bit32(slaveIndex, 0x607D, 1, this->encoder.getLowerSoftLimitIU());
+  int min_pos_lim = sdo_bit32(slaveIndex, 0x607D, 1, this->encoder.getLowerSoftLimitIU());
 
   // position limit -- max position
-  int min_pos_lim = sdo_bit32(slaveIndex, 0x607D, 2, this->encoder.getUpperSoftLimitIU());
+  int max_pos_lim = sdo_bit32(slaveIndex, 0x607D, 2, this->encoder.getUpperSoftLimitIU());
 
   // Quick stop option
   int stop_opt = sdo_bit16(slaveIndex, 0x605A, 0, 6);
@@ -546,4 +546,4 @@ bool IMotionCube::get_bit(uint16 value, int index)
 {
   return static_cast<bool>(value & (1 << index));
 }
-}  // namespace march4cpp
+}  // namespace march
