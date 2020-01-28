@@ -6,14 +6,6 @@
     <param name="robot_description"
            command="$(find xacro)/xacro --inorder '$(find march_description)/urdf/$(arg robot).xacro'" />
 
-    <node
-        pkg="rosbag"
-        name="record"
-        type="record"
-        output="log"
-        args="-a -q"
-    />
-
     <group ns="march">
         <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
 
