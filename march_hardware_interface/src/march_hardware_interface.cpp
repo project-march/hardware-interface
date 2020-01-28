@@ -84,6 +84,8 @@ void MarchHardwareInterface::init()
     soft_limits_[i] = soft_limits;
   }
 
+  initiateIMC();
+
   // Create march_pdb_state interface
   MarchPdbStateHandle marchPdbStateHandle("PDBhandle", &power_distribution_board_read_,
                                           &master_shutdown_allowed_command, &enable_high_voltage_command,
@@ -205,7 +207,7 @@ void MarchHardwareInterface::init()
 void MarchHardwareInterface::update(const ros::Duration& elapsed_time)
 {
   read(elapsed_time);
-  validate();8
+  validate();
   controller_manager_->update(ros::Time::now(), elapsed_time);
   write(elapsed_time);
 }
@@ -306,6 +308,20 @@ void MarchHardwareInterface::write(const ros::Duration& elapsed_time)
   {
     updatePowerDistributionBoard();
   }
+}
+
+void MarchHardwareInterface::initiateIMC()
+{
+  ROS_INFO("Resetting all IMC on initialization");
+  for (const std::string& joint_name : joint_names_)
+  {
+    Joint joint = marchRobot.getJoint(joint_name);
+    joint.resetIMotionCube();
+  }
+
+  ROS_INFO("Restarting EtherCAT");
+  marchRobot.stopEtherCAT();
+  marchRobot.startEtherCAT();
 }
 
 void MarchHardwareInterface::updatePowerDistributionBoard()
