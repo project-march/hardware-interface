@@ -9,7 +9,8 @@
 #include <march_hardware/ActuationMode.h>
 #include <march_hardware/EtherCAT/EthercatIO.h>
 #include <march_hardware/Slave.h>
-#include <march_hardware/Encoder.h>
+#include <march_hardware/EncoderIncremental.h>
+#include <march_hardware/EncoderAbsolute.h>
 #include <march_hardware/PDOmap.h>
 #include <march_hardware/IMotionCubeState.h>
 #include <march_hardware/IMotionCubeTargetState.h>
@@ -19,7 +20,8 @@ namespace march
 class IMotionCube : public Slave
 {
 private:
-  Encoder encoder;
+  EncoderIncremental encoderIncremental;
+  EncoderAbsolute encoderAbsolute;
   ActuationMode actuationMode;
 
   void actuateIU(int iu);
@@ -35,7 +37,7 @@ private:
   bool get_bit(uint16 value, int index);
 
 public:
-  explicit IMotionCube(int slaveIndex, Encoder encoder);
+  explicit IMotionCube(int slaveIndex, EncoderIncremental encoderIncremental, EncoderAbsolute encoderAbsolute);
 
   IMotionCube()
   {
@@ -46,9 +48,11 @@ public:
 
   void writeInitialSDOs(int ecatCycleTime) override;
 
-  float getAngleRad();
+  float getAngleRadAbsolute();
+  float getAngleRadIncremental();
   float getTorque();
-  int getAngleIU();
+  int getAngleIUabsolute();
+  int getAngleIUincremental();
 
   uint16 getStatusWord();
   uint16 getMotionError();
@@ -77,13 +81,15 @@ public:
   /** @brief Override comparison operator */
   friend bool operator==(const IMotionCube& lhs, const IMotionCube& rhs)
   {
-    return lhs.slaveIndex == rhs.slaveIndex && lhs.encoder == rhs.encoder;
+    return lhs.slaveIndex == rhs.slaveIndex && lhs.encoderIncremental == rhs.encoderIncremental &&
+           lhs.encoderAbsolute == rhs.encoderAbsolute;
   }
   /** @brief Override stream operator for clean printing */
   friend ::std::ostream& operator<<(std::ostream& os, const IMotionCube& iMotionCube)
   {
     return os << "slaveIndex: " << iMotionCube.slaveIndex << ", "
-              << "encoder: " << iMotionCube.encoder;
+              << "encoderIncremental: " << iMotionCube.encoderIncremental << ", "
+              << "encoderAbsolute: " << iMotionCube.encoderAbsolute;
   }
   bool goToTargetState(march::IMotionCubeTargetState targetState);
 };

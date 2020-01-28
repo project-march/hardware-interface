@@ -13,10 +13,13 @@
 
 namespace march
 {
-IMotionCube::IMotionCube(int slaveIndex, Encoder encoder) : Slave(slaveIndex), actuationMode("unknown")
+IMotionCube::IMotionCube(int slaveIndex, EncoderIncremental encoderIncremental, EncoderAbsolute encoderAbsolute) 
+                         : Slave(slaveIndex), actuationMode("unknown")
 {
-  this->encoder = encoder;
-  this->encoder.setSlaveIndex(this->slaveIndex);
+  this->encoderIncremental = encoderIncremental;
+  this->encoderAbsolute = encoderAbsolute;
+  this->encoderIncremental.setSlaveIndex(this->slaveIndex);
+  this->encoderAbsolute.setSlaveIndex(this->slaveIndex)
 }
 
 void IMotionCube::writeInitialSDOs(int ecatCycleTime)
@@ -39,6 +42,7 @@ void IMotionCube::mapMisoPDOs()
   pdoMapMISO.addObject(IMCObjectName::MotionErrorRegister);
   pdoMapMISO.addObject(IMCObjectName::DetailedErrorRegister);
   pdoMapMISO.addObject(IMCObjectName::DCLinkVoltage);
+  pdoMapMISO.addObject(IMCObjectName::MotorPosition);
   this->misoByteOffsets = pdoMapMISO.map(this->slaveIndex, dataDirection::miso);
 }
 
@@ -172,11 +176,18 @@ void IMotionCube::actuateTorque(int targetTorque)
   set_output_bit16(this->slaveIndex, targetTorqueLocation, targetTorqueStruct);
 }
 
-float IMotionCube::getAngleRad()
+float IMotionCube::getAngleRadAbsolute()
 {
   ROS_ASSERT_MSG(this->misoByteOffsets.count(IMCObjectName::ActualPosition) == 1, "ActualPosition not defined in PDO "
                                                                                   "mapping, so can't get angle");
-  return this->encoder.getAngleRad(this->misoByteOffsets[IMCObjectName::ActualPosition]);
+  return this->encoderAbsolute.getAngleRad(this->misoByteOffsets[IMCObjectName::ActualPosition]);
+}
+
+float IMotionCube::getAngleRadIncremental()
+{
+  ROS_ASSERT_MSG(this->misoByteOffsets.count(IMCObjectName::MotorPosition) == 1, "MotorPosition not defined in PDO "
+                                                                                  "mapping, so can't get angle");
+  return this->encoderIncremental.getAngleRad(this->misoByteOffsets[IMCObjectName::MotorPosition]);
 }
 
 float IMotionCube::getTorque()
@@ -188,11 +199,18 @@ float IMotionCube::getTorque()
   return return_byte.i;
 }
 
-int IMotionCube::getAngleIU()
+int IMotionCube::getAngleIUabsolute()
 {
   ROS_ASSERT_MSG(this->misoByteOffsets.count(IMCObjectName::ActualPosition) == 1, "ActualPosition not defined in PDO "
                                                                                   "mapping, so can't get angle");
-  return this->encoder.getAngleIU(this->misoByteOffsets[IMCObjectName::ActualPosition]);
+  return this->encoderAbsolute.getAngleIU(this->misoByteOffsets[IMCObjectName::ActualPosition]);
+}
+
+int IMotionCube::getAngleIUincremental()
+{
+  ROS_ASSERT_MSG(this->misoByteOffsets.count(IMCObjectName::MotorPosition) == 1, "MotorPosition not defined in PDO "
+                                                                                  "mapping, so can't get angle");
+  return this->encoderIncremental.getAngleIU(this->misoByteOffsets[IMCObjectName::MotorPosition]);
 }
 
 uint16 IMotionCube::getStatusWord()
