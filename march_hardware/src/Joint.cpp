@@ -54,14 +54,24 @@ void Joint::actuateRad(float targetPositionRad)
   this->iMotionCube.actuateRad(targetPositionRad);
 }
 
-float Joint::getAngleRad()
+float Joint::getAngleRadAbsolute()
 {
   if (!hasIMotionCube())
   {
     ROS_WARN("[%s] Has no iMotionCube", this->name.c_str());
     return -1;
   }
-  return this->iMotionCube.getAngleRad();
+  return this->iMotionCube.getAngleRadAbsolute();
+}
+
+float Joint::getAngleRadIncremental()
+{
+  if (!hasIMotionCube())
+  {
+    ROS_WARN("[%s] Has no iMotionCube", this->name.c_str());
+    return -1;
+  }
+  return this->iMotionCube.getAngleRadIncremental();
 }
 
 void Joint::actuateTorque(int targetTorque)
@@ -83,14 +93,24 @@ float Joint::getTorque()
   return this->iMotionCube.getTorque();
 }
 
-int Joint::getAngleIU()
+int Joint::getAngleIUabsolute()
 {
   if (!hasIMotionCube())
   {
     ROS_WARN("[%s] Has no iMotionCube", this->name.c_str());
     return -1;
   }
-  return this->iMotionCube.getAngleIU();
+  return this->iMotionCube.getAngleIUabsolute();
+}
+
+int Joint::getAngleIUincremental()
+{
+  if (!hasIMotionCube())
+  {
+    ROS_WARN("[%s] Has no iMotionCube", this->name.c_str());
+    return -1;
+  }
+  return this->iMotionCube.getAngleIUincremental();
 }
 
 float Joint::getTemperature()
