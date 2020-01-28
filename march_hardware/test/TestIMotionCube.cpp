@@ -3,7 +3,8 @@
 #include "gtest/gtest.h"
 #include <gmock/gmock.h>
 #include "march_hardware/IMotionCube.h"
-#include "mocks/MockEncoder.cpp"
+#include "mocks/MockEncoderAbsolute.cpp"
+#include "mocks/MockEncoderIncremental.cpp"
 
 using ::testing::AtLeast;
 using ::testing::Return;
@@ -11,11 +12,13 @@ using ::testing::Return;
 class IMotionCubeTest : public ::testing::Test
 {
 protected:
-  march::Encoder encoder;
+  march::EncoderAbsolute encoderAbsolute;
+  march::EncoderIncremental encoderIncremental;
   march::ActuationMode actuationMode;
   void SetUp() override
   {
-    encoder = march::Encoder();
+    encoderAbsolute = march::EncoderAbsolute();
+    encoderIncremental = march::EncoderIncremental();
   }
 };
 
@@ -25,19 +28,19 @@ class IMotionCubeDeathTest : public IMotionCubeTest
 
 TEST_F(IMotionCubeTest, SlaveIndexOne)
 {
-  march::IMotionCube imc = march::IMotionCube(1, encoder);
+  march::IMotionCube imc = march::IMotionCube(1, encoderIncremental, encoderAbsolute);
   ASSERT_EQ(1, imc.getSlaveIndex());
 }
 
 TEST_F(IMotionCubeDeathTest, SlaveIndexZero)
 {
-  ASSERT_DEATH(march::IMotionCube(0, encoder), "Slave configuration error: slaveindex 0 can not be smaller than "
+  ASSERT_DEATH(march::IMotionCube(0, encoderIncremental, encoderAbsolute), "Slave configuration error: slaveindex 0 can not be smaller than "
                                                "1.");
 }
 
 TEST_F(IMotionCubeTest, SlaveIndexMinusOne)
 {
-  ASSERT_DEATH(march::IMotionCube(-1, encoder), "Slave configuration error: slaveindex -1 can not be smaller than "
+  ASSERT_DEATH(march::IMotionCube(-1, encoderIncremental, encoderAbsolute), "Slave configuration error: slaveindex -1 can not be smaller than "
                                                 "1.");
 }
 
@@ -53,13 +56,13 @@ TEST_F(IMotionCubeTest, NoSlaveIndexConstructorGetIndex)
 
 TEST_F(IMotionCubeTest, NoActuationMode)
 {
-  march::IMotionCube imc = march::IMotionCube(1, encoder);
+  march::IMotionCube imc = march::IMotionCube(1, encoderIncremental, encoderAbsolute);
   ASSERT_DEATH(imc.actuateRad(1), "trying to actuate rad, while actuationmode = unknown");
 }
 
 TEST_F(IMotionCubeTest, ActuationModeTorqueActuateRad)
 {
-  march::IMotionCube imc = march::IMotionCube(1, encoder);
+  march::IMotionCube imc = march::IMotionCube(1, encoderIncremental, encoderAbsolute);
 
   imc.setActuationMode(march::ActuationMode("torque"));
   ASSERT_DEATH(imc.actuateRad(1), "trying to actuate rad, while actuationmode = torque");
@@ -67,7 +70,7 @@ TEST_F(IMotionCubeTest, ActuationModeTorqueActuateRad)
 
 TEST_F(IMotionCubeTest, ActuationModePositionActuateTorque)
 {
-  march::IMotionCube imc = march::IMotionCube(1, encoder);
+  march::IMotionCube imc = march::IMotionCube(1, encoderIncremental, encoderAbsolute);
 
   imc.setActuationMode(march::ActuationMode("position"));
   ASSERT_DEATH(imc.actuateTorque(1), "trying to actuate torque, while actuationmode = position");
@@ -75,7 +78,7 @@ TEST_F(IMotionCubeTest, ActuationModePositionActuateTorque)
 
 TEST_F(IMotionCubeTest, ChangeActuationModePosition)
 {
-  march::IMotionCube imc = march::IMotionCube(1, encoder);
+  march::IMotionCube imc = march::IMotionCube(1, encoderIncremental, encoderAbsolute);
   ASSERT_EQ(march::ActuationMode::unknown, imc.getActuationMode().getValue());
 
   imc.setActuationMode(march::ActuationMode("position"));
@@ -84,7 +87,7 @@ TEST_F(IMotionCubeTest, ChangeActuationModePosition)
 
 TEST_F(IMotionCubeTest, ChangeActuationModeTorque)
 {
-  march::IMotionCube imc = march::IMotionCube(1, encoder);
+  march::IMotionCube imc = march::IMotionCube(1, encoderIncremental, encoderAbsolute);
   ASSERT_EQ(march::ActuationMode::unknown, imc.getActuationMode().getValue());
 
   imc.setActuationMode(march::ActuationMode("torque"));
@@ -93,7 +96,7 @@ TEST_F(IMotionCubeTest, ChangeActuationModeTorque)
 
 TEST_F(IMotionCubeTest, ChangeActuationModeToUnknown)
 {
-  march::IMotionCube imc = march::IMotionCube(1, encoder);
+  march::IMotionCube imc = march::IMotionCube(1, encoderIncremental, encoderAbsolute);
   ASSERT_EQ(march::ActuationMode::unknown, imc.getActuationMode().getValue());
 
   imc.setActuationMode(march::ActuationMode("position"));
@@ -104,7 +107,7 @@ TEST_F(IMotionCubeTest, ChangeActuationModeToUnknown)
 
 TEST_F(IMotionCubeTest, ChangeActuationModeFromPositionToTorque)
 {
-  march::IMotionCube imc = march::IMotionCube(1, encoder);
+  march::IMotionCube imc = march::IMotionCube(1, encoderIncremental, encoderAbsolute);
   imc.setActuationMode(march::ActuationMode("position"));
   ASSERT_EQ(march::ActuationMode::position, imc.getActuationMode().getValue());
 
@@ -113,7 +116,7 @@ TEST_F(IMotionCubeTest, ChangeActuationModeFromPositionToTorque)
 
 TEST_F(IMotionCubeTest, ChangeActuationModeFromTorqueToPosition)
 {
-  march::IMotionCube imc = march::IMotionCube(1, encoder);
+  march::IMotionCube imc = march::IMotionCube(1, encoderIncremental, encoderAbsolute);
   imc.setActuationMode(march::ActuationMode("torque"));
   ASSERT_EQ(march::ActuationMode::torque, imc.getActuationMode().getValue());
 
