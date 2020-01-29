@@ -8,11 +8,15 @@
 #include <march_hardware_builder/hardware_config_exceptions.h>
 
 // clang-format off
-const std::vector<std::string> HardwareBuilder::ENCODER_REQUIRED_KEYS =
+const std::vector<std::string> HardwareBuilder::ENCODER_ABSOLUTE_REQUIRED_KEYS =
     {
         "resolution", "minPositionIU", "maxPositionIU", "zeroPositionIU", "safetyMarginRad"
     };
-const std::vector<std::string> HardwareBuilder::IMOTIONCUBE_REQUIRED_KEYS = { "slaveIndex", "encoder" };
+const std::vector<std::string> HardwareBuilder::ENCODER_INCREMENTAL_REQUIRED_KEYS = { "resolution" };
+const std::vector<std::string> HardwareBuilder::IMOTIONCUBE_REQUIRED_KEYS = 
+    { 
+        "slaveIndex", "encoderIncremental", "encoderAbsolute"
+    };
 const std::vector<std::string> HardwareBuilder::TEMPERATUREGES_REQUIRED_KEYS = { "slaveIndex", "byteOffset" };
 const std::vector<std::string> HardwareBuilder::POWER_DISTRIBUTION_BOARD_REQUIRED_KEYS =
     {
@@ -122,21 +126,31 @@ march::IMotionCube HardwareBuilder::createIMotionCube(const YAML::Node& imc_conf
 {
   HardwareBuilder::validateRequiredKeysExist(imc_config, HardwareBuilder::IMOTIONCUBE_REQUIRED_KEYS, "imotioncube");
 
-  YAML::Node encoder_config = imc_config["encoder"];
+  YAML::Node encoder_incremental_config = imc_config["encoderIncremental"];
+  YAML::Node encoder_absolute_config = imc_config["encoderAbsolute"];
   int slave_index = imc_config["slaveIndex"].as<int>();
-  return march::IMotionCube(slave_index, HardwareBuilder::createEncoder(encoder_config));
+  return march::IMotionCube(slave_index, HardwareBuilder::createEncoderIncremental(encoder_incremental_config),
+                            HardwareBuilder::createEncoderAbsolute(encoder_absolute_config));
 }
 
-march::Encoder HardwareBuilder::createEncoder(const YAML::Node& encoder_config)
+march::EncoderIncremental HardwareBuilder::createEncoderIncremental(const YAML::Node& encoder_incremental_config)
 {
-  HardwareBuilder::validateRequiredKeysExist(encoder_config, HardwareBuilder::ENCODER_REQUIRED_KEYS, "encoder");
+  HardwareBuilder::validateRequiredKeysExist(encoder_incremental_config, HardwareBuilder::ENCODER_INCREMENTAL_REQUIRED_KEYS, "encoderIncremental");
 
-  int resolution = encoder_config["resolution"].as<int>();
-  int min_position = encoder_config["minPositionIU"].as<int>();
-  int max_position = encoder_config["maxPositionIU"].as<int>();
-  int zero_position = encoder_config["zeroPositionIU"].as<int>();
-  float safety_margin = encoder_config["safetyMarginRad"].as<float>();
-  return march::Encoder(resolution, min_position, max_position, zero_position, safety_margin);
+  int resolution = encoder_incremental_config["resolution"].as<int>();
+  return march::EncoderIncremental(resolution);
+}
+
+march::EncoderAbsolute HardwareBuilder::createEncoderAbsolute(const YAML::Node& encoder_absolute_config)
+{
+  HardwareBuilder::validateRequiredKeysExist(encoder_absolute_config, HardwareBuilder::ENCODER_ABSOLUTE_REQUIRED_KEYS, "encoderAbsolute");
+
+  int resolution = encoder_absolute_config["resolution"].as<int>();
+  int min_position = encoder_absolute_config["minPositionIU"].as<int>();
+  int max_position = encoder_absolute_config["maxPositionIU"].as<int>();
+  int zero_position = encoder_absolute_config["zeroPositionIU"].as<int>();
+  float safety_margin = encoder_absolute_config["safetyMarginRad"].as<float>();
+  return march::EncoderAbsolute(resolution, min_position, max_position, zero_position, safety_margin);
 }
 
 march::TemperatureGES HardwareBuilder::createTemperatureGES(const YAML::Node& temperature_ges_config)
