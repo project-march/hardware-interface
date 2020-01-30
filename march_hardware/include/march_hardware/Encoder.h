@@ -18,12 +18,7 @@ public:
   }
   Encoder(int numberOfBits);
 
-  float getAngleRad(uint8_t ActualPositionByteOffset);
-
   int getAngleIU(uint8_t ActualPositionByteOffset);
-
-  float IUtoRad(int iu);
-  int RadtoIU(float rad);
 
   void setSlaveIndex(int slaveIndex);
 

@@ -28,17 +28,32 @@ EncoderAbsolute::EncoderAbsolute(int numberOfBits, int minPositionIU, int maxPos
                   this->safetyMarginRad, safetyMarginIU);
 }
 
-bool Encoder::isWithinHardLimitsIU(int positionIU)
+float EncoderAbsolute::getAngleRad(uint8_t ActualPositionByteOffset)
+{
+  return IUtoRad(getAngleIU(ActualPositionByteOffset));
+}
+
+int EncoderAbsolute::RadtoIU(float rad)
+{
+  return static_cast<int>(rad * totalPositions / (2 * M_PI) + zeroPositionIU);
+}
+
+float EncoderAbsolute::IUtoRad(int iu)
+{
+  return static_cast<float>(iu - zeroPositionIU) * 2 * M_PI / totalPositions;
+}
+
+bool EncoderAbsolute::isWithinHardLimitsIU(int positionIU)
 {
   return (positionIU > this->lowerHardLimitIU && positionIU < this->upperHardLimitIU);
 }
 
-bool Encoder::isWithinSoftLimitsIU(int positionIU)
+bool EncoderAbsolute::isWithinSoftLimitsIU(int positionIU)
 {
   return (positionIU > this->lowerSoftLimitIU && positionIU < this->upperSoftLimitIU);
 }
 
-bool Encoder::isValidTargetIU(int currentIU, int targetIU)
+bool EncoderAbsolute::isValidTargetIU(int currentIU, int targetIU)
 {
   if (this->isWithinSoftLimitsIU(targetIU))
   {
@@ -58,22 +73,22 @@ bool Encoder::isValidTargetIU(int currentIU, int targetIU)
   return false;
 }
 
-int Encoder::getUpperSoftLimitIU() const
+int EncoderAbsolute::getUpperSoftLimitIU() const
 {
   return upperSoftLimitIU;
 }
 
-int Encoder::getLowerSoftLimitIU() const
+int EncoderAbsolute::getLowerSoftLimitIU() const
 {
   return lowerSoftLimitIU;
 }
 
-int Encoder::getUpperHardLimitIU() const
+int EncoderAbsolute::getUpperHardLimitIU() const
 {
   return upperHardLimitIU;
 }
 
-int Encoder::getLowerHardLimitIU() const
+int EncoderAbsolute::getLowerHardLimitIU() const
 {
   return lowerHardLimitIU;
 }

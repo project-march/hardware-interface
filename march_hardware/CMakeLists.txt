@@ -26,6 +26,7 @@ install(DIRECTORY include/${PROJECT_NAME}/
 )
 
 add_library(${PROJECT_NAME}
+    src/Encoder.cpp
     src/EncoderAbsolute.cpp
     src/EncoderIncremental.cpp
     src/EtherCAT/EthercatIO.cpp

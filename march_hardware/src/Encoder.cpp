@@ -15,11 +15,6 @@ Encoder::Encoder(int numberOfBits)
   this->slaveIndex = -1;
 }
 
-float Encoder::getAngleRad(uint8_t ActualPositionByteOffset)
-{
-  return IUtoRad(getAngleIU(ActualPositionByteOffset));
-}
-
 int Encoder::getAngleIU(uint8_t ActualPositionByteOffset)
 {
   if (this->slaveIndex == -1)
@@ -29,16 +24,6 @@ int Encoder::getAngleIU(uint8_t ActualPositionByteOffset)
   union bit32 return_byte = get_input_bit32(this->slaveIndex, ActualPositionByteOffset);
   ROS_DEBUG("Encoder read (IU): %d", return_byte.i);
   return return_byte.i;
-}
-
-int Encoder::RadtoIU(float rad)
-{
-  return static_cast<int>(rad * totalPositions / (2 * M_PI) + zeroPositionIU);
-}
-
-float Encoder::IUtoRad(int iu)
-{
-  return static_cast<float>(iu - zeroPositionIU) * 2 * M_PI / totalPositions;
 }
 
 void Encoder::setSlaveIndex(int slaveIndex)

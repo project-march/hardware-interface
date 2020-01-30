@@ -38,8 +38,13 @@ public:
   int getUpperHardLimitIU() const;
   int getLowerHardLimitIU() const;
 
+  float getAngleRad(uint8_t ActualPositionByteOffset);
+
+  float IUtoRad(int iu);
+  int RadtoIU(float rad);
+
   /** @brief Override comparison operator */
-  friend bool operator==(const Encoder& lhs, const Encoder& rhs)
+  friend bool operator==(const EncoderAbsolute& lhs, const EncoderAbsolute& rhs)
   {
     return lhs.slaveIndex == rhs.slaveIndex && lhs.totalPositions == rhs.totalPositions &&
            lhs.upperSoftLimitIU == rhs.upperSoftLimitIU && lhs.lowerSoftLimitIU == rhs.lowerSoftLimitIU &&
@@ -47,16 +52,16 @@ public:
            lhs.zeroPositionIU == rhs.zeroPositionIU && lhs.safetyMarginRad == rhs.safetyMarginRad;
   }
   /** @brief Override stream operator for clean printing */
-  friend ::std::ostream& operator<<(std::ostream& os, const Encoder& encoder)
+  friend ::std::ostream& operator<<(std::ostream& os, const EncoderAbsolute& encoderAbsolute)
   {
-    return os << "slaveIndex: " << encoder.slaveIndex << ", "
-              << "totalPositions: " << encoder.totalPositions << ", "
-              << "upperHardLimit: " << encoder.upperHardLimitIU << ", "
-              << "lowerHardLimit: " << encoder.lowerHardLimitIU << ", "
-              << "upperSoftLimit: " << encoder.upperSoftLimitIU << ", "
-              << "lowerSoftLimit: " << encoder.lowerSoftLimitIU << ", "
-              << "zeroPositionIU: " << encoder.zeroPositionIU << ", "
-              << "safetyMarginRad: " << encoder.safetyMarginRad;
+    return os << "slaveIndex: " << encoderAbsolute.slaveIndex << ", "
+              << "totalPositions: " << encoderAbsolute.totalPositions << ", "
+              << "upperHardLimit: " << encoderAbsolute.upperHardLimitIU << ", "
+              << "lowerHardLimit: " << encoderAbsolute.lowerHardLimitIU << ", "
+              << "upperSoftLimit: " << encoderAbsolute.upperSoftLimitIU << ", "
+              << "lowerSoftLimit: " << encoderAbsolute.lowerSoftLimitIU << ", "
+              << "zeroPositionIU: " << encoderAbsolute.zeroPositionIU << ", "
+              << "safetyMarginRad: " << encoderAbsolute.safetyMarginRad;
   }
 };
 
