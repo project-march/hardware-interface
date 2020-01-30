@@ -1,4 +1,4 @@
-slaveIndex: -2
+slaveIndex: 2
 encoderAbsolute:
   resolution: 16
   minPositionIU: 22134
@@ -6,4 +6,4 @@ encoderAbsolute:
   zeroPositionIU: 24515
   safetyMarginRad: 0.05
 encoderIncremental:
-  resolution: 12
+  reslution: 12

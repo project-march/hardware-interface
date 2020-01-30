@@ -1,7 +1,9 @@
 slaveIndex: 10
-encoder:
+encoderAbsolute:
   resolution: 12
   minPositionIU: 1
   maxPositionIU: 1000
   zeroPositionIU: 300
-  safetyMarginRad: 0.01
+  safetyMarginRad: 0.
+encoderIncremental:
+  resolution: 13

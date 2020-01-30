@@ -26,21 +26,27 @@ TEST(AllowedRobotTest, TestMarch3Values)
 {
   march::MarchRobot march3 = HardwareBuilder(AllowedRobot::march3).createMarchRobot();
 
-  march::Encoder RHJenc = march::Encoder(16, 22134, 43436, 24515, 0.05);
-  march::Encoder LHJenc = march::Encoder(16, 9746, 31557, 11830, 0.05);
+  march::EncoderAbsolute RHJencAbs = march::EncoderAbsolute(16, 22134, 43436, 24515, 0.05);
+  march::EncoderAbsolute LHJencAbs = march::EncoderAbsolute(16, 9746, 31557, 11830, 0.05);
+  march::EncoderIncremental RHJencInc = march::EncoderIncremental(12);
+  march::EncoderIncremental LHJencInc = march::EncoderIncremental(12);
 
-  march::Encoder RKJenc = march::Encoder(16, 18120, 39941, 19000, 0.05);
-  march::Encoder LKJenc = march::Encoder(16, 21924, 43734, 22552, 0.05);
+  march::EncoderAbsolute RKJencAbs = march::EncoderAbsolute(16, 18120, 39941, 19000, 0.05);
+  march::EncoderAbsolute LKJencAbs = march::Absolute(16, 21924, 43734, 22552, 0.05);
+  march::EncoderIncremental RKJencInc = march::EncoderIncremental(12);
+  march::EncoderIncremental LKJencInc = march::EncoderIncremental(12);
 
-  march::Encoder RAJenc = march::Encoder(12, 1086, 1490, 1301, 0.005);
-  march::Encoder LAJenc = march::Encoder(12, 631, 1022, 918, 0.005);
+  march::EncoderAbsolute RAJencAbs = march::EncoderAbsolute(12, 1086, 1490, 1301, 0.005);
+  march::EncoderAbsolute LAJencAbs = march::EncoderAbsolute(12, 631, 1022, 918, 0.005);
+  march::EncoderIncremental RAJencInc = march::EncoderIncremental(13);
+  march::EncoderIncremental LAJencInc = march::EncoderIncremental(13);
 
-  march::IMotionCube LHJimc = march::IMotionCube(3, LHJenc);
-  march::IMotionCube LKJimc = march::IMotionCube(5, LKJenc);
-  march::IMotionCube LAJimc = march::IMotionCube(7, LAJenc);
-  march::IMotionCube RHJimc = march::IMotionCube(8, RHJenc);
-  march::IMotionCube RKJimc = march::IMotionCube(10, RKJenc);
-  march::IMotionCube RAJimc = march::IMotionCube(12, RAJenc);
+  march::IMotionCube LHJimc = march::IMotionCube(3, LHJencInc, LHJencAbs);
+  march::IMotionCube LKJimc = march::IMotionCube(5, LKJencInc, LKJencAbs);
+  march::IMotionCube LAJimc = march::IMotionCube(7, LAJencInc, LAJencAbs);
+  march::IMotionCube RHJimc = march::IMotionCube(8, RHJencInc, RHJencAbs);
+  march::IMotionCube RKJimc = march::IMotionCube(10, RKJencInc, RKJencAbs);
+  march::IMotionCube RAJimc = march::IMotionCube(12, RAJencInc, RAJencAbs);
 
   march::Joint leftHip;
   leftHip.setName("left_hip");

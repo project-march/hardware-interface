@@ -34,8 +34,9 @@ TEST_F(IMotionCubeTest, ValidIMotionCubeHip)
 
   march::IMotionCube createdIMotionCube = HardwareBuilder::createIMotionCube(iMotionCubeConfig);
 
-  march::Encoder actualEncoder = march::Encoder(16, 22134, 43436, 24515, 0.05);
-  march::IMotionCube actualIMotionCube = march::IMotionCube(2, actualEncoder);
+  march::EncoderAbsolute actualEncoderAbsolute = march::EncoderAbsolute(16, 22134, 43436, 24515, 0.05);
+  march::EncoderIncremental actualEncoderIncremental = march::EncoderIncremental(12);
+  march::IMotionCube actualIMotionCube = march::IMotionCube(2, actualEncoderIncremental, actualEncoderAbsolute);
 
   ASSERT_EQ(actualIMotionCube, createdIMotionCube);
 }
@@ -47,23 +48,40 @@ TEST_F(IMotionCubeTest, ValidIMotionCubeAnkle)
 
   march::IMotionCube createdIMotionCube = HardwareBuilder::createIMotionCube(iMotionCubeConfig);
 
-  march::Encoder actualEncoder = march::Encoder(12, 1, 1000, 300, 0.01);
-  march::IMotionCube actualIMotionCube = march::IMotionCube(10, actualEncoder);
+  march::EncoderAbsolute actualEncoderAbsolute = march::EncoderAbsolute(12, 1, 1000, 300, 0.01);
+  march::EncoderIncremental actualEncoderIncremental = march::EncoderIncremental(13);
+  march::IMotionCube actualIMotionCube = march::IMotionCube(10, actualEncoderIncremental, actualEncoderAbsolute);
 
   ASSERT_EQ(actualIMotionCube, createdIMotionCube);
 }
 
-TEST_F(IMotionCubeTest, IncorrectEncoder)
+TEST_F(IMotionCubeTest, IncorrectEncoderAbsolute)
 {
-  std::string fullPath = this->fullPath("/imotioncube_incorrect_encoder.yaml");
+  std::string fullPath = this->fullPath("/imotioncube_incorrect_encoder_absolute.yaml");
   YAML::Node iMotionCubeConfig = YAML::LoadFile(fullPath);
 
   ASSERT_THROW(HardwareBuilder::createIMotionCube(iMotionCubeConfig), MissingKeyException);
 }
 
-TEST_F(IMotionCubeTest, NoEncoder)
+TEST_F(IMotionCubeTest, IncorrectEncoderIncremental)
 {
-  std::string fullPath = this->fullPath("/imotioncube_no_encoder.yaml");
+  std::string fullPath = this->fullPath("/imotioncube_incorrect_encoder_incremental.yaml");
+  YAML::Node iMotionCubeConfig = YAML::LoadFile(fullPath);
+
+  ASSERT_THROW(HardwareBuilder::createIMotionCube(iMotionCubeConfig), MissingKeyException);
+}
+
+TEST_F(IMotionCubeTest, NoEncoderAbsolute)
+{
+  std::string fullPath = this->fullPath("/imotioncube_no_encoder_absolute.yaml");
+  YAML::Node iMotionCubeConfig = YAML::LoadFile(fullPath);
+
+  ASSERT_THROW(HardwareBuilder::createIMotionCube(iMotionCubeConfig), MissingKeyException);
+}
+
+TEST_F(IMotionCubeTest, NoEncoderIncremental)
+{
+  std::string fullPath = this->fullPath("/imotioncube_no_encoder_incremental.yaml");
   YAML::Node iMotionCubeConfig = YAML::LoadFile(fullPath);
 
   ASSERT_THROW(HardwareBuilder::createIMotionCube(iMotionCubeConfig), MissingKeyException);

@@ -38,8 +38,9 @@ TEST_F(JointTest, ValidJointHip)
 
   march::Joint createdJoint = HardwareBuilder::createJoint(jointConfig, "test_joint_hip");
 
-  march::Encoder actualEncoder = march::Encoder(16, 22134, 43436, 24515, 0.05);
-  march::IMotionCube actualIMotionCube = march::IMotionCube(2, actualEncoder);
+  march::EncoderAbsolute actualEncoderAbsolute = march::EncoderAbsolute(16, 22134, 43436, 24515, 0.05);
+  march::EncoderIncremental actualEncoderIncremental = march::EncoderIncremental(12);
+  march::IMotionCube actualIMotionCube = march::IMotionCube(2, actualEncoderIncremental, actualEncoderAbsolute);
   march::TemperatureGES actualTemperatureGes = march::TemperatureGES(1, 2);
   march::Joint actualJoint;
   actualJoint.setName("test_joint_hip");
@@ -58,8 +59,9 @@ TEST_F(JointTest, ValidNotActuated)
 
   march::Joint createdJoint = HardwareBuilder::createJoint(jointConfig, "test_joint_hip");
 
-  march::Encoder actualEncoder = march::Encoder(16, 22134, 43436, 24515, 0.05);
-  march::IMotionCube actualIMotionCube = march::IMotionCube(2, actualEncoder);
+  march::EncoderAbsolute actualEncoderAbsolute = march::EncoderAbsolute(16, 22134, 43436, 24515, 0.05);
+  march::EncoderIncremental actualEncoderIncremental = march::EncoderIncremental(12);
+  march::IMotionCube actualIMotionCube = march::IMotionCube(2, actualEncoderIncremental, actualEncoderAbsolute);
   march::TemperatureGES actualTemperatureGes = march::TemperatureGES(1, 2);
   march::Joint actualJoint;
   actualJoint.setName("test_joint_hip");
@@ -86,8 +88,9 @@ TEST_F(JointTest, ValidJointAnkle)
 
   march::Joint createdJoint = HardwareBuilder::createJoint(jointConfig, "test_joint_ankle");
 
-  march::Encoder actualEncoder = march::Encoder(20, 3, 40000, 5, 0.05);
-  march::IMotionCube actualIMotionCube = march::IMotionCube(10, actualEncoder);
+  march::EncoderAbsolute actualEncoderAbsolute = march::EncoderAbsolute(20, 3, 40000, 5, 0.05);
+  march::EncoderIncremental actualEncoderIncremental = march::EncoderIncremental(13);
+  march::IMotionCube actualIMotionCube = march::IMotionCube(10, actualEncoderIncremental, actualEncoderAbsolute);
   march::TemperatureGES actualTemperatureGes = march::TemperatureGES(10, 6);
 
   march::Joint actualJoint;
