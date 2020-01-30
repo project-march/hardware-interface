@@ -51,7 +51,8 @@ if (CATKIN_ENABLE_TESTING)
     catkin_add_gtest(${PROJECT_NAME}_test
         test/test_runner.cpp
         test/allowed_robot_test.cpp
-        test/encoder_builder_test.cpp
+        test/encoder_absolute_builder_test.cpp
+        test/encoder_incremental_builder_test.cpp
         test/imc_builder_test.cpp
         test/joint_builder_test.cpp
         test/pdb_builder_test.cpp

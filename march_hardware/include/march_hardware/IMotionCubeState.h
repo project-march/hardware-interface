@@ -95,6 +95,7 @@ public:
   std::string motionErrorDescription;
   float motorCurrent;
   float motorVoltage;
+  float incrementalEncoderValue;
 };
 
 }  // namespace march

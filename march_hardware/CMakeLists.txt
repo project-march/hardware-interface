@@ -26,7 +26,8 @@ install(DIRECTORY include/${PROJECT_NAME}/
 )
 
 add_library(${PROJECT_NAME}
-    src/Encoder.cpp
+    src/EncoderAbsolute.cpp
+    src/EncoderIncremental.cpp
     src/EtherCAT/EthercatIO.cpp
     src/EtherCAT/EthercatMaster.cpp
     src/EtherCAT/EthercatSDO.cpp
@@ -68,7 +69,8 @@ if (CATKIN_ENABLE_TESTING)
     add_rostest_gmock(${PROJECT_NAME}-test
         test/march_hardware.test
         test/TestRunner.cpp
-        test/TestEncoder.cpp
+        test/TestEncoderAbsolute.cpp
+        test/TestEncoderIncremental.cpp
         test/TestIMotionCube.cpp
         test/TestTemperatureGES.cpp
         test/TestJoint.cpp
@@ -81,7 +83,8 @@ if (CATKIN_ENABLE_TESTING)
         test/TestPowerDistributionBoard.cpp
         test/mocks/MockTemperatureGES.cpp
         test/mocks/MockTemperatureSensor.cpp
-        test/mocks/MockEncoder.cpp
+        test/mocks/MockEncoderAbsolute.cpp
+        test/mocks/MockEncoderIncremental.cpp
         test/mocks/MockIMotionCube.cpp
         test/mocks/MockJoint.cpp
     )
