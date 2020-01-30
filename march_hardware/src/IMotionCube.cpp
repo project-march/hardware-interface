@@ -119,21 +119,21 @@ void IMotionCube::actuateRad(float targetRad)
   ROS_ASSERT_MSG(this->actuationMode == ActuationMode::position, "trying to actuate rad, while actuationmode = %s",
                  this->actuationMode.toString().c_str());
 
-  if (std::abs(targetRad - this->getAngleRad()) > 0.393)
+  if (std::abs(targetRad - this->getAngleRadAbsolute()) > 0.393)
   {
-    ROS_ERROR("Target %f exceeds max difference of 0.393 from current %f for slave %d", targetRad, this->getAngleRad(),
+    ROS_ERROR("Target %f exceeds max difference of 0.393 from current %f for slave %d", targetRad, this->getAngleRadAbsolute(),
               this->slaveIndex);
     throw std::runtime_error("Target exceeds max difference of 0.393 from current position");
   }
-  this->actuateIU(this->encoder.RadtoIU(targetRad));
+  this->actuateIU(this->encoderAbsolute.RadtoIU(targetRad));
 }
 
 void IMotionCube::actuateIU(int targetIU)
 {
-  if (!this->encoder.isValidTargetIU(this->getAngleIU(), targetIU))
+  if (!this->encoderAbsolute.isValidTargetIU(this->getAngleIUabsolute(), targetIU))
   {
     ROS_ERROR("Position %i is invalid for slave %d. (%d, %d)", targetIU, this->slaveIndex,
-              this->encoder.getLowerSoftLimitIU(), this->encoder.getUpperSoftLimitIU());
+              this->encoderAbsolute.getLowerSoftLimitIU(), this->encoderAbsolute.getUpperSoftLimitIU());
     throw std::runtime_error("Invalid IU actuate command.");
   }
 
@@ -510,7 +510,7 @@ bool IMotionCube::goToOperationEnabled()
   ROS_ASSERT_MSG(this->misoByteOffsets.count(IMCObjectName::ActualPosition) == 1, "ActualPosition not defined in PDO "
                                                                                   "mapping, so can't get angle");
 
-  int angleRead = this->encoder.getAngleIU(this->misoByteOffsets[IMCObjectName::ActualPosition]);
+  int angleRead = this->encoderAbsolute.getAngleIU(this->misoByteOffsets[IMCObjectName::ActualPosition]);
   //  If the encoder is functioning correctly and the joint is not outside hardlimits, move the joint to its current
   //  position. Otherwise shutdown
   if (abs(angleRead) <= 2)
@@ -518,10 +518,10 @@ bool IMotionCube::goToOperationEnabled()
     ROS_FATAL("Encoder of IMotionCube with slaveIndex %d has reset. Read angle %d IU", this->slaveIndex, angleRead);
     throw std::domain_error("Encoder reset");
   }
-  else if (!this->encoder.isWithinHardLimitsIU(angleRead))
+  else if (!this->encoderAbsolute.isWithinHardLimitsIU(angleRead))
   {
     ROS_FATAL("Joint with slaveIndex %d is outside hard limits (read value %d IU, limits from %d IU to %d IU)",
-              this->slaveIndex, angleRead, this->encoder.getLowerHardLimitIU(), this->encoder.getUpperHardLimitIU());
+              this->slaveIndex, angleRead, this->encoderAbsolute.getLowerHardLimitIU(), this->encoderAbsolute.getUpperHardLimitIU());
     throw std::domain_error("Joint outside hard limits");
   }
   else

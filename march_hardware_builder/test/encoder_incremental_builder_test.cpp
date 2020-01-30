@@ -31,7 +31,7 @@ TEST_F(EncoderIncrementalTest, ValidEncoderIncrementalHip)
   std::string fullPath = this->fullPath("/encoder_incremental_correct_1.yaml");
   YAML::Node encoderIncrementalConfig = YAML::LoadFile(fullPath);
 
-  march::EncoderIncremental actualEncoderIncremental = march::EncoderIncremental(16, 22134, 43436, 24515, 0.05);
+  march::EncoderIncremental actualEncoderIncremental = march::EncoderIncremental(12);
   march::EncoderIncremental createdEncoderIncremental = HardwareBuilder::createEncoderIncremental(encoderIncrementalConfig);
   ASSERT_EQ(actualEncoderIncremental, createdEncoderIncremental);
 }
@@ -41,7 +41,7 @@ TEST_F(EncoderIncrementalTest, ValidEncoderIncrementalAnkle)
   std::string fullPath = this->fullPath("/encoder_incremental_correct_2.yaml");
   YAML::Node encoderIncrementalConfig = YAML::LoadFile(fullPath);
 
-  march::EncoderIncremental actualEncoderIncremental = march::EncoderIncremental(12, 1086, 1490, 1301, 0.005);
+  march::EncoderIncremental actualEncoderIncremental = march::EncoderIncremental(13);
 
   march::EncoderIncremental createdEncoderIncremental = HardwareBuilder::createEncoderIncremental(encoderIncrementalConfig);
   ASSERT_EQ(actualEncoderIncremental, createdEncoderIncremental);

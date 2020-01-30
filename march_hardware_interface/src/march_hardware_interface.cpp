@@ -236,7 +236,7 @@ void MarchHardwareInterface::read(const ros::Duration& elapsed_time)
 
     march::Joint joint = marchRobot.getJoint(joint_names_[i]);
 
-    joint_position_[i] = joint.getAngleRad();
+    joint_position_[i] = joint.getAngleRadAbsolute();
 
     if (joint.hasTemperatureGES())
     {
@@ -324,10 +324,10 @@ void MarchHardwareInterface::initiateIMC()
   {
     Joint joint = marchRobot.getJoint(joint_name);
 
-    if (LOWER_BOUNDARY_ANGLE_IU <= joint.getAngleIU() && joint.getAngleIU() <= UPPER_BOUNDARY_ANGLE_IU)
+    if (LOWER_BOUNDARY_ANGLE_IU <= joint.getAngleIUabsolute() && joint.getAngleIUabsolute() <= UPPER_BOUNDARY_ANGLE_IU)
     {
       ROS_WARN("Before reset joint: [%s] has angle-value of: %i. Which is within boundary of lower: %i and upper: %i",
-               joint_name.c_str(), joint.getAngleIU(), LOWER_BOUNDARY_ANGLE_IU, UPPER_BOUNDARY_ANGLE_IU);
+               joint_name.c_str(), joint.getAngleIUabsolute(), LOWER_BOUNDARY_ANGLE_IU, UPPER_BOUNDARY_ANGLE_IU);
     }
 
     joint.resetIMotionCube();
@@ -341,10 +341,10 @@ void MarchHardwareInterface::initiateIMC()
   {
     Joint joint = marchRobot.getJoint(joint_name);
 
-    if (LOWER_BOUNDARY_ANGLE_IU <= joint.getAngleIU() && joint.getAngleIU() <= UPPER_BOUNDARY_ANGLE_IU)
+    if (LOWER_BOUNDARY_ANGLE_IU <= joint.getAngleIUabsolute() && joint.getAngleIUabsolute() <= UPPER_BOUNDARY_ANGLE_IU)
     {
       ROS_WARN("After reset joint: [%s] has angle-value of: %i. Which is within boundary of lower: %i and upper: %i",
-               joint_name.c_str(), joint.getAngleIU(), LOWER_BOUNDARY_ANGLE_IU, UPPER_BOUNDARY_ANGLE_IU);
+               joint_name.c_str(), joint.getAngleIUabsolute(), LOWER_BOUNDARY_ANGLE_IU, UPPER_BOUNDARY_ANGLE_IU);
     }
   }
 }

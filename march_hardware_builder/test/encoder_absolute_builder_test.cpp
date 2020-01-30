@@ -32,7 +32,7 @@ TEST_F(EncoderAbsoluteTest, ValidEncoderHip)
   YAML::Node encoderAbsoluteConfig = YAML::LoadFile(fullPath);
 
   march::EncoderAbsolute actualEncoderAbsolute = march::EncoderAbsolute(16, 22134, 43436, 24515, 0.05);
-  march::EncoderAbsolute createdEncoderAbsolute = HardwareBuilder::createAbsoluteEncoder(encoderAbsoluteConfig);
+  march::EncoderAbsolute createdEncoderAbsolute = HardwareBuilder::createEncoderAbsolute(encoderAbsoluteConfig);
   ASSERT_EQ(actualEncoderAbsolute, createdEncoderAbsolute);
 }
 
@@ -43,7 +43,7 @@ TEST_F(EncoderAbsoluteTest, ValidEncoderAnkle)
 
   march::EncoderAbsolute actualEncoderAbsolute = march::EncoderAbsolute(12, 1086, 1490, 1301, 0.005);
 
-  march::EncoderAbsolute createdEncoderAbsolute = HardwareBuilder::createAbsoluteEncoder(encoderAbsoluteConfig);
+  march::EncoderAbsolute createdEncoderAbsolute = HardwareBuilder::createEncoderAbsolute(encoderAbsoluteConfig);
   ASSERT_EQ(actualEncoderAbsolute, createdEncoderAbsolute);
 }
 
@@ -52,7 +52,7 @@ TEST_F(EncoderAbsoluteTest, NoResolution)
   std::string fullPath = this->fullPath("/encoder_absolute_no_resolution.yaml");
   YAML::Node encoderAbsoluteConfig = YAML::LoadFile(fullPath);
 
-  ASSERT_THROW(HardwareBuilder::createAbsoluteEncoder(encoderAbsoluteConfig), MissingKeyException);
+  ASSERT_THROW(HardwareBuilder::createEncoderAbsolute(encoderAbsoluteConfig), MissingKeyException);
 }
 
 TEST_F(EncoderAbsoluteTest, NoMinPosition)
@@ -60,7 +60,7 @@ TEST_F(EncoderAbsoluteTest, NoMinPosition)
   std::string fullPath = this->fullPath("/encoder_absolute_no_min_position.yaml");
   YAML::Node encoderAbsoluteConfig = YAML::LoadFile(fullPath);
 
-  ASSERT_THROW(HardwareBuilder::createAbsoluteEncoder(encoderAbsoluteConfig), MissingKeyException);
+  ASSERT_THROW(HardwareBuilder::createEncoderAbsolute(encoderAbsoluteConfig), MissingKeyException);
 }
 
 TEST_F(EncoderAbsoluteTest, NoMaxPosition)
@@ -68,7 +68,7 @@ TEST_F(EncoderAbsoluteTest, NoMaxPosition)
   std::string fullPath = this->fullPath("/encoder_absolute_no_max_position.yaml");
   YAML::Node encoderAbsoluteConfig = YAML::LoadFile(fullPath);
 
-  ASSERT_THROW(HardwareBuilder::createAbsoluteEncoder(encoderAbsoluteConfig), MissingKeyException);
+  ASSERT_THROW(HardwareBuilder::createEncoderAbsolute(encoderAbsoluteConfig), MissingKeyException);
 }
 
 TEST_F(EncoderAbsoluteTest, NoZeroPosition)
@@ -76,7 +76,7 @@ TEST_F(EncoderAbsoluteTest, NoZeroPosition)
   std::string fullPath = this->fullPath("/encoder_absolute_no_zero_position.yaml");
   YAML::Node encoderAbsoluteConfig = YAML::LoadFile(fullPath);
 
-  ASSERT_THROW(HardwareBuilder::createAbsoluteEncoder(encoderAbsoluteConfig), MissingKeyException);
+  ASSERT_THROW(HardwareBuilder::createEncoderAbsolute(encoderAbsoluteConfig), MissingKeyException);
 }
 
 TEST_F(EncoderAbsoluteTest, NoSafetyMargin)
@@ -84,5 +84,5 @@ TEST_F(EncoderAbsoluteTest, NoSafetyMargin)
   std::string fullPath = this->fullPath("/encoder_absolute_no_safety_margin.yaml");
   YAML::Node encoderAbsoluteConfig = YAML::LoadFile(fullPath);
 
-  ASSERT_THROW(HardwareBuilder::createAbsoluteEncoder(encoderAbsoluteConfig), MissingKeyException);
+  ASSERT_THROW(HardwareBuilder::createEncoderAbsolute(encoderAbsoluteConfig), MissingKeyException);
 }

@@ -32,7 +32,7 @@ TEST(AllowedRobotTest, TestMarch3Values)
   march::EncoderIncremental LHJencInc = march::EncoderIncremental(12);
 
   march::EncoderAbsolute RKJencAbs = march::EncoderAbsolute(16, 18120, 39941, 19000, 0.05);
-  march::EncoderAbsolute LKJencAbs = march::Absolute(16, 21924, 43734, 22552, 0.05);
+  march::EncoderAbsolute LKJencAbs = march::EncoderAbsolute(16, 21924, 43734, 22552, 0.05);
   march::EncoderIncremental RKJencInc = march::EncoderIncremental(12);
   march::EncoderIncremental LKJencInc = march::EncoderIncremental(12);
 
