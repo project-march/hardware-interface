@@ -7,8 +7,9 @@
 
 namespace march
 {
-EncoderAbsolute::EncoderAbsolute(int numberOfBits, int minPositionIU, int maxPositionIU, 
-                                  int zeroPositionIU, float safetyMarginRad) : Encoder(numberOfBits)
+EncoderAbsolute::EncoderAbsolute(int numberOfBits, int minPositionIU, int maxPositionIU, int zeroPositionIU,
+                                 float safetyMarginRad)
+  : Encoder(numberOfBits)
 {
   ROS_ASSERT_MSG(safetyMarginRad >= 0, "SafetyMarginRad %f is below zero", safetyMarginRad);
 
@@ -21,11 +22,11 @@ EncoderAbsolute::EncoderAbsolute(int numberOfBits, int minPositionIU, int maxPos
   this->lowerSoftLimitIU = this->lowerHardLimitIU + safetyMarginIU;
 
   ROS_ASSERT_MSG(this->lowerSoftLimitIU < this->upperSoftLimitIU,
-                  "Invalid range of motion. Safety margin too large or "
-                  "min/max position invalid. lowerSoftLimit: %i IU, upperSoftLimit: "
-                  "%i IU. lowerHardLimit: %i IU, upperHardLimit %i IU. safetyMargin: %f rad = %i IU",
-                  this->lowerSoftLimitIU, this->upperSoftLimitIU, this->lowerHardLimitIU, this->upperHardLimitIU,
-                  this->safetyMarginRad, safetyMarginIU);
+                 "Invalid range of motion. Safety margin too large or "
+                 "min/max position invalid. lowerSoftLimit: %i IU, upperSoftLimit: "
+                 "%i IU. lowerHardLimit: %i IU, upperHardLimit %i IU. safetyMargin: %f rad = %i IU",
+                 this->lowerSoftLimitIU, this->upperSoftLimitIU, this->lowerHardLimitIU, this->upperHardLimitIU,
+                 this->safetyMarginRad, safetyMarginIU);
 }
 
 float EncoderAbsolute::getAngleRad(uint8_t ActualPositionByteOffset)
@@ -92,4 +93,4 @@ int EncoderAbsolute::getLowerHardLimitIU() const
 {
   return lowerHardLimitIU;
 }
-} //  namespace march
+}  //  namespace march

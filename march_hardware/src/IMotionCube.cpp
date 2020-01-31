@@ -13,8 +13,8 @@
 
 namespace march
 {
-IMotionCube::IMotionCube(int slaveIndex, EncoderIncremental encoderIncremental, EncoderAbsolute encoderAbsolute) 
-                         : Slave(slaveIndex), actuationMode("unknown")
+IMotionCube::IMotionCube(int slaveIndex, EncoderIncremental encoderIncremental, EncoderAbsolute encoderAbsolute)
+  : Slave(slaveIndex), actuationMode("unknown")
 {
   this->encoderIncremental = encoderIncremental;
   this->encoderAbsolute = encoderAbsolute;
@@ -121,8 +121,8 @@ void IMotionCube::actuateRad(float targetRad)
 
   if (std::abs(targetRad - this->getAngleRadAbsolute()) > 0.393)
   {
-    ROS_ERROR("Target %f exceeds max difference of 0.393 from current %f for slave %d", targetRad, this->getAngleRadAbsolute(),
-              this->slaveIndex);
+    ROS_ERROR("Target %f exceeds max difference of 0.393 from current %f for slave %d", targetRad,
+              this->getAngleRadAbsolute(), this->slaveIndex);
     throw std::runtime_error("Target exceeds max difference of 0.393 from current position");
   }
   this->actuateIU(this->encoderAbsolute.RadtoIU(targetRad));
@@ -186,7 +186,7 @@ float IMotionCube::getAngleRadAbsolute()
 float IMotionCube::getAngleRadIncremental()
 {
   ROS_ASSERT_MSG(this->misoByteOffsets.count(IMCObjectName::MotorPosition) == 1, "MotorPosition not defined in PDO "
-                                                                                  "mapping, so can't get angle");
+                                                                                 "mapping, so can't get angle");
   return this->encoderIncremental.getAngleRad(this->misoByteOffsets[IMCObjectName::MotorPosition]);
 }
 
@@ -209,7 +209,7 @@ int IMotionCube::getAngleIUabsolute()
 int IMotionCube::getAngleIUincremental()
 {
   ROS_ASSERT_MSG(this->misoByteOffsets.count(IMCObjectName::MotorPosition) == 1, "MotorPosition not defined in PDO "
-                                                                                  "mapping, so can't get angle");
+                                                                                 "mapping, so can't get angle");
   return this->encoderIncremental.getAngleIU(this->misoByteOffsets[IMCObjectName::MotorPosition]);
 }
 
@@ -521,7 +521,8 @@ bool IMotionCube::goToOperationEnabled()
   else if (!this->encoderAbsolute.isWithinHardLimitsIU(angleRead))
   {
     ROS_FATAL("Joint with slaveIndex %d is outside hard limits (read value %d IU, limits from %d IU to %d IU)",
-              this->slaveIndex, angleRead, this->encoderAbsolute.getLowerHardLimitIU(), this->encoderAbsolute.getUpperHardLimitIU());
+              this->slaveIndex, angleRead, this->encoderAbsolute.getLowerHardLimitIU(),
+              this->encoderAbsolute.getUpperHardLimitIU());
     throw std::domain_error("Joint outside hard limits");
   }
   else

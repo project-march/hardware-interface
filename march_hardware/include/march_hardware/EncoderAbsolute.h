@@ -6,7 +6,8 @@
 #include <ostream>
 #include "Encoder.h"
 
-namespace march{
+namespace march
+{
 class EncoderAbsolute : public Encoder
 {
 private:
@@ -65,5 +66,5 @@ public:
   }
 };
 
-} //  namespace march
+}  //  namespace march
 #endif  //  MARCH_HARDWARE_ENCODER_ABSOLUTE_H

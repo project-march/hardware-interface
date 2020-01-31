@@ -6,11 +6,11 @@
 #include <ostream>
 #include "Encoder.h"
 
-namespace march{
+namespace march
+{
 class EncoderIncremental : public Encoder
 {
 private:
-
 public:
   EncoderIncremental()
   {
@@ -36,5 +36,5 @@ public:
   }
 };
 
-} // namespace march
+}  // namespace march
 #endif  //  MARCH_HARDWARE_ENCODER_INCREMENTAL_H

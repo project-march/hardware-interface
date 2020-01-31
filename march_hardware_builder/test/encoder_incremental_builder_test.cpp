@@ -32,7 +32,8 @@ TEST_F(EncoderIncrementalTest, ValidEncoderIncrementalHip)
   YAML::Node encoderIncrementalConfig = YAML::LoadFile(fullPath);
 
   march::EncoderIncremental actualEncoderIncremental = march::EncoderIncremental(12);
-  march::EncoderIncremental createdEncoderIncremental = HardwareBuilder::createEncoderIncremental(encoderIncrementalConfig);
+  march::EncoderIncremental createdEncoderIncremental =
+      HardwareBuilder::createEncoderIncremental(encoderIncrementalConfig);
   ASSERT_EQ(actualEncoderIncremental, createdEncoderIncremental);
 }
 
@@ -43,7 +44,8 @@ TEST_F(EncoderIncrementalTest, ValidEncoderIncrementalAnkle)
 
   march::EncoderIncremental actualEncoderIncremental = march::EncoderIncremental(13);
 
-  march::EncoderIncremental createdEncoderIncremental = HardwareBuilder::createEncoderIncremental(encoderIncrementalConfig);
+  march::EncoderIncremental createdEncoderIncremental =
+      HardwareBuilder::createEncoderIncremental(encoderIncrementalConfig);
   ASSERT_EQ(actualEncoderIncremental, createdEncoderIncremental);
 }
 

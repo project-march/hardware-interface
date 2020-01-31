@@ -135,7 +135,8 @@ march::IMotionCube HardwareBuilder::createIMotionCube(const YAML::Node& imc_conf
 
 march::EncoderIncremental HardwareBuilder::createEncoderIncremental(const YAML::Node& encoder_incremental_config)
 {
-  HardwareBuilder::validateRequiredKeysExist(encoder_incremental_config, HardwareBuilder::ENCODER_INCREMENTAL_REQUIRED_KEYS, "encoderIncremental");
+  HardwareBuilder::validateRequiredKeysExist(encoder_incremental_config,
+                                             HardwareBuilder::ENCODER_INCREMENTAL_REQUIRED_KEYS, "encoderIncremental");
 
   int resolution = encoder_incremental_config["resolution"].as<int>();
   return march::EncoderIncremental(resolution);
@@ -143,7 +144,8 @@ march::EncoderIncremental HardwareBuilder::createEncoderIncremental(const YAML::
 
 march::EncoderAbsolute HardwareBuilder::createEncoderAbsolute(const YAML::Node& encoder_absolute_config)
 {
-  HardwareBuilder::validateRequiredKeysExist(encoder_absolute_config, HardwareBuilder::ENCODER_ABSOLUTE_REQUIRED_KEYS, "encoderAbsolute");
+  HardwareBuilder::validateRequiredKeysExist(encoder_absolute_config, HardwareBuilder::ENCODER_ABSOLUTE_REQUIRED_KEYS,
+                                             "encoderAbsolute");
 
   int resolution = encoder_absolute_config["resolution"].as<int>();
   int min_position = encoder_absolute_config["minPositionIU"].as<int>();

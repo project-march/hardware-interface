@@ -25,4 +25,4 @@ float EncoderIncremental::IUtoRad(int iu)
 {
   return static_cast<float>(iu) * 2 * M_PI / totalPositions;
 }
-} //  namespace march
+}  //  namespace march

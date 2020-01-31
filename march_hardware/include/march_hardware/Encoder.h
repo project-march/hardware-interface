@@ -10,10 +10,9 @@ class Encoder
 protected:
   int slaveIndex;
   int totalPositions;
+
 public:
-  Encoder()
-    : slaveIndex(-1)
-    , totalPositions(0)
+  Encoder() : slaveIndex(-1), totalPositions(0)
   {
   }
   Encoder(int numberOfBits);

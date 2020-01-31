@@ -34,14 +34,16 @@ TEST_F(IMotionCubeTest, SlaveIndexOne)
 
 TEST_F(IMotionCubeDeathTest, SlaveIndexZero)
 {
-  ASSERT_DEATH(march::IMotionCube(0, encoderIncremental, encoderAbsolute), "Slave configuration error: slaveindex 0 can not be smaller than "
-                                               "1.");
+  ASSERT_DEATH(march::IMotionCube(0, encoderIncremental, encoderAbsolute), "Slave configuration error: slaveindex 0 "
+                                                                           "can not be smaller than "
+                                                                           "1.");
 }
 
 TEST_F(IMotionCubeTest, SlaveIndexMinusOne)
 {
-  ASSERT_DEATH(march::IMotionCube(-1, encoderIncremental, encoderAbsolute), "Slave configuration error: slaveindex -1 can not be smaller than "
-                                                "1.");
+  ASSERT_DEATH(march::IMotionCube(-1, encoderIncremental, encoderAbsolute), "Slave configuration error: slaveindex -1 "
+                                                                            "can not be smaller than "
+                                                                            "1.");
 }
 
 TEST_F(IMotionCubeTest, NoSlaveIndexConstructor)
