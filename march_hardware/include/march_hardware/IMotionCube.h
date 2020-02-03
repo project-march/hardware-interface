@@ -24,7 +24,7 @@ public:
 
   void writeInitialSDOs(int cycle_time) override;
 
-  float getAngleRad();
+  double getAngleRad();
   int16_t getTorque();
   int32_t getAngleIU();
 
@@ -39,7 +39,7 @@ public:
 
   void setControlWord(uint16_t control_word);
 
-  void actuateRad(float target_rad);
+  void actuateRad(double target_rad);
   void actuateTorque(int16_t target_torque);
 
   void goToTargetState(IMotionCubeTargetState target_state);

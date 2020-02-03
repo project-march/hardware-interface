@@ -92,7 +92,7 @@ void IMotionCube::writeInitialSettings(uint8_t cycle_time)
   }
 }
 
-void IMotionCube::actuateRad(float target_rad)
+void IMotionCube::actuateRad(double target_rad)
 {
   if (this->actuation_mode_ != ActuationMode::position)
   {
@@ -152,7 +152,7 @@ void IMotionCube::actuateTorque(int16_t target_torque)
   set_output_bit16(this->slaveIndex, target_torque_location, target_torque_struct);
 }
 
-float IMotionCube::getAngleRad()
+double IMotionCube::getAngleRad()
 {
   if (!IMotionCubeTargetState::SWITCHED_ON.isReached(this->getStatusWord()) &&
       !IMotionCubeTargetState::OPERATION_ENABLED.isReached(this->getStatusWord()))

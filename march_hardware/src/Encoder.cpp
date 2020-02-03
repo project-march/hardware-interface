@@ -33,7 +33,7 @@ Encoder::Encoder(int numberOfBits, int32_t minPositionIU, int32_t maxPositionIU,
                  this->safetyMarginRad, safetyMarginIU);
 }
 
-float Encoder::getAngleRad(uint8_t ActualPositionByteOffset)
+double Encoder::getAngleRad(uint8_t ActualPositionByteOffset)
 {
   return IUtoRad(getAngleIU(ActualPositionByteOffset));
 }
@@ -49,14 +49,14 @@ int32_t Encoder::getAngleIU(uint8_t ActualPositionByteOffset)
   return return_byte.i;
 }
 
-int32_t Encoder::RadtoIU(float rad)
+int32_t Encoder::RadtoIU(double rad)
 {
   return static_cast<int32_t>(rad * totalPositions / (2 * M_PI) + zeroPositionIU);
 }
 
-float Encoder::IUtoRad(int32_t iu)
+double Encoder::IUtoRad(int32_t iu)
 {
-  return static_cast<float>(iu - zeroPositionIU) * 2 * M_PI / totalPositions;
+  return (iu - zeroPositionIU) * 2 * M_PI / totalPositions;
 }
 
 void Encoder::setSlaveIndex(int slaveIndex)

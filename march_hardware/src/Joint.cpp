@@ -44,7 +44,7 @@ void Joint::resetIMotionCube()
   this->iMotionCube.resetIMotionCube();
 }
 
-void Joint::actuateRad(float targetPositionRad)
+void Joint::actuateRad(double targetPositionRad)
 {
   ROS_ASSERT_MSG(this->allowActuation,
                  "Joint %s is not allowed to actuate, "
@@ -55,7 +55,7 @@ void Joint::actuateRad(float targetPositionRad)
   this->iMotionCube.actuateRad(targetPositionRad);
 }
 
-float Joint::getAngleRad()
+double Joint::getAngleRad()
 {
   if (!hasIMotionCube())
   {

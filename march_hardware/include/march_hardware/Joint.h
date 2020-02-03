@@ -32,10 +32,10 @@ public:
   // TODO(Martijn) Refactor this to make joint less dependent on knowledge of the IMC
   void resetIMotionCube();
 
-  void actuateRad(float targetPositionRad);
+  void actuateRad(double targetPositionRad);
   void actuateTorque(int16_t targetTorque);
 
-  float getAngleRad();
+  double getAngleRad();
   int16_t getTorque();
   int32_t getAngleIU();
   float getTemperature();

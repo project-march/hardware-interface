@@ -36,12 +36,12 @@ public:
   Encoder(int numberOfBits, int32_t minPositionIU, int32_t maxPositionIU, int32_t zeroPositionIU,
           float safetyMarginRad);
 
-  float getAngleRad(uint8_t ActualPositionByteOffset);
+  double getAngleRad(uint8_t ActualPositionByteOffset);
 
   int32_t getAngleIU(uint8_t ActualPositionByteOffset);
 
-  float IUtoRad(int32_t iu);
-  int32_t RadtoIU(float rad);
+  double IUtoRad(int32_t iu);
+  int32_t RadtoIU(double rad);
 
   bool isWithinHardLimitsIU(int32_t positionIU);
   bool isWithinSoftLimitsIU(int32_t positionIU);
