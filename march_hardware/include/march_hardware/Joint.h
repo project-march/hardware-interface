@@ -33,11 +33,11 @@ public:
   void resetIMotionCube();
 
   void actuateRad(float targetPositionRad);
-  void actuateTorque(int targetTorque);
+  void actuateTorque(int16_t targetTorque);
 
   float getAngleRad();
-  float getTorque();
-  int getAngleIU();
+  int16_t getTorque();
+  int32_t getAngleIU();
   float getTemperature();
   IMotionCubeState getIMotionCubeState();
 
