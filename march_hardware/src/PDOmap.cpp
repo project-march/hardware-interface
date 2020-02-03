@@ -61,7 +61,7 @@ std::unordered_map<IMCObjectName, uint8_t> PDOmap::map(int slave_index, DataDire
 }
 
 std::unordered_map<IMCObjectName, uint8_t> PDOmap::configurePDO(int slave_index, int base_register,
-                                                                int base_sync_manager)
+                                                                uint16_t base_sync_manager)
 {
   int counter = 1;
   int current_register = base_register;
