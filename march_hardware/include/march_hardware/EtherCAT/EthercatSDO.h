@@ -2,6 +2,8 @@
 #ifndef MARCH_HARDWARE_ETHERCAT_ETHERCATSDO_H
 #define MARCH_HARDWARE_ETHERCAT_ETHERCATSDO_H
 
+#include <cstdint>
+
 namespace march
 {
 int sdo_bit8(uint16_t slave, uint16_t index, uint8_t sub, uint8_t value);

@@ -42,7 +42,7 @@ union bit64
 struct packed_sd_x2
 {
   uint16_t time;
-  unsigned char reserved;  // empty but reserved space
+  unsigned char reserved;    // empty but reserved space
   uint8_t integrityCounter;  // represents a 7bit int where the last bit is also part of reserved
 };
 

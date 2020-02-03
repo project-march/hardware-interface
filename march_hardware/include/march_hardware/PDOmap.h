@@ -79,7 +79,8 @@ private:
 
   /** Configures the PDO in the IMC using the given base register address and sync manager address.
    * @return map of the IMC PDO object name in combination with the byte-offset in the PDO register */
-  std::unordered_map<IMCObjectName, uint8_t> configurePDO(int slave_index, int base_register, uint16_t base_sync_manager);
+  std::unordered_map<IMCObjectName, uint8_t> configurePDO(int slave_index, int base_register,
+                                                          uint16_t base_sync_manager);
 
   std::unordered_map<IMCObjectName, IMCObject> PDO_objects;
   int total_used_bits = 0;
