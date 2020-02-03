@@ -24,8 +24,8 @@ using joint_limits_interface::SoftJointLimits;
 
 static const double POSITION_STEP_FACTOR = 10;
 static const double VELOCITY_STEP_FACTOR = 10;
-static const int LOWER_BOUNDARY_ANGLE_IU = -2;
-static const int UPPER_BOUNDARY_ANGLE_IU = 2;
+static const int32_t LOWER_BOUNDARY_ANGLE_IU = -2;
+static const int32_t UPPER_BOUNDARY_ANGLE_IU = 2;
 
 /**
  * @brief HardwareInterface to allow ros_control to actuate our hardware.
@@ -63,9 +63,6 @@ public:
 protected:
   ::march::MarchRobot marchRobot;
   ros::NodeHandle nh_;
-  ros::Duration control_period_;
-  ros::Duration elapsed_time_;
-  PositionJointInterface positionJointInterface;
   PositionJointSoftLimitsInterface positionJointSoftLimitsInterface;
   EffortJointSoftLimitsInterface effortJointSoftLimitsInterface;
   bool hasPowerDistributionBoard = false;
@@ -75,7 +72,6 @@ protected:
       RtPublisherAfterLimitJointCommandPtr;
   RtPublisherAfterLimitJointCommandPtr after_limit_joint_command_pub_;
   RtPublisherPtr imc_state_pub_;
-  double p_error_, v_error_, e_error_;
   std::vector<SoftJointLimits> soft_limits_;
 
 private:

@@ -225,7 +225,7 @@ void MarchHardwareInterface::read(const ros::Duration& elapsed_time)
 {
   for (int i = 0; i < num_joints_; i++)
   {
-    float oldPosition = joint_position_[i];
+    double oldPosition = joint_position_[i];
 
     march::Joint joint = marchRobot.getJoint(joint_names_[i]);
 
@@ -237,13 +237,13 @@ void MarchHardwareInterface::read(const ros::Duration& elapsed_time)
     }
 
     // Get velocity from encoder position
-    float joint_velocity = (joint_position_[i] - oldPosition) * 1 / elapsed_time.toSec();
+    double joint_velocity = (joint_position_[i] - oldPosition) * 1 / elapsed_time.toSec();
 
     // Apply exponential smoothing to velocity obtained from encoder with
     // alpha=0.2
     joint_velocity_[i] = filters::exponentialSmoothing(joint_velocity, joint_velocity_[i], 0.2);
 
-    joint_effort_[i] = joint.getTorque();
+    joint_effort_[i] = static_cast<double>(joint.getTorque());
 
     ROS_DEBUG("Joint %s: read position %f", joint_names_[i].c_str(), joint_position_[i]);
   }
@@ -292,7 +292,7 @@ void MarchHardwareInterface::write(const ros::Duration& elapsed_time)
       }
       else if (joint.getActuationMode() == march::ActuationMode::torque)
       {
-        joint.actuateTorque(static_cast<int>(joint_effort_command_[i]));
+        joint.actuateTorque(static_cast<int16_t>(joint_effort_command_[i]));
       }
     }
   }
