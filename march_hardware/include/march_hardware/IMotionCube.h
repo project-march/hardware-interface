@@ -58,7 +58,7 @@ public:
               << "encoder: " << imc.encoder_;
   }
 
-  constexpr static float MAX_TARGET_DIFFERENCE = 0.393;
+  constexpr static double MAX_TARGET_DIFFERENCE = 0.393;
   // This value is slightly larger than the current limit of the
   // linear joints defined in the URDF.
   const static int16_t MAX_TARGET_TORQUE = 23500;
