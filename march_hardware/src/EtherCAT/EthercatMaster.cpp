@@ -36,18 +36,12 @@ EthercatMaster::~EthercatMaster()
   this->stop();
 }
 
-/**
- * Initiate the ethercat train and start the loop
- */
 void EthercatMaster::start()
 {
   EthercatMaster::ethercatMasterInitiation();
   EthercatMaster::ethercatSlaveInitiation();
 }
 
-/**
- * Open the ethernet port with the given ifname and check amount of slaves
- */
 void EthercatMaster::ethercatMasterInitiation()
 {
   ROS_INFO("Trying to start EtherCAT");
@@ -69,10 +63,6 @@ void EthercatMaster::ethercatMasterInitiation()
   ROS_INFO("%d slave(s) found and initialized.", slave_count);
 }
 
-/**
- * Set the found slaves to pre-operational state, configure the slaves and move to safe-operational state. If everything
- * went good move to operational state.
- */
 void EthercatMaster::ethercatSlaveInitiation()
 {
   ROS_INFO("Request pre-operational state for all slaves");
@@ -131,10 +121,6 @@ void EthercatMaster::ethercatSlaveInitiation()
   }
 }
 
-/**
- * The ethercat train PDO loop. If the working counter is lower then expected 5% of the time the program displays an
- * error
- */
 void EthercatMaster::ethercatLoop()
 {
   uint32_t totalLoops = 0;
@@ -180,9 +166,6 @@ void EthercatMaster::ethercatLoop()
   }
 }
 
-/**
- * Send the PDO and receive the working counter and check if this is lower then expected.
- */
 void EthercatMaster::SendReceivePDO()
 {
   ec_send_processdata();
@@ -193,9 +176,6 @@ void EthercatMaster::SendReceivePDO()
   }
 }
 
-/**
- * Check if all the slaves are connected and in operational state.
- */
 void EthercatMaster::monitorSlaveConnection()
 {
   for (int slave = 1; slave <= ec_slavecount; slave++)
@@ -209,9 +189,6 @@ void EthercatMaster::monitorSlaveConnection()
   }
 }
 
-/**
- * Stop the ethercat loop and terminate the thread
- */
 void EthercatMaster::stop()
 {
   if (this->isOperational)
