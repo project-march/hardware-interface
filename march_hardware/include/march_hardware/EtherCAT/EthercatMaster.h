@@ -24,7 +24,6 @@ class EthercatMaster
   int expectedWKC;
 
   std::thread EcatThread;
-  std::vector<Joint>* jointListPtr;
 
   int maxSlaveIndex;
   int ecatCycleTimems;
@@ -32,15 +31,23 @@ class EthercatMaster
 public:
   bool isOperational = false;
 
-  explicit EthercatMaster(std::vector<Joint>* jointListPtr, std::string ifname, int maxSlaveIndex, int ecatCycleTime);
+  explicit EthercatMaster(std::string ifname, int maxSlaveIndex, int ecatCycleTime);
   ~EthercatMaster();
+
+  /* Delete copy constructor/assignment since the member thread can not be copied */
+  EthercatMaster(const EthercatMaster&) = delete;
+  EthercatMaster& operator=(const EthercatMaster&) = delete;
+
+  /* Enable the move constructor and assignment */
+  EthercatMaster(EthercatMaster&&) = default;
+  EthercatMaster& operator=(EthercatMaster&&) = default;
 
   /**
    * Initializes the ethercat train and starts a thread for the loop.
    * @throws HardwareException If not the configured amount of slaves was found
    *                           or they did not all reach operational state
    */
-  void start();
+  void start(std::vector<Joint>& joints);
 
   /**
    * Stops the ethercat loop and joins the thread.
@@ -56,7 +63,7 @@ private:
   /**
    * Configures the found slaves to operational state.
    */
-  void ethercatSlaveInitiation();
+  void ethercatSlaveInitiation(std::vector<Joint>& joints);
 
   /**
    * The ethercat train PDO loop. If the working counter is lower than
