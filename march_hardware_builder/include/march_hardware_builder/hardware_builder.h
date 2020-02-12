@@ -17,7 +17,6 @@
 #include <march_hardware/PowerDistributionBoard.h>
 #include <march_hardware/TemperatureGES.h>
 
-
 /**
  * @brief Creates a MarchRobot from a robot yaml and URDF.
  */

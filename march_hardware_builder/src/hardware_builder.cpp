@@ -30,8 +30,7 @@ HardwareBuilder::HardwareBuilder(AllowedRobot robot, urdf::Model urdf)
 {
 }
 
-HardwareBuilder::HardwareBuilder(const std::string& yaml_path)
-  : robot_config_(YAML::LoadFile(yaml_path))
+HardwareBuilder::HardwareBuilder(const std::string& yaml_path) : robot_config_(YAML::LoadFile(yaml_path))
 {
 }
 
@@ -68,12 +67,12 @@ march::MarchRobot HardwareBuilder::createMarchRobot()
   if (pdb_config)
   {
     march::PowerDistributionBoard pdb = HardwareBuilder::createPowerDistributionBoard(pdb_config);
-    return march::MarchRobot(joint_list, pdb, if_name, cycle_time);
+    return march::MarchRobot(joint_list, this->urdf_, pdb, if_name, cycle_time);
   }
   else
   {
     ROS_INFO("powerDistributionBoard is NOT defined");
-    return march::MarchRobot(joint_list, if_name, cycle_time);
+    return march::MarchRobot(joint_list, this->urdf_, if_name, cycle_time);
   }
 }
 
