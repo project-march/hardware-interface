@@ -33,7 +33,14 @@ const char* getErrorDescription(ErrorType type)
       return "Not all configured slaves were able to be found";
     case ErrorType::FAILED_TO_REACH_OPERATIONAL_STATE:
       return "At least one slave failed to reach ethercat operational state";
-    case ErrorType::UNKNOWN:
+    case ErrorType::INVALID_ENCODER_RESOLUTION:
+      return "The encoder resolution is outside the allowed range";
+    case ErrorType::DIFFERENT_IU_PER_RAD:
+      return "The IU per radians calculated from the encoder resolution"
+             "differs significantly from the one calculated from the limits";
+    case ErrorType::INVALID_RANGE_OF_MOTION:
+      return "The lower and upper limits of an encoder are conflicting";
+    default:
       return "Unknown error occurred. Please create/use a documented error";
   }
 }
