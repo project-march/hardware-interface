@@ -136,13 +136,28 @@ march::Encoder HardwareBuilder::createEncoder(const YAML::Node& encoder_config,
   auto resolution = encoder_config["resolution"].as<size_t>();
   auto min_position = encoder_config["minPositionIU"].as<int32_t>();
   auto max_position = encoder_config["maxPositionIU"].as<int32_t>();
+
+  double soft_lower_limit;
+  double soft_upper_limit;
+  if (urdf_joint->safety)
+  {
+    soft_lower_limit = urdf_joint->safety->soft_lower_limit;
+    soft_upper_limit = urdf_joint->safety->soft_upper_limit;
+  }
+  else
+  {
+    ROS_WARN("URDF joint %s has no defined soft limits, so using hard limits as soft limits", urdf_joint->name.c_str());
+    soft_lower_limit = urdf_joint->limits->lower;
+    soft_upper_limit = urdf_joint->limits->upper;
+  }
+
   return { resolution,
            min_position,
            max_position,
            urdf_joint->limits->lower,
            urdf_joint->limits->upper,
-           urdf_joint->safety->soft_lower_limit,
-           urdf_joint->safety->soft_upper_limit };
+           soft_lower_limit,
+           soft_upper_limit };
 }
 
 march::TemperatureGES HardwareBuilder::createTemperatureGES(const YAML::Node& temperature_ges_config)
