@@ -36,7 +36,7 @@ const char* getErrorDescription(ErrorType type)
     case ErrorType::INVALID_ENCODER_RESOLUTION:
       return "The encoder resolution is outside the allowed range";
     case ErrorType::DIFFERENT_IU_PER_RAD:
-      return "The IU per radians calculated from the encoder resolution"
+      return "The IU per radians calculated from the encoder resolution "
              "differs significantly from the one calculated from the limits";
     case ErrorType::INVALID_RANGE_OF_MOTION:
       return "The lower and upper limits of an encoder are conflicting";
