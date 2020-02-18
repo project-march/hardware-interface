@@ -15,7 +15,7 @@ TEST(AllowedRobotTest, TestMarch4Creation)
 }
 
 // Fails because the March 3 does not have safety limits
-//TEST(AllowedRobotTest, TestMarch3Creation)
+// TEST(AllowedRobotTest, TestMarch3Creation)
 //{
 //  urdf::Model urdf;
 //  urdf.initFile(ros::package::getPath("march_description").append("/urdf/march3.urdf"));
@@ -23,7 +23,7 @@ TEST(AllowedRobotTest, TestMarch4Creation)
 //}
 
 // Fails because the rotational test joint is not correctly calibrated
-//TEST(AllowedRobotTest, TestTestRotationalSetupCreation)
+// TEST(AllowedRobotTest, TestTestRotationalSetupCreation)
 //{
 //  urdf::Model urdf;
 //  urdf.initFile(ros::package::getPath("march_description").append("/urdf/test_joint_rotational.urdf"));

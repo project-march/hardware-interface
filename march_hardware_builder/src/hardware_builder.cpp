@@ -151,13 +151,8 @@ march::Encoder HardwareBuilder::createEncoder(const YAML::Node& encoder_config,
     soft_upper_limit = urdf_joint->limits->upper;
   }
 
-  return { resolution,
-           min_position,
-           max_position,
-           urdf_joint->limits->lower,
-           urdf_joint->limits->upper,
-           soft_lower_limit,
-           soft_upper_limit };
+  return { resolution,       min_position,    max_position, urdf_joint->limits->lower, urdf_joint->limits->upper,
+           soft_lower_limit, soft_upper_limit };
 }
 
 march::TemperatureGES HardwareBuilder::createTemperatureGES(const YAML::Node& temperature_ges_config)
