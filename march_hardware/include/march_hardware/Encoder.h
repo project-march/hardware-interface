@@ -71,7 +71,7 @@ public:
   static const size_t MIN_RESOLUTION = 1;
   static const size_t MAX_RESOLUTION = 32;
 
-  static constexpr double MAX_IU_PER_RAD_DIFFERENCE = 0.05;
+  static constexpr double MAX_IU_PER_RAD_DIFFERENCE = 0.1;
 
 private:
   /*
