@@ -22,9 +22,8 @@ Encoder::Encoder(size_t number_of_bits, int32_t lower_limit_iu, int32_t upper_li
   const double difference = std::abs(encoder_iu_per_rad - iu_per_rad) / encoder_iu_per_rad;
   if (difference > Encoder::MAX_IU_PER_RAD_DIFFERENCE)
   {
-    throw error::HardwareException(error::ErrorType::DIFFERENT_IU_PER_RAD,
-                                   "Difference %f%% exceeds %f%%\nEncoder IU per radians = %f\nLimits IU per radians = %f",
-                                   difference * 100, Encoder::MAX_IU_PER_RAD_DIFFERENCE * 100, encoder_iu_per_rad, iu_per_rad);
+    ROS_WARN("Difference %f%% exceeds %f%%\nEncoder IU per radians = %f\nLimits IU per radians = %f", difference * 100,
+              Encoder::MAX_IU_PER_RAD_DIFFERENCE * 100, encoder_iu_per_rad, iu_per_rad);
   }
 
   this->zero_position_iu_ = this->lower_limit_iu_ - lower_limit_rad * this->total_position_ / PI_2;
