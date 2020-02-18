@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(march_hardware_builder)
 
+add_compile_options(-std=c++14 -Wall -Wextra)
+
 find_package(catkin REQUIRED COMPONENTS
     march_hardware
     roscpp
@@ -25,12 +27,12 @@ include_directories(include SYSTEM ${catkin_INCLUDE_DIRS})
 add_library(${PROJECT_NAME}
     src/hardware_builder.cpp
 )
-target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -Werror)
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_14)
+
 target_link_libraries(${PROJECT_NAME}
     ${catkin_LIBRARIES}
     yaml-cpp
 )
+
 install(DIRECTORY include/${PROJECT_NAME}/
     DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
 )
