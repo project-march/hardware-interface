@@ -21,19 +21,19 @@ public:
   double getAngleRad(uint8_t actual_position_byte_offset) const;
 
   /*
-   * Reads out the encoder from the slave and returns the value in Incremental Units (IU).
+   * Reads out the encoder from the slave and returns the value in Internal Units (IU).
    * @param actual_position_byte_offset the byte offset in the slave register for the IU position
-   * @returns The current position of the encoder in Incremental Units (IU)
+   * @returns The current position of the encoder in Internal Units (IU)
    */
   int32_t getAngleIU(uint8_t actual_position_byte_offset) const;
 
   /*
-   * Converts encoder Incremental Units to radians.
+   * Converts encoder Internal Units (IU) to radians.
    */
   double toRad(int32_t iu) const;
 
   /*
-   * Converts radians to encoder incremental units.
+   * Converts radians to encoder Internal Units (IU).
    */
   int32_t fromRad(double rad) const;
 
