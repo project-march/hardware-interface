@@ -17,15 +17,6 @@ Encoder::Encoder(size_t number_of_bits, int32_t lower_limit_iu, int32_t upper_li
 {
   this->total_position_ = Encoder::calculateTotalPositions(number_of_bits);
 
-  const double encoder_iu_per_rad = this->total_position_ / PI_2;
-  const double iu_per_rad = (this->upper_limit_iu_ - this->lower_limit_iu_) / (upper_limit_rad - lower_limit_rad);
-  const double difference = std::abs(encoder_iu_per_rad - iu_per_rad) / encoder_iu_per_rad;
-  if (difference > Encoder::MAX_IU_PER_RAD_DIFFERENCE)
-  {
-    ROS_WARN("Difference %f%% exceeds %f%%\nEncoder IU per radians = %f\nLimits IU per radians = %f", difference * 100,
-             Encoder::MAX_IU_PER_RAD_DIFFERENCE * 100, encoder_iu_per_rad, iu_per_rad);
-  }
-
   this->zero_position_iu_ = this->lower_limit_iu_ - lower_limit_rad * this->total_position_ / PI_2;
   this->lower_soft_limit_iu_ = this->fromRad(lower_soft_limit_rad);
   this->upper_soft_limit_iu_ = this->fromRad(upper_soft_limit_rad);
@@ -38,6 +29,17 @@ Encoder::Encoder(size_t number_of_bits, int32_t lower_limit_iu, int32_t upper_li
                                    "lower_hard_limit: %d IU, upper_hard_limit: %d IU",
                                    this->lower_soft_limit_iu_, this->upper_soft_limit_iu_, this->lower_limit_iu_,
                                    this->upper_limit_iu_);
+  }
+
+  const double range_of_motion = upper_limit_rad - lower_limit_rad;
+  const double encoder_range_of_motion = this->toRad(this->upper_limit_iu_) - this->toRad(this->lower_limit_iu_);
+  const double difference = std::abs(encoder_range_of_motion - range_of_motion) / encoder_range_of_motion;
+  if (difference > Encoder::MAX_RANGE_DIFFERENCE)
+  {
+    ROS_WARN("Difference in range of motion of %.2f%% exceeds %.2f%%\n"
+             "Encoder range of motion = %f rad\n"
+             "Limits range of motion = %f rad",
+             difference * 100, Encoder::MAX_RANGE_DIFFERENCE * 100, encoder_range_of_motion, range_of_motion);
   }
 }
 

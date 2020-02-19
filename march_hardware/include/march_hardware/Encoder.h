@@ -71,7 +71,7 @@ public:
   static const size_t MIN_RESOLUTION = 1;
   static const size_t MAX_RESOLUTION = 32;
 
-  static constexpr double MAX_IU_PER_RAD_DIFFERENCE = 0.1;
+  static constexpr double MAX_RANGE_DIFFERENCE = 0.05;
 
 private:
   /*
@@ -88,11 +88,11 @@ private:
   int slave_index_ = -1;
   size_t total_position_ = 0;
 
+  int32_t zero_position_iu_ = 0;
   int32_t lower_limit_iu_ = 0;
   int32_t upper_limit_iu_ = 0;
   int32_t lower_soft_limit_iu_ = 0;
   int32_t upper_soft_limit_iu_ = 0;
-  int32_t zero_position_iu_ = 0;
 };
 }  // namespace march
 
