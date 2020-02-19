@@ -8,7 +8,7 @@ march4:
         netNumber: 1
         temperatureges: {slaveIndex: 7, byteOffset: 4}
         imotioncube:
-          slaveIndex: 6
+          slaveIndex: 8
           encoder:
             resolution: 12
             minPositionIU: 3713
@@ -20,7 +20,7 @@ march4:
         netNumber: 5
         temperatureges: {slaveIndex: 7, byteOffset: 0}
         imotioncube:
-          slaveIndex: 8
+          slaveIndex: 6
           encoder:
             resolution: 12
             minPositionIU: 1030
@@ -30,9 +30,9 @@ march4:
         actuationMode: position
         allowActuation: true
         netNumber: 2
-        temperatureges: {slaveIndex: 1, byteOffset: 0}
+        temperatureges: {slaveIndex: 9, byteOffset: 0}
         imotioncube:
-          slaveIndex: 5
+          slaveIndex: 10
           encoder:
             resolution: 17
             minPositionIU: 2053
@@ -42,9 +42,9 @@ march4:
         actuationMode: position
         allowActuation: true
         netNumber: 6
-        temperatureges: {slaveIndex: 9, byteOffset: 0}
+        temperatureges: {slaveIndex: 5, byteOffset: 0}
         imotioncube:
-          slaveIndex: 13
+          slaveIndex: 4
           encoder:
             resolution: 17
             minPositionIU: -3382
@@ -54,9 +54,9 @@ march4:
         actuationMode: position
         allowActuation: true
         netNumber: 3
-        temperatureges: {slaveIndex: 1, byteOffset: 4}
+        temperatureges: {slaveIndex: 9, byteOffset: 4}
         imotioncube:
-          slaveIndex: 2
+          slaveIndex: 11
           encoder:
             resolution: 17
             minPositionIU: 25190
@@ -66,9 +66,9 @@ march4:
         actuationMode: position
         allowActuation: true
         netNumber: 7
-        temperatureges: {slaveIndex: 9, byteOffset: 4}
+        temperatureges: {slaveIndex: 5, byteOffset: 4}
         imotioncube:
-          slaveIndex: 10
+          slaveIndex: 3
           encoder:
             resolution: 17
             minPositionIU: 19808
@@ -78,22 +78,22 @@ march4:
         actuationMode: position
         allowActuation: true
         netNumber: 4
-        temperatureges: {slaveIndex: 4, byteOffset: 0}
+        temperatureges: {slaveIndex: 13, byteOffset: 0}
         imotioncube:
-          slaveIndex: 3
+          slaveIndex: 12
           encoder:
             resolution: 12
-            minPositionIU: 475
-            maxPositionIU: 885
+            minPositionIU: 810
+            maxPositionIU: 1210
 
     - left_ankle:
         actuationMode: position
         allowActuation: true
         netNumber: 8
-        temperatureges: {slaveIndex: 11, byteOffset: 0}
+        temperatureges: {slaveIndex: 1, byteOffset: 0}
         imotioncube:
-          slaveIndex: 12
+          slaveIndex: 2
           encoder:
             resolution: 12
-            minPositionIU: 925
-            maxPositionIU: 1413
+            minPositionIU: 3641
+            maxPositionIU: 4082
