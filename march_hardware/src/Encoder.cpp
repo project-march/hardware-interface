@@ -81,22 +81,17 @@ bool Encoder::isWithinSoftLimitsIU(int32_t iu) const
 
 bool Encoder::isValidTargetIU(int32_t current_iu, int32_t target_iu) const
 {
-  if (this->isWithinSoftLimitsIU(target_iu))
+  if (target_iu <= this->lower_soft_limit_iu_)
   {
-    return true;
+    return target_iu >= current_iu;
   }
 
-  if (current_iu >= this->upper_soft_limit_iu_)
+  if (target_iu >= this->upper_soft_limit_iu_)
   {
-    return (target_iu <= current_iu) && (target_iu > this->lower_soft_limit_iu_);
+    return target_iu <= current_iu;
   }
 
-  if (current_iu <= this->lower_soft_limit_iu_)
-  {
-    return (target_iu >= current_iu) && (target_iu < this->upper_soft_limit_iu_);
-  }
-
-  return false;
+  return true;
 }
 
 void Encoder::setSlaveIndex(int slave_index)
