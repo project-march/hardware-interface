@@ -1,18 +1,30 @@
 // Copyright 2018 Project March.
 #include "march_hardware/Encoder.h"
+#include "march_hardware/error/hardware_exception.h"
 
+#include <cmath>
 #include <tuple>
 
 #include <gtest/gtest.h>
-#include <march_hardware/error/hardware_exception.h>
 
 class TestEncoder : public testing::Test
 {
 protected:
+  const size_t resolution = 17;
+  const size_t total_positions = std::pow(2, resolution) - 1;
   const int32_t lower_limit = 2053;
   const int32_t upper_limit = 45617;
-  march::Encoder encoder =
-      march::Encoder(17, lower_limit, upper_limit, -0.34906585, 1.745329252, -0.296705973, 1.692969374);
+  const double lower_limit_rad = -0.34906585;
+  const double upper_limit_rad = 1.745329252;
+  const int32_t zero_position = lower_limit - lower_limit_rad * total_positions / (2 * M_PI);
+  const double soft_buffer = 0.05;
+  const double lower_soft_limit_rad = lower_limit_rad + soft_buffer;
+  const double upper_soft_limit_rad = upper_limit_rad - soft_buffer;
+  const int32_t lower_soft_limit = lower_soft_limit_rad * total_positions / (2 * M_PI) + zero_position;
+  const int32_t upper_soft_limit = upper_soft_limit_rad * total_positions / (2 * M_PI) + zero_position;
+
+  march::Encoder encoder = march::Encoder(resolution, lower_limit, upper_limit, lower_limit_rad, upper_limit_rad,
+                                          lower_soft_limit_rad, upper_soft_limit_rad);
 };
 
 class TestEncoderParameterizedLimits : public TestEncoder, public testing::WithParamInterface<std::tuple<int32_t, bool>>
@@ -29,54 +41,67 @@ class TestEncoderParameterizedValidTarget : public TestEncoder,
 {
 };
 
-TEST_F(TestEncoder, CorrectLimits)
+TEST_F(TestEncoder, CorrectLowerHardLimits)
 {
   ASSERT_EQ(this->encoder.getLowerHardLimitIU(), this->lower_limit);
+}
+
+TEST_F(TestEncoder, CorrectUpperHardLimit)
+{
   ASSERT_EQ(this->encoder.getUpperHardLimitIU(), this->upper_limit);
 }
 
-TEST_F(TestEncoder, CorrectSoftLimits)
+TEST_F(TestEncoder, CorrectLowerSoftLimits)
 {
-  ASSERT_EQ(this->encoder.getLowerSoftLimitIU(), 3144);
-  ASSERT_EQ(this->encoder.getUpperSoftLimitIU(), 44650);
+  ASSERT_EQ(this->encoder.getLowerSoftLimitIU(), this->lower_soft_limit);
 }
 
-TEST(TestEncoderConstructor, ResolutionBelowRange)
+TEST_F(TestEncoder, CorrectUpperSoftLimits)
 {
-  ASSERT_THROW(march::Encoder(0, 0, 0, 0, 0, 0, 0), march::error::HardwareException);
+  ASSERT_EQ(this->encoder.getUpperSoftLimitIU(), this->upper_soft_limit);
 }
 
-TEST(TestEncoderConstructor, ResolutionAboveRange)
+TEST_F(TestEncoder, ResolutionBelowRange)
 {
-  ASSERT_THROW(march::Encoder(50, 0, 0, 0, 0, 0, 0), march::error::HardwareException);
+  ASSERT_THROW(march::Encoder(0, this->lower_limit, this->upper_limit, this->lower_limit_rad, this->upper_limit_rad,
+                              this->lower_soft_limit_rad, this->upper_soft_limit_rad),
+               march::error::HardwareException);
 }
 
-TEST(TestEncoderConstructor, DifferentIuPerRad)
+TEST_F(TestEncoder, ResolutionAboveRange)
 {
-  ASSERT_THROW(march::Encoder(12, 2, 1, 1.0, 2.0, 1.0, 2.0), march::error::HardwareException);
+  ASSERT_THROW(march::Encoder(50, this->lower_limit, this->upper_limit, this->lower_limit_rad, this->upper_limit_rad,
+                              this->lower_soft_limit_rad, this->upper_soft_limit_rad),
+               march::error::HardwareException);
 }
 
-TEST(TestEncoderConstructor, InvalidSoftLimits)
+TEST_F(TestEncoder, LowerSoftLimitAboveUpperSoftLimit)
 {
-  ASSERT_THROW(march::Encoder(17, 2053, 45617, -0.34906585, 1.745329252, 0.4, 0.1), march::error::HardwareException);
+  ASSERT_THROW(march::Encoder(this->resolution, this->lower_limit, this->upper_limit, this->lower_limit_rad,
+                              this->upper_limit_rad, 0.4, 0.1),
+               march::error::HardwareException);
 }
 
-TEST(TestEncoderConstructor, InvalidLowerSoftLimit)
+TEST_F(TestEncoder, LowerSoftLimitLowerThanLowerHardLimit)
 {
-  ASSERT_THROW(march::Encoder(17, 2053, 45617, -0.34906585, 1.745329252, -0.4, 1), march::error::HardwareException);
+  ASSERT_THROW(march::Encoder(this->resolution, this->lower_limit, this->upper_limit, this->lower_limit_rad,
+                              this->upper_limit_rad, -0.4, 1),
+               march::error::HardwareException);
 }
 
-TEST(TestEncoderConstructor, InvalidUpperSoftLimit)
+TEST_F(TestEncoder, UpperSoftLimitHigherThanUpperHardLimit)
 {
-  ASSERT_THROW(march::Encoder(17, 2053, 45617, -0.34906585, 1.745329252, -0.3, 2.0), march::error::HardwareException);
+  ASSERT_THROW(march::Encoder(this->resolution, this->lower_limit, this->upper_limit, this->lower_limit_rad,
+                              this->upper_limit_rad, -0.3, 2.0),
+               march::error::HardwareException);
 }
 
 INSTANTIATE_TEST_CASE_P(ParameterizedLimits, TestEncoderParameterizedLimits,
-                        testing::Values(std::make_tuple(2052, false), std::make_tuple(2053, false),
-                                        std::make_tuple(2054, true), std::make_tuple(45616, true),
-                                        std::make_tuple(45617, false), std::make_tuple(45618, false),
+                        testing::Values(std::make_tuple(2053 - 1, false), std::make_tuple(2053, false),
+                                        std::make_tuple(2053 + 1, true), std::make_tuple(45617 - 1, true),
+                                        std::make_tuple(45617, false), std::make_tuple(45617 + 1, false),
                                         std::make_tuple(3000, true), std::make_tuple(0, false),
-                                        std::make_tuple(60001, false)));
+                                        std::make_tuple(60001, false), std::make_tuple(-2020, false)));
 
 TEST_P(TestEncoderParameterizedLimits, IsWithinHardLimits)
 {
@@ -86,11 +111,11 @@ TEST_P(TestEncoderParameterizedLimits, IsWithinHardLimits)
 }
 
 INSTANTIATE_TEST_CASE_P(ParameterizedSoftLimits, TestEncoderParameterizedSoftLimits,
-                        testing::Values(std::make_tuple(3143, false), std::make_tuple(3144, false),
-                                        std::make_tuple(3145, true), std::make_tuple(44649, true),
-                                        std::make_tuple(44650, false), std::make_tuple(44651, false),
+                        testing::Values(std::make_tuple(3095 - 1, false), std::make_tuple(3095, false),
+                                        std::make_tuple(3095 + 1, true), std::make_tuple(44699 - 1, true),
+                                        std::make_tuple(44699, false), std::make_tuple(44699 + 1, false),
                                         std::make_tuple(4500, true), std::make_tuple(0, false),
-                                        std::make_tuple(60001, false)));
+                                        std::make_tuple(60001, false), std::make_tuple(-101, false)));
 
 TEST_P(TestEncoderParameterizedSoftLimits, IsWithinSoftLimits)
 {
