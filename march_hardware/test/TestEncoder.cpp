@@ -96,6 +96,16 @@ TEST_F(TestEncoder, UpperSoftLimitHigherThanUpperHardLimit)
                march::error::HardwareException);
 }
 
+TEST_F(TestEncoder, ZeroPositionRadToZeroPosition)
+{
+  ASSERT_EQ(this->encoder.fromRad(0.0), this->zero_position);
+}
+
+TEST_F(TestEncoder, ZeroPositionToZeroRadians)
+{
+  ASSERT_DOUBLE_EQ(this->encoder.toRad(this->zero_position), 0.0);
+}
+
 INSTANTIATE_TEST_CASE_P(ParameterizedLimits, TestEncoderParameterizedLimits,
                         testing::Values(std::make_tuple(2053 - 1, false), std::make_tuple(2053, false),
                                         std::make_tuple(2053 + 1, true), std::make_tuple(45617 - 1, true),
