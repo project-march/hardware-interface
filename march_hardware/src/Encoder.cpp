@@ -9,7 +9,7 @@
 
 namespace march
 {
-const double PI_2 = 6.28318530717958647692;
+const double PI_2 = 2 * M_PI;
 
 Encoder::Encoder(size_t number_of_bits, int32_t lower_limit_iu, int32_t upper_limit_iu, double lower_limit_rad,
                  double upper_limit_rad, double lower_soft_limit_rad, double upper_soft_limit_rad)
@@ -127,7 +127,7 @@ size_t Encoder::calculateTotalPositions(size_t number_of_bits)
                                    "Encoder resolution of %d is not within range [%ld, %ld]", number_of_bits,
                                    Encoder::MIN_RESOLUTION, Encoder::MAX_RESOLUTION);
   }
-  return std::pow(2, number_of_bits) - 1;
+  return 1u << number_of_bits;
 }
 
 }  // namespace march
