@@ -78,21 +78,21 @@ TEST_F(TestEncoder, ResolutionAboveRange)
 TEST_F(TestEncoder, LowerSoftLimitAboveUpperSoftLimit)
 {
   ASSERT_THROW(march::Encoder(this->resolution, this->lower_limit, this->upper_limit, this->lower_limit_rad,
-                              this->upper_limit_rad, 0.4, 0.1),
+                              this->upper_limit_rad, this->upper_soft_limit_rad, this->lower_soft_limit_rad),
                march::error::HardwareException);
 }
 
 TEST_F(TestEncoder, LowerSoftLimitLowerThanLowerHardLimit)
 {
   ASSERT_THROW(march::Encoder(this->resolution, this->lower_limit, this->upper_limit, this->lower_limit_rad,
-                              this->upper_limit_rad, -0.4, 1),
+                              this->upper_limit_rad, -0.4, this->upper_soft_limit_rad),
                march::error::HardwareException);
 }
 
 TEST_F(TestEncoder, UpperSoftLimitHigherThanUpperHardLimit)
 {
   ASSERT_THROW(march::Encoder(this->resolution, this->lower_limit, this->upper_limit, this->lower_limit_rad,
-                              this->upper_limit_rad, -0.3, 2.0),
+                              this->upper_limit_rad, this->lower_soft_limit_rad, 2.0),
                march::error::HardwareException);
 }
 
@@ -101,9 +101,23 @@ TEST_F(TestEncoder, ZeroPositionRadToZeroPosition)
   ASSERT_EQ(this->encoder.fromRad(0.0), this->zero_position);
 }
 
+TEST_F(TestEncoder, CorrectFromRad)
+{
+  const double radians = 1.0;
+  const int32_t expected = (radians * this->total_positions / (2 * M_PI)) + this->zero_position;
+  ASSERT_EQ(this->encoder.fromRad(radians), expected);
+}
+
 TEST_F(TestEncoder, ZeroPositionToZeroRadians)
 {
   ASSERT_DOUBLE_EQ(this->encoder.toRad(this->zero_position), 0.0);
+}
+
+TEST_F(TestEncoder, CorrectToRad)
+{
+  const int32_t iu = 1.0;
+  const double expected = (iu - this->zero_position) * 2 * M_PI / this->total_positions;
+  ASSERT_EQ(this->encoder.toRad(iu), expected);
 }
 
 INSTANTIATE_TEST_CASE_P(ParameterizedLimits, TestEncoderParameterizedLimits,
