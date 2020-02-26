@@ -51,7 +51,7 @@ public:
   /** @brief Override comparison operator */
   friend bool operator==(const Encoder& lhs, const Encoder& rhs)
   {
-    return lhs.slave_index_ == rhs.slave_index_ && lhs.total_position_ == rhs.total_position_ &&
+    return lhs.slave_index_ == rhs.slave_index_ && lhs.total_positions_ == rhs.total_positions_ &&
            lhs.upper_soft_limit_iu_ == rhs.upper_soft_limit_iu_ &&
            lhs.lower_soft_limit_iu_ == rhs.lower_soft_limit_iu_ && lhs.upper_limit_iu_ == rhs.upper_limit_iu_ &&
            lhs.lower_limit_iu_ == rhs.lower_limit_iu_ && lhs.zero_position_iu_ == rhs.zero_position_iu_;
@@ -60,7 +60,7 @@ public:
   friend std::ostream& operator<<(std::ostream& os, const Encoder& encoder)
   {
     return os << "slaveIndex: " << encoder.slave_index_ << ", "
-              << "totalPositions: " << encoder.total_position_ << ", "
+              << "totalPositions: " << encoder.total_positions_ << ", "
               << "upperHardLimit: " << encoder.upper_limit_iu_ << ", "
               << "lowerHardLimit: " << encoder.lower_limit_iu_ << ", "
               << "upperSoftLimit: " << encoder.upper_soft_limit_iu_ << ", "
@@ -86,7 +86,7 @@ private:
   static size_t calculateTotalPositions(size_t number_of_bits);
 
   int slave_index_ = -1;
-  size_t total_position_ = 0;
+  size_t total_positions_ = 0;
 
   int32_t zero_position_iu_ = 0;
   int32_t lower_limit_iu_ = 0;

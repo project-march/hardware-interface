@@ -15,9 +15,9 @@ Encoder::Encoder(size_t number_of_bits, int32_t lower_limit_iu, int32_t upper_li
                  double upper_limit_rad, double lower_soft_limit_rad, double upper_soft_limit_rad)
   : lower_limit_iu_(lower_limit_iu), upper_limit_iu_(upper_limit_iu)
 {
-  this->total_position_ = Encoder::calculateTotalPositions(number_of_bits);
+  this->total_positions_ = Encoder::calculateTotalPositions(number_of_bits);
 
-  this->zero_position_iu_ = this->lower_limit_iu_ - lower_limit_rad * this->total_position_ / PI_2;
+  this->zero_position_iu_ = this->lower_limit_iu_ - lower_limit_rad * this->total_positions_ / PI_2;
   this->lower_soft_limit_iu_ = this->fromRad(lower_soft_limit_rad);
   this->upper_soft_limit_iu_ = this->fromRad(upper_soft_limit_rad);
 
@@ -61,12 +61,12 @@ int32_t Encoder::getAngleIU(uint8_t actual_position_byte_offset) const
 
 int32_t Encoder::fromRad(double rad) const
 {
-  return (rad * this->total_position_ / PI_2) + this->zero_position_iu_;
+  return (rad * this->total_positions_ / PI_2) + this->zero_position_iu_;
 }
 
 double Encoder::toRad(int32_t iu) const
 {
-  return (iu - this->zero_position_iu_) * PI_2 / this->total_position_;
+  return (iu - this->zero_position_iu_) * PI_2 / this->total_positions_;
 }
 
 bool Encoder::isWithinHardLimitsIU(int32_t iu) const
