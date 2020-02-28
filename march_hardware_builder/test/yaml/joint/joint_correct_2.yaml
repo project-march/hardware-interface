@@ -7,3 +7,6 @@ imotioncube:
     maxPositionIU: 40000
     zeroPositionIU: 5
     safetyMarginRad: 0.05
+temperatureges:
+  slaveIndex: 10
+  byteOffset: 6

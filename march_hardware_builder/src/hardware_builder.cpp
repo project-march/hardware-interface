@@ -10,7 +10,7 @@
 // clang-format off
 const std::vector<std::string> HardwareBuilder::ENCODER_REQUIRED_KEYS =
     {
-        "resolution", "minPositionIU", "maxPositionIU"
+        "resolution", "minPositionIU", "maxPositionIU", "zeroPositionIU", "safetyMarginRad"
     };
 const std::vector<std::string> HardwareBuilder::IMOTIONCUBE_REQUIRED_KEYS = { "slaveIndex", "encoder" };
 const std::vector<std::string> HardwareBuilder::TEMPERATUREGES_REQUIRED_KEYS = { "slaveIndex", "byteOffset" };
@@ -55,11 +55,11 @@ march::MarchRobot HardwareBuilder::createMarchRobot()
 
   std::vector<march::Joint> joint_list;
 
-  for (const YAML::Node& joint_config : joint_list_config)
+  for (std::size_t i = 0; i < joint_list_config.size(); i++)
   {
+    YAML::Node joint_config = joint_list_config[i];
     std::string joint_name = joint_config.begin()->first.as<std::string>();
-    joint_list.push_back(
-        HardwareBuilder::createJoint(joint_config[joint_name], joint_name, this->urdf_.getJoint(joint_name)));
+    joint_list.push_back(HardwareBuilder::createJoint(joint_config[joint_name], joint_name));
   }
 
   ROS_INFO_STREAM("Robot config:\n" << config);
@@ -67,17 +67,16 @@ march::MarchRobot HardwareBuilder::createMarchRobot()
   if (pdb_config)
   {
     march::PowerDistributionBoard pdb = HardwareBuilder::createPowerDistributionBoard(pdb_config);
-    return { joint_list, this->urdf_, pdb, if_name, cycle_time };
+    return march::MarchRobot(joint_list, this->urdf_, pdb, if_name, cycle_time);
   }
   else
   {
     ROS_INFO("powerDistributionBoard is NOT defined");
-    return { joint_list, this->urdf_, if_name, cycle_time };
+    return march::MarchRobot(joint_list, this->urdf_, if_name, cycle_time);
   }
 }
 
-march::Joint HardwareBuilder::createJoint(const YAML::Node& joint_config, const std::string& joint_name,
-                                          const urdf::JointConstSharedPtr& urdf_joint)
+march::Joint HardwareBuilder::createJoint(const YAML::Node& joint_config, const std::string& joint_name)
 {
   ROS_DEBUG("Starting creation of joint %s", joint_name.c_str());
   HardwareBuilder::validateRequiredKeysExist(joint_config, HardwareBuilder::JOINT_REQUIRED_KEYS, "joint");
@@ -88,7 +87,7 @@ march::Joint HardwareBuilder::createJoint(const YAML::Node& joint_config, const 
     mode = march::ActuationMode(joint_config["actuationMode"].as<std::string>());
   }
 
-  march::IMotionCube imc = HardwareBuilder::createIMotionCube(joint_config["imotioncube"], mode, urdf_joint);
+  march::IMotionCube imc = HardwareBuilder::createIMotionCube(joint_config["imotioncube"], mode);
 
   march::Joint joint(imc);
   joint.setName(joint_name);
@@ -118,41 +117,25 @@ march::Joint HardwareBuilder::createJoint(const YAML::Node& joint_config, const 
   return joint;
 }
 
-march::IMotionCube HardwareBuilder::createIMotionCube(const YAML::Node& imc_config, march::ActuationMode mode,
-                                                      const urdf::JointConstSharedPtr& urdf_joint)
+march::IMotionCube HardwareBuilder::createIMotionCube(const YAML::Node& imc_config, march::ActuationMode mode)
 {
   HardwareBuilder::validateRequiredKeysExist(imc_config, HardwareBuilder::IMOTIONCUBE_REQUIRED_KEYS, "imotioncube");
 
   YAML::Node encoder_config = imc_config["encoder"];
   int slave_index = imc_config["slaveIndex"].as<int>();
-  return { slave_index, HardwareBuilder::createEncoder(encoder_config, urdf_joint), mode };
+  return march::IMotionCube(slave_index, HardwareBuilder::createEncoder(encoder_config), mode);
 }
 
-march::Encoder HardwareBuilder::createEncoder(const YAML::Node& encoder_config,
-                                              const urdf::JointConstSharedPtr& urdf_joint)
+march::Encoder HardwareBuilder::createEncoder(const YAML::Node& encoder_config)
 {
   HardwareBuilder::validateRequiredKeysExist(encoder_config, HardwareBuilder::ENCODER_REQUIRED_KEYS, "encoder");
 
-  auto resolution = encoder_config["resolution"].as<size_t>();
-  auto min_position = encoder_config["minPositionIU"].as<int32_t>();
-  auto max_position = encoder_config["maxPositionIU"].as<int32_t>();
-
-  double soft_lower_limit;
-  double soft_upper_limit;
-  if (urdf_joint->safety)
-  {
-    soft_lower_limit = urdf_joint->safety->soft_lower_limit;
-    soft_upper_limit = urdf_joint->safety->soft_upper_limit;
-  }
-  else
-  {
-    ROS_WARN("URDF joint %s has no defined soft limits, so using hard limits as soft limits", urdf_joint->name.c_str());
-    soft_lower_limit = urdf_joint->limits->lower;
-    soft_upper_limit = urdf_joint->limits->upper;
-  }
-
-  return { resolution,       min_position,    max_position, urdf_joint->limits->lower, urdf_joint->limits->upper,
-           soft_lower_limit, soft_upper_limit };
+  int resolution = encoder_config["resolution"].as<int>();
+  int min_position = encoder_config["minPositionIU"].as<int>();
+  int max_position = encoder_config["maxPositionIU"].as<int>();
+  int zero_position = encoder_config["zeroPositionIU"].as<int>();
+  float safety_margin = encoder_config["safetyMarginRad"].as<float>();
+  return march::Encoder(resolution, min_position, max_position, zero_position, safety_margin);
 }
 
 march::TemperatureGES HardwareBuilder::createTemperatureGES(const YAML::Node& temperature_ges_config)
@@ -162,7 +145,7 @@ march::TemperatureGES HardwareBuilder::createTemperatureGES(const YAML::Node& te
 
   int slave_index = temperature_ges_config["slaveIndex"].as<int>();
   int byte_offset = temperature_ges_config["byteOffset"].as<int>();
-  return { slave_index, byte_offset };
+  return march::TemperatureGES(slave_index, byte_offset);
 }
 
 march::PowerDistributionBoard HardwareBuilder::createPowerDistributionBoard(const YAML::Node& pdb)
@@ -192,7 +175,7 @@ march::PowerDistributionBoard HardwareBuilder::createPowerDistributionBoard(cons
       boot_shutdown_byte_offsets["masterOk"].as<int>(), boot_shutdown_byte_offsets["shutdown"].as<int>(),
       boot_shutdown_byte_offsets["shutdownAllowed"].as<int>());
 
-  return { slave_index, net_monitor_offsets, net_driver_offsets, boot_shutdown_offsets };
+  return march::PowerDistributionBoard(slave_index, net_monitor_offsets, net_driver_offsets, boot_shutdown_offsets);
 }
 
 void HardwareBuilder::validateRequiredKeysExist(const YAML::Node& config, const std::vector<std::string>& key_list,

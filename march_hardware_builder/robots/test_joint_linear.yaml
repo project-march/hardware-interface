@@ -11,3 +11,5 @@ testjoint_linear:
            resolution: 12
            minPositionIU: 240
            maxPositionIU: 445
+           zeroPositionIU: 342
+           safetyMarginRad: 0.005
