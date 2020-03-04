@@ -1,4 +1,4 @@
-#include "march_hardware/EncoderAbsolute.h"
+#include "march_hardware/encoder/EncoderAbsolute.h"
 
 #include <gmock/gmock.h>
 

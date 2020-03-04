@@ -38,15 +38,15 @@ if(CATKIN_ENABLE_TESTING AND ENABLE_COVERAGE_TESTING)
 endif()
 
 add_library(${PROJECT_NAME}
+    include/${PROJECT_NAME}/encoder/Encoder.h
+    include/${PROJECT_NAME}/encoder/EncoderAbsolute.h
+    include/${PROJECT_NAME}/encoder/EncoderIncremental.h
     include/${PROJECT_NAME}/error/error_type.h
     include/${PROJECT_NAME}/error/hardware_exception.h
     include/${PROJECT_NAME}/error/motion_error.h
-    include/${PROJECT_NAME}/Encoder.h
-    include/${PROJECT_NAME}/EncoderAbsolute.h
-    include/${PROJECT_NAME}/EncoderIncremental.h
-    src/Encoder.cpp
-    src/EncoderAbsolute.cpp
-    src/EncoderIncremental.cpp
+    src/encoder/Encoder.cpp
+    src/encoder/EncoderAbsolute.cpp
+    src/encoder/EncoderIncremental.cpp
     src/EtherCAT/EthercatIO.cpp
     src/EtherCAT/EthercatMaster.cpp
     src/EtherCAT/EthercatSDO.cpp
@@ -94,7 +94,6 @@ install(DIRECTORY launch
 if(CATKIN_ENABLE_TESTING)
     catkin_add_gmock(${PROJECT_NAME}_test
         test/TestBootShutdownOffsets.cpp
-        test/TestEncoderAbsolute.cpp
         test/TestHighVoltage.cpp
         test/TestIMotionCube.cpp
         test/TestJoint.cpp
@@ -105,6 +104,7 @@ if(CATKIN_ENABLE_TESTING)
         test/TestPowerDistributionBoard.cpp
         test/TestRunner.cpp
         test/TestTemperatureGES.cpp
+        test/encoder/TestEncoderAbsolute.cpp
         test/error/test_hardware_exception.cpp
         test/error/test_motion_error.cpp
         test/mocks/MockEncoderAbsolute.cpp

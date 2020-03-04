@@ -3,8 +3,8 @@
 #ifndef MARCH_HARDWARE_IMOTIONCUBE_H
 #define MARCH_HARDWARE_IMOTIONCUBE_H
 #include "march_hardware/ActuationMode.h"
-#include "march_hardware/EncoderAbsolute.h"
-#include "march_hardware/EncoderIncremental.h"
+#include "march_hardware/encoder/EncoderAbsolute.h"
+#include "march_hardware/encoder/EncoderIncremental.h"
 #include "march_hardware/EtherCAT/EthercatIO.h"
 #include "march_hardware/IMotionCubeState.h"
 #include "march_hardware/IMotionCubeTargetState.h"

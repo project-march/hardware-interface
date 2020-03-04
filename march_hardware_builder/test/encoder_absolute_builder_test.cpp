@@ -8,7 +8,7 @@
 #include <ros/package.h>
 #include <urdf/model.h>
 
-#include <march_hardware/EncoderAbsolute.h>
+#include <march_hardware/encoder/EncoderAbsolute.h>
 
 class TestEncoderAbsoluteBuilder : public ::testing::Test
 {

@@ -1,5 +1,5 @@
 // Copyright 2019 Project March.
-#include "march_hardware/EncoderIncremental.h"
+#include "march_hardware/encoder/EncoderIncremental.h"
 
 #include <cmath>
 

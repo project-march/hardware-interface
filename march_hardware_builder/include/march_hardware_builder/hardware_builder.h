@@ -10,8 +10,8 @@
 #include <yaml-cpp/yaml.h>
 
 #include <march_hardware/ActuationMode.h>
-#include <march_hardware/EncoderAbsolute.h>
-#include <march_hardware/EncoderIncremental.h>
+#include <march_hardware/encoder/EncoderAbsolute.h>
+#include <march_hardware/encoder/EncoderIncremental.h>
 #include <march_hardware/IMotionCube.h>
 #include <march_hardware/Joint.h>
 #include <march_hardware/MarchRobot.h>

@@ -2,7 +2,7 @@
 
 #ifndef MARCH_HARDWARE_ENCODER_ABSOLUTE_H
 #define MARCH_HARDWARE_ENCODER_ABSOLUTE_H
-#include "march_hardware/Encoder.h"
+#include "march_hardware/encoder/Encoder.h"
 
 #include <ostream>
 

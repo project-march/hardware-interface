@@ -1,5 +1,5 @@
 // Copyright 2019 Project March.
-#include "march_hardware/EncoderAbsolute.h"
+#include "march_hardware/encoder/EncoderAbsolute.h"
 #include "march_hardware/EtherCAT/EthercatIO.h"
 #include "march_hardware/error/hardware_exception.h"
 

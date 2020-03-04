@@ -7,7 +7,7 @@
 #include <gtest/gtest.h>
 #include <ros/package.h>
 
-#include <march_hardware/EncoderIncremental.h>
+#include <march_hardware/encoder/EncoderIncremental.h>
 
 class TestEncoderIncrementalBuilder : public ::testing::Test
 {
