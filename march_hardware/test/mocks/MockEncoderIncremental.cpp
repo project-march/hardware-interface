@@ -1,10 +1,14 @@
-#include "gmock/gmock.h"  // Brings in Google Mock.
 #include "march_hardware/EncoderIncremental.h"
+
+#include <gmock/gmock.h>
 
 class MockEncoderIncremental : public march::EncoderIncremental
 {
 public:
-  MOCK_METHOD0(getAngleDeg, float());
-  MOCK_METHOD0(getAngleRad, float());
-  MOCK_METHOD0(getAngle, float());
+  MockEncoderIncremental() : EncoderIncremental(10)
+  {
+  }
+
+  MOCK_METHOD0(getAngleIU, int32_t());
+  MOCK_METHOD0(getAngleRad, double());
 };

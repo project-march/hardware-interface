@@ -2,37 +2,31 @@
 
 #ifndef MARCH_HARDWARE_ENCODER_INCREMENTAL_H
 #define MARCH_HARDWARE_ENCODER_INCREMENTAL_H
+#include "march_hardware/Encoder.h"
 
 #include <ostream>
-#include "Encoder.h"
 
 namespace march
 {
 class EncoderIncremental : public Encoder
 {
-private:
 public:
-  EncoderIncremental()
-  {
-  }
+  explicit EncoderIncremental(size_t number_of_bits);
 
-  float getAngleRad(uint8_t ActualPositionByteOffset);
+  double getAngleRad(uint8_t byte_offset);
 
-  float IUtoRad(int iu);
-  int RadtoIU(float rad);
-
-  EncoderIncremental(int numberOfBits);
+  double toRad(int32_t iu);
 
   /** @brief Override comparison operator */
   friend bool operator==(const EncoderIncremental& lhs, const EncoderIncremental& rhs)
   {
-    return lhs.slaveIndex == rhs.slaveIndex && lhs.totalPositions == rhs.totalPositions;
+    return lhs.getSlaveIndex() == rhs.getSlaveIndex() && lhs.getTotalPositions() == rhs.getTotalPositions();
   }
   /** @brief Override stream operator for clean printing */
-  friend ::std::ostream& operator<<(std::ostream& os, const EncoderIncremental& encoderIncremental)
+  friend std::ostream& operator<<(std::ostream& os, const EncoderIncremental& encoder)
   {
-    return os << "slaveIndex: " << encoderIncremental.slaveIndex << ", "
-              << "totalPositions: " << encoderIncremental.totalPositions;
+    return os << "slaveIndex: " << encoder.getSlaveIndex() << ", "
+              << "totalPositions: " << encoder.getTotalPositions();
   }
 };
 

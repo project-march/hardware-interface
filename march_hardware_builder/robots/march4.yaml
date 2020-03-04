@@ -3,81 +3,113 @@ march4:
   ecatCycleTime: 4
   joints:
     - right_hip_aa:
-        actuationMode: position
+        actuationMode: torque
         allowActuation: true
         netNumber: 1
         temperatureges: {slaveIndex: 7, byteOffset: 4}
         imotioncube:
-          slaveIndex: 6
-          encoderAbsolute: {resolution: 12, minPositionIU: 3708, maxPositionIU: 4093, zeroPositionIU: 3906, safetyMarginRad: 0.05}
-          encoderIncremental: {resolution: 13}
+          slaveIndex: 8
+          encoderAbsolute:
+            resolution: 12
+            minPositionIU: 3713
+            maxPositionIU: 4091
+          encoderIncremental:
+            resolution: 13
 
     - left_hip_aa:
-        actuationMode: position
+        actuationMode: torque
         allowActuation: true
         netNumber: 5
         temperatureges: {slaveIndex: 7, byteOffset: 0}
         imotioncube:
-          slaveIndex: 8
-          encoderAbsolute: {resolution: 12, minPositionIU: 1035, maxPositionIU: 1438, zeroPositionIU: 1242, safetyMarginRad: 0.05}
-          encoderIncremental: {resolution: 13}
+          slaveIndex: 6
+          encoderAbsolute:
+            resolution: 12
+            minPositionIU: 1030
+            maxPositionIU: 1426
+          encoderIncremental:
+            resolution: 13
 
     - right_hip_fe:
-        actuationMode: position
+        actuationMode: torque
         allowActuation: true
         netNumber: 2
-        temperatureges: {slaveIndex: 1, byteOffset: 0}
-        imotioncube:
-          slaveIndex: 5
-          encoderAbsolute: {resolution: 17, minPositionIU: 2053, maxPositionIU: 45617, zeroPositionIU: 9314, safetyMarginRad: 0.05}
-          encoderIncremental: {resolution: 12}
-
-    - left_hip_fe:
-        actuationMode: position
-        allowActuation: true
-        netNumber: 6
         temperatureges: {slaveIndex: 9, byteOffset: 0}
         imotioncube:
-          slaveIndex: 13
-          encoderAbsolute: {resolution: 17, minPositionIU: -3382, maxPositionIU: 40270, zeroPositionIU: 3893, safetyMarginRad: 0.05}
-          encoderIncremental: {resolution: 12}
+          slaveIndex: 10
+          encoderAbsolute:
+            resolution: 17
+            minPositionIU: 2053
+            maxPositionIU: 45617
+          encoderIncremental:
+            resolution: 12
+
+    - left_hip_fe:
+        actuationMode: torque
+        allowActuation: true
+        netNumber: 6
+        temperatureges: {slaveIndex: 5, byteOffset: 0}
+        imotioncube:
+          slaveIndex: 4
+          encoderAbsolute:
+            resolution: 17
+            minPositionIU: -3382
+            maxPositionIU: 40270
+          encoderIncremental:
+            resolution: 12
 
     - right_knee:
-        actuationMode: position
+        actuationMode: torque
         allowActuation: true
         netNumber: 3
-        temperatureges: {slaveIndex: 1, byteOffset: 4}
-        imotioncube:
-          slaveIndex: 2
-          encoderAbsolute: {resolution: 17, minPositionIU: 25190, maxPositionIU: 68874, zeroPositionIU: 27010, safetyMarginRad: 0.05}
-          encoderIncremental: {resolution: 12}
-
-    - left_knee:
-        actuationMode: position
-        allowActuation: true
-        netNumber: 7
         temperatureges: {slaveIndex: 9, byteOffset: 4}
         imotioncube:
-          slaveIndex: 10
-          encoderAbsolute: {resolution: 17, minPositionIU: 19808, maxPositionIU: 63543, zeroPositionIU: 21755, safetyMarginRad: 0.05}
-          encoderIncremental: {resolution: 12}
+          slaveIndex: 11
+          encoderAbsolute:
+            resolution: 17
+            minPositionIU: 25190
+            maxPositionIU: 68874
+          encoderIncremental:
+            resolution: 12
 
-    - right_ankle:
-        actuationMode: position
+    - left_knee:
+        actuationMode: torque
         allowActuation: true
-        netNumber: 4
-        temperatureges: {slaveIndex: 4, byteOffset: 0}
+        netNumber: 7
+        temperatureges: {slaveIndex: 5, byteOffset: 4}
         imotioncube:
           slaveIndex: 3
-          encoderAbsolute: {resolution: 12, minPositionIU: 449, maxPositionIU: 927, zeroPositionIU: 746, safetyMarginRad: 0}
-          encoderIncremental: {resolution: 13}
+          encoderAbsolute:
+            resolution: 17
+            minPositionIU: 19808
+            maxPositionIU: 63543
+          encoderIncremental:
+            resolution: 12
 
-    - left_ankle:
-        actuationMode: position
+    - right_ankle:
+        actuationMode: torque
         allowActuation: true
-        netNumber: 8
-        temperatureges: {slaveIndex: 11, byteOffset: 0}
+        netNumber: 4
+        temperatureges: {slaveIndex: 13, byteOffset: 0}
         imotioncube:
           slaveIndex: 12
-          encoderAbsolute: {resolution: 12, minPositionIU: 925, maxPositionIU: 1413, zeroPositionIU: 1230, safetyMarginRad: 0}
-          encoderIncremental: {resolution: 13}
+          encoderAbsolute:
+            resolution: 12
+            minPositionIU: 810
+            maxPositionIU: 1210
+          encoderIncremental:
+            resolution: 13
+
+    - left_ankle:
+        actuationMode: torque
+        allowActuation: true
+        netNumber: 8
+        temperatureges: {slaveIndex: 1, byteOffset: 0}
+        imotioncube:
+          slaveIndex: 2
+          encoderAbsolute:
+            resolution: 12
+            minPositionIU: 3641
+            maxPositionIU: 4082
+          encoderIncremental:
+            resolution: 13

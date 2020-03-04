@@ -1,2 +1,10 @@
 actuationMode: position
 allowActuation: false
+imotioncube:
+  slaveIndex: 1
+  encoderAbsolute:
+    resolution: 16
+    minPositionIU: 22134
+    maxPositionIU: 43436
+  encoderIncremental:
+    resolution: 12

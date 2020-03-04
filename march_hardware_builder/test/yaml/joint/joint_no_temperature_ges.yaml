@@ -5,7 +5,5 @@ imotioncube:
     resolution: 20
     minPositionIU: 3
     maxPositionIU: 40000
-    zeroPositionIU: 5
-    safetyMarginRad: 0.05
   encoderIncremental:
     resolution: 12

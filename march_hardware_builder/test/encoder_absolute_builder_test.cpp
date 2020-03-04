@@ -1,88 +1,67 @@
 // Copyright 2019 Project March.
+#include "march_hardware_builder/hardware_builder.h"
+#include "march_hardware_builder/hardware_config_exceptions.h"
+
 #include <string>
+
 #include <gtest/gtest.h>
-#include <ros/ros.h>
-#include <gmock/gmock.h>
 #include <ros/package.h>
-#include <march_hardware_builder/hardware_config_exceptions.h>
-#include <march_hardware_builder/hardware_builder.h>
+#include <urdf/model.h>
 
-using ::testing::AtLeast;
-using ::testing::Return;
+#include <march_hardware/EncoderAbsolute.h>
 
-class EncoderAbsoluteTest : public ::testing::Test
+class TestEncoderAbsoluteBuilder : public ::testing::Test
 {
 protected:
   std::string base_path;
+  urdf::JointSharedPtr joint;
 
   void SetUp() override
   {
-    base_path = ros::package::getPath("march_hardware_builder").append("/test/yaml/encoder");
+    this->base_path = ros::package::getPath("march_hardware_builder").append("/test/yaml/encoder");
+    this->joint = std::make_shared<urdf::Joint>();
+    this->joint->limits = std::make_shared<urdf::JointLimits>();
+    this->joint->safety = std::make_shared<urdf::JointSafety>();
   }
 
-  std::string fullPath(const std::string& relativePath)
+  YAML::Node loadTestYaml(const std::string& relative_path)
   {
-    return this->base_path.append(relativePath);
+    return YAML::LoadFile(this->base_path.append(relative_path));
   }
 };
 
-TEST_F(EncoderAbsoluteTest, ValidEncoderHip)
+TEST_F(TestEncoderAbsoluteBuilder, ValidEncoderHip)
 {
-  std::string fullPath = this->fullPath("/encoder_absolute_correct_1.yaml");
-  YAML::Node encoderAbsoluteConfig = YAML::LoadFile(fullPath);
+  YAML::Node config = this->loadTestYaml("/encoder_absolute_correct.yaml");
+  this->joint->limits->lower = 0.0;
+  this->joint->limits->upper = 2.0;
+  this->joint->safety->soft_lower_limit = 0.1;
+  this->joint->safety->soft_upper_limit = 1.9;
 
-  march::EncoderAbsolute actualEncoderAbsolute = march::EncoderAbsolute(16, 22134, 43436, 24515, 0.05);
-  march::EncoderAbsolute createdEncoderAbsolute = HardwareBuilder::createEncoderAbsolute(encoderAbsoluteConfig);
-  ASSERT_EQ(actualEncoderAbsolute, createdEncoderAbsolute);
+  march::EncoderAbsolute expected =
+      march::EncoderAbsolute(16, 22134, 43436, this->joint->limits->lower, this->joint->limits->upper,
+                             this->joint->safety->soft_lower_limit, this->joint->safety->soft_upper_limit);
+  march::EncoderAbsolute created = HardwareBuilder::createEncoderAbsolute(config, this->joint);
+  ASSERT_EQ(expected, created);
 }
 
-TEST_F(EncoderAbsoluteTest, ValidEncoderAnkle)
+TEST_F(TestEncoderAbsoluteBuilder, NoResolution)
 {
-  std::string fullPath = this->fullPath("/encoder_absolute_correct_2.yaml");
-  YAML::Node encoderAbsoluteConfig = YAML::LoadFile(fullPath);
+  YAML::Node config = this->loadTestYaml("/encoder_absolute_no_resolution.yaml");
 
-  march::EncoderAbsolute actualEncoderAbsolute = march::EncoderAbsolute(12, 1086, 1490, 1301, 0.005);
-
-  march::EncoderAbsolute createdEncoderAbsolute = HardwareBuilder::createEncoderAbsolute(encoderAbsoluteConfig);
-  ASSERT_EQ(actualEncoderAbsolute, createdEncoderAbsolute);
+  ASSERT_THROW(HardwareBuilder::createEncoderAbsolute(config, this->joint), MissingKeyException);
 }
 
-TEST_F(EncoderAbsoluteTest, NoResolution)
+TEST_F(TestEncoderAbsoluteBuilder, NoMinPosition)
 {
-  std::string fullPath = this->fullPath("/encoder_absolute_no_resolution.yaml");
-  YAML::Node encoderAbsoluteConfig = YAML::LoadFile(fullPath);
+  YAML::Node config = this->loadTestYaml("/encoder_absolute_no_min_position.yaml");
 
-  ASSERT_THROW(HardwareBuilder::createEncoderAbsolute(encoderAbsoluteConfig), MissingKeyException);
+  ASSERT_THROW(HardwareBuilder::createEncoderAbsolute(config, this->joint), MissingKeyException);
 }
 
-TEST_F(EncoderAbsoluteTest, NoMinPosition)
+TEST_F(TestEncoderAbsoluteBuilder, NoMaxPosition)
 {
-  std::string fullPath = this->fullPath("/encoder_absolute_no_min_position.yaml");
-  YAML::Node encoderAbsoluteConfig = YAML::LoadFile(fullPath);
+  YAML::Node config = this->loadTestYaml("/encoder_absolute_no_max_position.yaml");
 
-  ASSERT_THROW(HardwareBuilder::createEncoderAbsolute(encoderAbsoluteConfig), MissingKeyException);
-}
-
-TEST_F(EncoderAbsoluteTest, NoMaxPosition)
-{
-  std::string fullPath = this->fullPath("/encoder_absolute_no_max_position.yaml");
-  YAML::Node encoderAbsoluteConfig = YAML::LoadFile(fullPath);
-
-  ASSERT_THROW(HardwareBuilder::createEncoderAbsolute(encoderAbsoluteConfig), MissingKeyException);
-}
-
-TEST_F(EncoderAbsoluteTest, NoZeroPosition)
-{
-  std::string fullPath = this->fullPath("/encoder_absolute_no_zero_position.yaml");
-  YAML::Node encoderAbsoluteConfig = YAML::LoadFile(fullPath);
-
-  ASSERT_THROW(HardwareBuilder::createEncoderAbsolute(encoderAbsoluteConfig), MissingKeyException);
-}
-
-TEST_F(EncoderAbsoluteTest, NoSafetyMargin)
-{
-  std::string fullPath = this->fullPath("/encoder_absolute_no_safety_margin.yaml");
-  YAML::Node encoderAbsoluteConfig = YAML::LoadFile(fullPath);
-
-  ASSERT_THROW(HardwareBuilder::createEncoderAbsolute(encoderAbsoluteConfig), MissingKeyException);
+  ASSERT_THROW(HardwareBuilder::createEncoderAbsolute(config, this->joint), MissingKeyException);
 }

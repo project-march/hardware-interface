@@ -1,8 +1,6 @@
 // Copyright 2019 Project March.
 #ifndef MARCH_HARDWARE_SLAVE_H
 #define MARCH_HARDWARE_SLAVE_H
-
-#include <stdexcept>
 #include <ros/ros.h>
 
 namespace march
@@ -26,7 +24,7 @@ public:
 
   ~Slave() = default;
 
-  virtual void writeInitialSDOs(int ecatCycleTime)
+  virtual void writeInitialSDOs(int /* cycle_time */)
   {
   }
 
