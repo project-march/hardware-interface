@@ -210,7 +210,7 @@ void MarchHardwareInterface::read(const ros::Time& /* time */, const ros::Durati
 
     // Apply exponential smoothing to velocity obtained from encoder with
     // alpha=0.2
-    joint_velocity_[i] = filters::exponentialSmoothing(joint_velocity, joint_velocity_[i], 0.2);
+    joint_velocity_[i] = 0.2 * joint_velocity + 0.8 * joint_velocity_[i];
 
     joint_effort_[i] = joint.getTorque();
 
