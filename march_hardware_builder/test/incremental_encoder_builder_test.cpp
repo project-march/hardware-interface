@@ -7,9 +7,9 @@
 #include <gtest/gtest.h>
 #include <ros/package.h>
 
-#include <march_hardware/encoder/EncoderIncremental.h>
+#include <march_hardware/encoder/IncrementalEncoder.h>
 
-class TestEncoderIncrementalBuilder : public ::testing::Test
+class TestIncrementalEncoderBuilder : public ::testing::Test
 {
 protected:
   std::string base_path;
@@ -25,18 +25,18 @@ protected:
   }
 };
 
-TEST_F(TestEncoderIncrementalBuilder, ValidEncoderIncremental)
+TEST_F(TestIncrementalEncoderBuilder, ValidIncrementalEncoder)
 {
-  YAML::Node config = this->loadTestYaml("/encoder_incremental_correct.yaml");
+  YAML::Node config = this->loadTestYaml("/incremental_encoder_correct.yaml");
 
-  march::EncoderIncremental expected = march::EncoderIncremental(12);
-  march::EncoderIncremental created = HardwareBuilder::createEncoderIncremental(config);
+  march::IncrementalEncoder expected = march::IncrementalEncoder(12);
+  march::IncrementalEncoder created = HardwareBuilder::createIncrementalEncoder(config);
   ASSERT_EQ(expected, created);
 }
 
-TEST_F(TestEncoderIncrementalBuilder, NoResolution)
+TEST_F(TestIncrementalEncoderBuilder, NoResolution)
 {
   YAML::Node config;
 
-  ASSERT_THROW(HardwareBuilder::createEncoderIncremental(config), MissingKeyException);
+  ASSERT_THROW(HardwareBuilder::createIncrementalEncoder(config), MissingKeyException);
 }

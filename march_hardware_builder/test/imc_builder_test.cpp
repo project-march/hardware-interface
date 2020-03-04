@@ -8,8 +8,8 @@
 #include <ros/package.h>
 #include <urdf/model.h>
 
-#include <march_hardware/encoder/EncoderAbsolute.h>
-#include <march_hardware/encoder/EncoderIncremental.h>
+#include <march_hardware/encoder/AbsoluteEncoder.h>
+#include <march_hardware/encoder/IncrementalEncoder.h>
 #include <march_hardware/IMotionCube.h>
 
 class IMotionCubeTest : public ::testing::Test
@@ -42,27 +42,27 @@ TEST_F(IMotionCubeTest, ValidIMotionCubeHip)
 
   march::IMotionCube created = HardwareBuilder::createIMotionCube(config, march::ActuationMode::unknown, this->joint);
 
-  march::EncoderAbsolute encoder_absolute =
-      march::EncoderAbsolute(16, 22134, 43436, this->joint->limits->lower, this->joint->limits->upper,
+  march::AbsoluteEncoder absolute_encoder =
+      march::AbsoluteEncoder(16, 22134, 43436, this->joint->limits->lower, this->joint->limits->upper,
                              this->joint->safety->soft_lower_limit, this->joint->safety->soft_upper_limit);
-  march::EncoderIncremental encoder_incremental = march::EncoderIncremental(12);
+  march::IncrementalEncoder incremental_encoder = march::IncrementalEncoder(12);
   march::IMotionCube expected =
-      march::IMotionCube(2, encoder_absolute, encoder_incremental, march::ActuationMode::unknown);
+      march::IMotionCube(2, absolute_encoder, incremental_encoder, march::ActuationMode::unknown);
 
   ASSERT_EQ(expected, created);
 }
 
-TEST_F(IMotionCubeTest, NoEncoderAbsolute)
+TEST_F(IMotionCubeTest, NoAbsoluteEncoder)
 {
-  YAML::Node iMotionCubeConfig = this->loadTestYaml("/imotioncube_no_encoder_absolute.yaml");
+  YAML::Node iMotionCubeConfig = this->loadTestYaml("/imotioncube_no_absolute_encoder.yaml");
 
   ASSERT_THROW(HardwareBuilder::createIMotionCube(iMotionCubeConfig, march::ActuationMode::unknown, this->joint),
                MissingKeyException);
 }
 
-TEST_F(IMotionCubeTest, NoEncoderIncremental)
+TEST_F(IMotionCubeTest, NoIncrementalEncoder)
 {
-  YAML::Node iMotionCubeConfig = this->loadTestYaml("/imotioncube_no_encoder_incremental.yaml");
+  YAML::Node iMotionCubeConfig = this->loadTestYaml("/imotioncube_no_incremental_encoder.yaml");
 
   ASSERT_THROW(HardwareBuilder::createIMotionCube(iMotionCubeConfig, march::ActuationMode::unknown, this->joint),
                MissingKeyException);

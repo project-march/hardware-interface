@@ -8,14 +8,14 @@
 #include <ros/ros.h>
 
 // clang-format off
-const std::vector<std::string> HardwareBuilder::ENCODER_ABSOLUTE_REQUIRED_KEYS =
+const std::vector<std::string> HardwareBuilder::ABSOLUTE_ENCODER_REQUIRED_KEYS =
     {
         "resolution", "minPositionIU", "maxPositionIU"
     };
-const std::vector<std::string> HardwareBuilder::ENCODER_INCREMENTAL_REQUIRED_KEYS = { "resolution" };
+const std::vector<std::string> HardwareBuilder::INCREMENTAL_ENCODER_REQUIRED_KEYS = { "resolution" };
 const std::vector<std::string> HardwareBuilder::IMOTIONCUBE_REQUIRED_KEYS =
     {
-        "slaveIndex", "encoderIncremental", "encoderAbsolute"
+        "slaveIndex", "incrementalEncoder", "absoluteEncoder"
     };
 const std::vector<std::string> HardwareBuilder::TEMPERATUREGES_REQUIRED_KEYS = { "slaveIndex", "byteOffset" };
 const std::vector<std::string> HardwareBuilder::POWER_DISTRIBUTION_BOARD_REQUIRED_KEYS =
@@ -127,22 +127,22 @@ march::IMotionCube HardwareBuilder::createIMotionCube(const YAML::Node& imc_conf
 {
   HardwareBuilder::validateRequiredKeysExist(imc_config, HardwareBuilder::IMOTIONCUBE_REQUIRED_KEYS, "imotioncube");
 
-  YAML::Node encoder_incremental_config = imc_config["encoderIncremental"];
-  YAML::Node encoder_absolute_config = imc_config["encoderAbsolute"];
+  YAML::Node incremental_encoder_config = imc_config["incrementalEncoder"];
+  YAML::Node absolute_encoder_config = imc_config["absoluteEncoder"];
   int slave_index = imc_config["slaveIndex"].as<int>();
-  return { slave_index, HardwareBuilder::createEncoderAbsolute(encoder_absolute_config, urdf_joint),
-           HardwareBuilder::createEncoderIncremental(encoder_incremental_config), mode };
+  return { slave_index, HardwareBuilder::createAbsoluteEncoder(absolute_encoder_config, urdf_joint),
+           HardwareBuilder::createIncrementalEncoder(incremental_encoder_config), mode };
 }
 
-march::EncoderAbsolute HardwareBuilder::createEncoderAbsolute(const YAML::Node& config,
+march::AbsoluteEncoder HardwareBuilder::createAbsoluteEncoder(const YAML::Node& absolute_encoder_config,
                                                               const urdf::JointConstSharedPtr& urdf_joint)
 {
-  HardwareBuilder::validateRequiredKeysExist(config, HardwareBuilder::ENCODER_ABSOLUTE_REQUIRED_KEYS,
-                                             "encoderAbsolute");
+  HardwareBuilder::validateRequiredKeysExist(absolute_encoder_config, HardwareBuilder::ABSOLUTE_ENCODER_REQUIRED_KEYS,
+                                             "absoluteEncoder");
 
-  auto resolution = config["resolution"].as<size_t>();
-  auto min_position = config["minPositionIU"].as<int32_t>();
-  auto max_position = config["maxPositionIU"].as<int32_t>();
+  auto resolution = absolute_encoder_config["resolution"].as<size_t>();
+  auto min_position = absolute_encoder_config["minPositionIU"].as<int32_t>();
+  auto max_position = absolute_encoder_config["maxPositionIU"].as<int32_t>();
 
   double soft_lower_limit;
   double soft_upper_limit;
@@ -162,13 +162,13 @@ march::EncoderAbsolute HardwareBuilder::createEncoderAbsolute(const YAML::Node& 
            soft_lower_limit, soft_upper_limit };
 }
 
-march::EncoderIncremental HardwareBuilder::createEncoderIncremental(const YAML::Node& config)
+march::IncrementalEncoder HardwareBuilder::createIncrementalEncoder(const YAML::Node& incremental_encoder_config)
 {
-  HardwareBuilder::validateRequiredKeysExist(config, HardwareBuilder::ENCODER_INCREMENTAL_REQUIRED_KEYS,
-                                             "encoderIncremental");
+  HardwareBuilder::validateRequiredKeysExist(incremental_encoder_config,
+                                             HardwareBuilder::INCREMENTAL_ENCODER_REQUIRED_KEYS, "incrementalEncoder");
 
-  auto resolution = config["resolution"].as<size_t>();
-  return march::EncoderIncremental(resolution);
+  auto resolution = incremental_encoder_config["resolution"].as<size_t>();
+  return march::IncrementalEncoder(resolution);
 }
 
 march::TemperatureGES HardwareBuilder::createTemperatureGES(const YAML::Node& temperature_ges_config)

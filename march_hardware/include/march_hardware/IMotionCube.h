@@ -3,8 +3,8 @@
 #ifndef MARCH_HARDWARE_IMOTIONCUBE_H
 #define MARCH_HARDWARE_IMOTIONCUBE_H
 #include "march_hardware/ActuationMode.h"
-#include "march_hardware/encoder/EncoderAbsolute.h"
-#include "march_hardware/encoder/EncoderIncremental.h"
+#include "march_hardware/encoder/AbsoluteEncoder.h"
+#include "march_hardware/encoder/IncrementalEncoder.h"
 #include "march_hardware/EtherCAT/EthercatIO.h"
 #include "march_hardware/IMotionCubeState.h"
 #include "march_hardware/IMotionCubeTargetState.h"
@@ -19,7 +19,7 @@ namespace march
 class IMotionCube : public Slave
 {
 public:
-  IMotionCube(int slave_index, EncoderAbsolute encoder_absolute, EncoderIncremental encoder_incremental,
+  IMotionCube(int slave_index, AbsoluteEncoder absolute_encoder, IncrementalEncoder incremental_encoder,
               ActuationMode actuation_mode);
 
   ~IMotionCube() = default;
@@ -52,15 +52,15 @@ public:
   /** @brief Override comparison operator */
   friend bool operator==(const IMotionCube& lhs, const IMotionCube& rhs)
   {
-    return lhs.slaveIndex == rhs.slaveIndex && lhs.encoder_absolute_ == rhs.encoder_absolute_ &&
-           lhs.encoder_incremental_ == rhs.encoder_incremental_;
+    return lhs.slaveIndex == rhs.slaveIndex && lhs.absolute_encoder_ == rhs.absolute_encoder_ &&
+           lhs.incremental_encoder_ == rhs.incremental_encoder_;
   }
   /** @brief Override stream operator for clean printing */
   friend std::ostream& operator<<(std::ostream& os, const IMotionCube& imc)
   {
     return os << "slaveIndex: " << imc.slaveIndex << ", "
-              << "encoderIncremental: " << imc.encoder_incremental_ << ", "
-              << "encoderAbsolute: " << imc.encoder_absolute_;
+              << "incrementalEncoder: " << imc.incremental_encoder_ << ", "
+              << "absoluteEncoder: " << imc.absolute_encoder_;
   }
 
   constexpr static double MAX_TARGET_DIFFERENCE = 0.393;
@@ -80,8 +80,8 @@ private:
   void mapMosiPDOs();
   void writeInitialSettings(uint8_t cycle_time);
 
-  EncoderAbsolute encoder_absolute_;
-  EncoderIncremental encoder_incremental_;
+  AbsoluteEncoder absolute_encoder_;
+  IncrementalEncoder incremental_encoder_;
   ActuationMode actuation_mode_;
 
   std::unordered_map<IMCObjectName, uint8_t> miso_byte_offsets_;

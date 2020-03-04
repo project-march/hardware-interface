@@ -7,9 +7,9 @@ testjoint_linear:
        allowActuation: true
        imotioncube:
          slaveIndex: 1
-         encoderAbsolute:
+         absoluteEncoder:
            resolution: 12
            minPositionIU: 240
            maxPositionIU: 445
-         encoderIncremental:
+         incrementalEncoder:
            resolution: 13

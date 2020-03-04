@@ -39,14 +39,14 @@ endif()
 
 add_library(${PROJECT_NAME}
     include/${PROJECT_NAME}/encoder/Encoder.h
-    include/${PROJECT_NAME}/encoder/EncoderAbsolute.h
-    include/${PROJECT_NAME}/encoder/EncoderIncremental.h
+    include/${PROJECT_NAME}/encoder/AbsoluteEncoder.h
+    include/${PROJECT_NAME}/encoder/IncrementalEncoder.h
     include/${PROJECT_NAME}/error/error_type.h
     include/${PROJECT_NAME}/error/hardware_exception.h
     include/${PROJECT_NAME}/error/motion_error.h
     src/encoder/Encoder.cpp
-    src/encoder/EncoderAbsolute.cpp
-    src/encoder/EncoderIncremental.cpp
+    src/encoder/AbsoluteEncoder.cpp
+    src/encoder/IncrementalEncoder.cpp
     src/EtherCAT/EthercatIO.cpp
     src/EtherCAT/EthercatMaster.cpp
     src/EtherCAT/EthercatSDO.cpp
@@ -104,11 +104,11 @@ if(CATKIN_ENABLE_TESTING)
         test/TestPowerDistributionBoard.cpp
         test/TestRunner.cpp
         test/TestTemperatureGES.cpp
-        test/encoder/TestEncoderAbsolute.cpp
+        test/encoder/TestAbsoluteEncoder.cpp
         test/error/test_hardware_exception.cpp
         test/error/test_motion_error.cpp
-        test/mocks/MockEncoderAbsolute.cpp
-        test/mocks/MockEncoderIncremental.cpp
+        test/mocks/MockAbsoluteEncoder.cpp
+        test/mocks/MockIncrementalEncoder.cpp
         test/mocks/MockIMotionCube.cpp
         test/mocks/MockJoint.cpp
         test/mocks/MockTemperatureGES.cpp

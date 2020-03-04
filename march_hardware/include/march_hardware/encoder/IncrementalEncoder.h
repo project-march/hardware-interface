@@ -1,34 +1,34 @@
 // Copyright 2019 Project March.
 
-#ifndef MARCH_HARDWARE_ENCODER_INCREMENTAL_H
-#define MARCH_HARDWARE_ENCODER_INCREMENTAL_H
+#ifndef MARCH_HARDWARE_INCREMENTAL_ENCODER_H
+#define MARCH_HARDWARE_INCREMENTAL_ENCODER_H
 #include "march_hardware/encoder/Encoder.h"
 
 #include <ostream>
 
 namespace march
 {
-class EncoderIncremental : public Encoder
+class IncrementalEncoder : public Encoder
 {
 public:
-  explicit EncoderIncremental(size_t number_of_bits);
+  explicit IncrementalEncoder(size_t number_of_bits);
 
   double getAngleRad(uint8_t byte_offset);
 
   double toRad(int32_t iu);
 
   /** @brief Override comparison operator */
-  friend bool operator==(const EncoderIncremental& lhs, const EncoderIncremental& rhs)
+  friend bool operator==(const IncrementalEncoder& lhs, const IncrementalEncoder& rhs)
   {
     return lhs.getSlaveIndex() == rhs.getSlaveIndex() && lhs.getTotalPositions() == rhs.getTotalPositions();
   }
   /** @brief Override stream operator for clean printing */
-  friend std::ostream& operator<<(std::ostream& os, const EncoderIncremental& encoder)
+  friend std::ostream& operator<<(std::ostream& os, const IncrementalEncoder& encoder)
   {
     return os << "slaveIndex: " << encoder.getSlaveIndex() << ", "
               << "totalPositions: " << encoder.getTotalPositions();
   }
 };
-
 }  // namespace march
-#endif  //  MARCH_HARDWARE_ENCODER_INCREMENTAL_H
+
+#endif  // MARCH_HARDWARE_INCREMENTAL_ENCODER_H

@@ -7,11 +7,11 @@ march3:
         allowActuation: true
         imotioncube:
           slaveIndex: 8
-          encoderAbsolute:
+          absoluteEncoder:
             resolution: 16
             minPositionIU: 22134
             maxPositionIU: 43436
-          encoderIncremental:
+          incrementalEncoder:
             resolution: 12
 
     - left_hip:
@@ -19,11 +19,11 @@ march3:
         allowActuation: true
         imotioncube:
           slaveIndex: 3
-          encoderAbsolute:
+          absoluteEncoder:
             resolution: 16
             minPositionIU: 9746
             maxPositionIU: 31557
-          encoderIncremental:
+          incrementalEncoder:
             resolution: 12
 
     - right_knee:
@@ -31,11 +31,11 @@ march3:
         allowActuation: true
         imotioncube:
           slaveIndex: 10
-          encoderAbsolute:
+          absoluteEncoder:
             resolution: 16
             minPositionIU: 18120
             maxPositionIU: 39941
-          encoderIncremental:
+          incrementalEncoder:
             resolution: 12
 
     - left_knee:
@@ -43,11 +43,11 @@ march3:
         allowActuation: true
         imotioncube:
           slaveIndex: 5
-          encoderAbsolute:
+          absoluteEncoder:
             resolution: 16
             minPositionIU: 21924
             maxPositionIU: 43734
-          encoderIncremental:
+          incrementalEncoder:
             resolution: 12
 
     - right_ankle:
@@ -55,11 +55,11 @@ march3:
         allowActuation: true
         imotioncube:
           slaveIndex: 12
-          encoderAbsolute:
+          absoluteEncoder:
             resolution: 12
             minPositionIU: 1086
             maxPositionIU: 1490
-          encoderIncremental:
+          incrementalEncoder:
             resolution: 13
 
     - left_ankle:
@@ -67,9 +67,9 @@ march3:
         allowActuation: true
         imotioncube:
           slaveIndex: 7
-          encoderAbsolute:
+          absoluteEncoder:
             resolution: 12
             minPositionIU: 631
             maxPositionIU: 1022
-          encoderIncremental:
+          incrementalEncoder:
             resolution: 13

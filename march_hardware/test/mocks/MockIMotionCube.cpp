@@ -1,5 +1,5 @@
-#include "MockEncoderAbsolute.cpp"
-#include "MockEncoderIncremental.cpp"
+#include "MockAbsoluteEncoder.cpp"
+#include "MockIncrementalEncoder.cpp"
 
 #include "march_hardware/IMotionCube.h"
 
@@ -8,7 +8,7 @@
 class MockIMotionCube : public march::IMotionCube
 {
 public:
-  MockIMotionCube() : IMotionCube(1, MockEncoderAbsolute(), MockEncoderIncremental(), march::ActuationMode::unknown)
+  MockIMotionCube() : IMotionCube(1, MockAbsoluteEncoder(), MockIncrementalEncoder(), march::ActuationMode::unknown)
   {
   }
   MOCK_METHOD0(getAngle, float());

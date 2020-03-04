@@ -7,9 +7,9 @@ testsetup:
         allowActuation: true
         imotioncube:
           slaveIndex: 1
-          encoderAbsolute:
+          absoluteEncoder:
             resolution: 17
             minPositionIU: 82805
             maxPositionIU: 102499
-          encoderIncremental:
+          incrementalEncoder:
             resolution: 12

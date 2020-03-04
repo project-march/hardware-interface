@@ -1,17 +1,17 @@
 // Copyright 2019 Project March.
 
-#ifndef MARCH_HARDWARE_ENCODER_ABSOLUTE_H
-#define MARCH_HARDWARE_ENCODER_ABSOLUTE_H
+#ifndef MARCH_HARDWARE_ABSOLUTE_ENCODER_H
+#define MARCH_HARDWARE_ABSOLUTE_ENCODER_H
 #include "march_hardware/encoder/Encoder.h"
 
 #include <ostream>
 
 namespace march
 {
-class EncoderAbsolute : public Encoder
+class AbsoluteEncoder : public Encoder
 {
 public:
-  EncoderAbsolute(size_t number_of_bits, int32_t lower_limit_iu, int32_t upper_limit_iu, double lower_limit_rad,
+  AbsoluteEncoder(size_t number_of_bits, int32_t lower_limit_iu, int32_t upper_limit_iu, double lower_limit_rad,
                   double upper_limit_rad, double lower_soft_limit_rad, double upper_soft_limit_rad);
 
   /*
@@ -41,7 +41,7 @@ public:
   int32_t getLowerHardLimitIU() const;
 
   /** @brief Override comparison operator */
-  friend bool operator==(const EncoderAbsolute& lhs, const EncoderAbsolute& rhs)
+  friend bool operator==(const AbsoluteEncoder& lhs, const AbsoluteEncoder& rhs)
   {
     return lhs.getSlaveIndex() == rhs.getSlaveIndex() && lhs.getTotalPositions() == rhs.getTotalPositions() &&
            lhs.upper_soft_limit_iu_ == rhs.upper_soft_limit_iu_ &&
@@ -49,7 +49,7 @@ public:
            lhs.lower_limit_iu_ == rhs.lower_limit_iu_ && lhs.zero_position_iu_ == rhs.zero_position_iu_;
   }
   /** @brief Override stream operator for clean printing */
-  friend std::ostream& operator<<(std::ostream& os, const EncoderAbsolute& encoder)
+  friend std::ostream& operator<<(std::ostream& os, const AbsoluteEncoder& encoder)
   {
     return os << "slaveIndex: " << encoder.getSlaveIndex() << ", "
               << "totalPositions: " << encoder.getTotalPositions() << ", "
@@ -71,4 +71,4 @@ private:
 };
 }  // namespace march
 
-#endif  // MARCH_HARDWARE_ENCODER_ABSOLUTE_H
+#endif  // MARCH_HARDWARE_ABSOLUTE_ENCODER_H

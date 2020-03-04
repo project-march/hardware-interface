@@ -9,11 +9,11 @@ march4:
         temperatureges: {slaveIndex: 7, byteOffset: 4}
         imotioncube:
           slaveIndex: 8
-          encoderAbsolute:
+          absoluteEncoder:
             resolution: 12
             minPositionIU: 3713
             maxPositionIU: 4091
-          encoderIncremental:
+          incrementalEncoder:
             resolution: 13
 
     - left_hip_aa:
@@ -23,11 +23,11 @@ march4:
         temperatureges: {slaveIndex: 7, byteOffset: 0}
         imotioncube:
           slaveIndex: 6
-          encoderAbsolute:
+          absoluteEncoder:
             resolution: 12
             minPositionIU: 1030
             maxPositionIU: 1426
-          encoderIncremental:
+          incrementalEncoder:
             resolution: 13
 
     - right_hip_fe:
@@ -37,11 +37,11 @@ march4:
         temperatureges: {slaveIndex: 9, byteOffset: 0}
         imotioncube:
           slaveIndex: 10
-          encoderAbsolute:
+          absoluteEncoder:
             resolution: 17
             minPositionIU: 2053
             maxPositionIU: 45617
-          encoderIncremental:
+          incrementalEncoder:
             resolution: 12
 
     - left_hip_fe:
@@ -51,11 +51,11 @@ march4:
         temperatureges: {slaveIndex: 5, byteOffset: 0}
         imotioncube:
           slaveIndex: 4
-          encoderAbsolute:
+          absoluteEncoder:
             resolution: 17
             minPositionIU: -3382
             maxPositionIU: 40270
-          encoderIncremental:
+          incrementalEncoder:
             resolution: 12
 
     - right_knee:
@@ -65,11 +65,11 @@ march4:
         temperatureges: {slaveIndex: 9, byteOffset: 4}
         imotioncube:
           slaveIndex: 11
-          encoderAbsolute:
+          absoluteEncoder:
             resolution: 17
             minPositionIU: 25190
             maxPositionIU: 68874
-          encoderIncremental:
+          incrementalEncoder:
             resolution: 12
 
     - left_knee:
@@ -79,11 +79,11 @@ march4:
         temperatureges: {slaveIndex: 5, byteOffset: 4}
         imotioncube:
           slaveIndex: 3
-          encoderAbsolute:
+          absoluteEncoder:
             resolution: 17
             minPositionIU: 19808
             maxPositionIU: 63543
-          encoderIncremental:
+          incrementalEncoder:
             resolution: 12
 
     - right_ankle:
@@ -93,11 +93,11 @@ march4:
         temperatureges: {slaveIndex: 13, byteOffset: 0}
         imotioncube:
           slaveIndex: 12
-          encoderAbsolute:
+          absoluteEncoder:
             resolution: 12
             minPositionIU: 810
             maxPositionIU: 1210
-          encoderIncremental:
+          incrementalEncoder:
             resolution: 13
 
     - left_ankle:
@@ -107,9 +107,9 @@ march4:
         temperatureges: {slaveIndex: 1, byteOffset: 0}
         imotioncube:
           slaveIndex: 2
-          encoderAbsolute:
+          absoluteEncoder:
             resolution: 12
             minPositionIU: 3641
             maxPositionIU: 4082
-          encoderIncremental:
+          incrementalEncoder:
             resolution: 13

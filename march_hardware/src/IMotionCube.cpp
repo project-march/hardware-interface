@@ -13,15 +13,15 @@
 
 namespace march
 {
-IMotionCube::IMotionCube(int slave_index, EncoderAbsolute encoder_absolute, EncoderIncremental encoder_incremental,
+IMotionCube::IMotionCube(int slave_index, AbsoluteEncoder absolute_encoder, IncrementalEncoder incremental_encoder,
                          ActuationMode actuation_mode)
   : Slave(slave_index)
-  , encoder_absolute_(encoder_absolute)
-  , encoder_incremental_(encoder_incremental)
+  , absolute_encoder_(absolute_encoder)
+  , incremental_encoder_(incremental_encoder)
   , actuation_mode_(actuation_mode)
 {
-  this->encoder_absolute_.setSlaveIndex(slave_index);
-  this->encoder_incremental_.setSlaveIndex(slave_index);
+  this->absolute_encoder_.setSlaveIndex(slave_index);
+  this->incremental_encoder_.setSlaveIndex(slave_index);
 }
 
 void IMotionCube::writeInitialSDOs(int cycle_time)
@@ -73,10 +73,10 @@ void IMotionCube::writeInitialSettings(uint8_t cycle_time)
   int mode_of_op = sdo_bit8(slaveIndex, 0x6060, 0, this->actuation_mode_.toModeNumber());
 
   // position limit -- min position
-  int min_pos_lim = sdo_bit32(slaveIndex, 0x607D, 1, this->encoder_absolute_.getLowerSoftLimitIU());
+  int min_pos_lim = sdo_bit32(slaveIndex, 0x607D, 1, this->absolute_encoder_.getLowerSoftLimitIU());
 
   // position limit -- max position
-  int max_pos_lim = sdo_bit32(slaveIndex, 0x607D, 2, this->encoder_absolute_.getUpperSoftLimitIU());
+  int max_pos_lim = sdo_bit32(slaveIndex, 0x607D, 2, this->absolute_encoder_.getUpperSoftLimitIU());
 
   // Quick stop option
   int stop_opt = sdo_bit16(slaveIndex, 0x605A, 0, 6);
@@ -113,16 +113,16 @@ void IMotionCube::actuateRad(double target_rad)
                                    "Target %f exceeds max difference of %f from current %f for slave %d", target_rad,
                                    MAX_TARGET_DIFFERENCE, this->getAngleRadAbsolute(), this->slaveIndex);
   }
-  this->actuateIU(this->encoder_absolute_.fromRad(target_rad));
+  this->actuateIU(this->absolute_encoder_.fromRad(target_rad));
 }
 
 void IMotionCube::actuateIU(int32_t target_iu)
 {
-  if (!this->encoder_absolute_.isValidTargetIU(this->getAngleIUAbsolute(), target_iu))
+  if (!this->absolute_encoder_.isValidTargetIU(this->getAngleIUAbsolute(), target_iu))
   {
     throw error::HardwareException(
         error::ErrorType::INVALID_ACTUATE_POSITION, "Position %i is invalid for slave %d. (%d, %d)", target_iu,
-        this->slaveIndex, this->encoder_absolute_.getLowerSoftLimitIU(), this->encoder_absolute_.getUpperSoftLimitIU());
+        this->slaveIndex, this->absolute_encoder_.getLowerSoftLimitIU(), this->absolute_encoder_.getUpperSoftLimitIU());
   }
 
   bit32 target_position = { .i = target_iu };
@@ -165,12 +165,12 @@ double IMotionCube::getAngleRadAbsolute()
   {
     ROS_WARN_THROTTLE(10, "Invalid use of encoders, you're not in the correct state.");
   }
-  return this->encoder_absolute_.getAngleRad(this->miso_byte_offsets_.at(IMCObjectName::ActualPosition));
+  return this->absolute_encoder_.getAngleRad(this->miso_byte_offsets_.at(IMCObjectName::ActualPosition));
 }
 
 double IMotionCube::getAngleRadIncremental()
 {
-  return this->encoder_incremental_.getAngleRad(this->miso_byte_offsets_[IMCObjectName::MotorPosition]);
+  return this->incremental_encoder_.getAngleRad(this->miso_byte_offsets_[IMCObjectName::MotorPosition]);
 }
 
 int16_t IMotionCube::getTorque()
@@ -182,12 +182,12 @@ int16_t IMotionCube::getTorque()
 
 int32_t IMotionCube::getAngleIUAbsolute()
 {
-  return this->encoder_absolute_.getAngleIU(this->miso_byte_offsets_.at(IMCObjectName::ActualPosition));
+  return this->absolute_encoder_.getAngleIU(this->miso_byte_offsets_.at(IMCObjectName::ActualPosition));
 }
 
 int IMotionCube::getAngleIUIncremental()
 {
-  return this->encoder_incremental_.getAngleIU(this->miso_byte_offsets_[IMCObjectName::MotorPosition]);
+  return this->incremental_encoder_.getAngleIU(this->miso_byte_offsets_[IMCObjectName::MotorPosition]);
 }
 
 uint16_t IMotionCube::getStatusWord()
@@ -271,13 +271,13 @@ void IMotionCube::goToOperationEnabled()
                                    "Encoder of IMotionCube with slave index %d has reset. Read angle %d IU",
                                    this->slaveIndex, angle);
   }
-  else if (!this->encoder_absolute_.isWithinHardLimitsIU(angle))
+  else if (!this->absolute_encoder_.isWithinHardLimitsIU(angle))
   {
     throw error::HardwareException(error::ErrorType::OUTSIDE_HARD_LIMITS,
                                    "Joint with slave index %d is outside hard limits (read value %d IU, limits from %d "
                                    "IU to %d IU)",
-                                   this->slaveIndex, angle, this->encoder_absolute_.getLowerHardLimitIU(),
-                                   this->encoder_absolute_.getUpperHardLimitIU());
+                                   this->slaveIndex, angle, this->absolute_encoder_.getLowerHardLimitIU(),
+                                   this->absolute_encoder_.getUpperHardLimitIU());
   }
 
   if (this->actuation_mode_ == ActuationMode::position)
