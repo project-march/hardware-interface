@@ -38,15 +38,12 @@ if(CATKIN_ENABLE_TESTING AND ENABLE_COVERAGE_TESTING)
 endif()
 
 add_library(${PROJECT_NAME}
-    include/${PROJECT_NAME}/encoder/Encoder.h
     include/${PROJECT_NAME}/encoder/AbsoluteEncoder.h
+    include/${PROJECT_NAME}/encoder/Encoder.h
     include/${PROJECT_NAME}/encoder/IncrementalEncoder.h
     include/${PROJECT_NAME}/error/error_type.h
     include/${PROJECT_NAME}/error/hardware_exception.h
     include/${PROJECT_NAME}/error/motion_error.h
-    src/encoder/Encoder.cpp
-    src/encoder/AbsoluteEncoder.cpp
-    src/encoder/IncrementalEncoder.cpp
     src/EtherCAT/EthercatIO.cpp
     src/EtherCAT/EthercatMaster.cpp
     src/EtherCAT/EthercatSDO.cpp
@@ -59,6 +56,9 @@ add_library(${PROJECT_NAME}
     src/PDOmap.cpp
     src/PowerDistributionBoard.cpp
     src/TemperatureGES.cpp
+    src/encoder/AbsoluteEncoder.cpp
+    src/encoder/Encoder.cpp
+    src/encoder/IncrementalEncoder.cpp
     src/error/error_type.cpp
     src/error/motion_error.cpp
 )
