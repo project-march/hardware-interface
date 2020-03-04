@@ -170,7 +170,7 @@ double IMotionCube::getAngleRadAbsolute()
 
 double IMotionCube::getAngleRadIncremental()
 {
-  return this->incremental_encoder_.getAngleRad(this->miso_byte_offsets_[IMCObjectName::MotorPosition]);
+  return this->incremental_encoder_.getAngleRad(this->miso_byte_offsets_.at(IMCObjectName::MotorPosition));
 }
 
 int16_t IMotionCube::getTorque()
@@ -187,7 +187,7 @@ int32_t IMotionCube::getAngleIUAbsolute()
 
 int IMotionCube::getAngleIUIncremental()
 {
-  return this->incremental_encoder_.getAngleIU(this->miso_byte_offsets_[IMCObjectName::MotorPosition]);
+  return this->incremental_encoder_.getAngleIU(this->miso_byte_offsets_.at(IMCObjectName::MotorPosition));
 }
 
 uint16_t IMotionCube::getStatusWord()
