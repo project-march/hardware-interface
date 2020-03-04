@@ -1,4 +1,4 @@
-// Copyright 2018 Project March.
+// Copyright 2020 Project March.
 #include "march_hardware/encoder/AbsoluteEncoder.h"
 #include "march_hardware/error/hardware_exception.h"
 
@@ -60,20 +60,6 @@ TEST_F(TestAbsoluteEncoder, CorrectLowerSoftLimits)
 TEST_F(TestAbsoluteEncoder, CorrectUpperSoftLimits)
 {
   ASSERT_EQ(this->encoder.getUpperSoftLimitIU(), this->upper_soft_limit);
-}
-
-TEST_F(TestAbsoluteEncoder, ResolutionBelowRange)
-{
-  ASSERT_THROW(march::AbsoluteEncoder(0, this->lower_limit, this->upper_limit, this->lower_limit_rad,
-                                      this->upper_limit_rad, this->lower_soft_limit_rad, this->upper_soft_limit_rad),
-               march::error::HardwareException);
-}
-
-TEST_F(TestAbsoluteEncoder, ResolutionAboveRange)
-{
-  ASSERT_THROW(march::AbsoluteEncoder(50, this->lower_limit, this->upper_limit, this->lower_limit_rad,
-                                      this->upper_limit_rad, this->lower_soft_limit_rad, this->upper_soft_limit_rad),
-               march::error::HardwareException);
 }
 
 TEST_F(TestAbsoluteEncoder, LowerSoftLimitAboveUpperSoftLimit)

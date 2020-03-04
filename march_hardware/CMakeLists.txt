@@ -105,6 +105,8 @@ if(CATKIN_ENABLE_TESTING)
         test/TestRunner.cpp
         test/TestTemperatureGES.cpp
         test/encoder/TestAbsoluteEncoder.cpp
+        test/encoder/TestIncrementalEncoder.cpp
+        test/encoder/TestEncoder.cpp
         test/error/test_hardware_exception.cpp
         test/error/test_motion_error.cpp
         test/mocks/MockAbsoluteEncoder.cpp
