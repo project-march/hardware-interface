@@ -12,4 +12,9 @@ double IncrementalEncoder::toRad(int32_t iu) const
 {
   return iu * this->transmission_ * PI_2 / this->getTotalPositions();
 }
+
+double IncrementalEncoder::getTransmission() const
+{
+  return this->transmission_;
+}
 }  //  namespace march

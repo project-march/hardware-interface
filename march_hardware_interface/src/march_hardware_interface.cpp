@@ -164,6 +164,7 @@ bool MarchHardwareInterface::init(ros::NodeHandle& nh, ros::NodeHandle& /* robot
 
       // Set the first target as the current position
       joint_position_[i] = joint.getAngleRadAbsolute();
+      relative_joint_position_[i] = joint.getAngleRadMostPrecise();
       joint_velocity_[i] = 0;
       joint_effort_[i] = 0;
 
@@ -194,11 +195,12 @@ void MarchHardwareInterface::read(const ros::Time& /* time */, const ros::Durati
 {
   for (size_t i = 0; i < num_joints_; i++)
   {
-    const double old_position = joint_position_[i];
+    const double old_relative_position = relative_joint_position_[i];
 
     march::Joint joint = march_robot_.getJoint(joint_names_[i]);
 
     joint_position_[i] = joint.getAngleRadAbsolute();
+    relative_joint_position_[i] = joint.getAngleRadMostPrecise();
 
     if (joint.hasTemperatureGES())
     {
@@ -206,7 +208,7 @@ void MarchHardwareInterface::read(const ros::Time& /* time */, const ros::Durati
     }
 
     // Get velocity from encoder position
-    const double joint_velocity = (joint_position_[i] - old_position) / elapsed_time.toSec();
+    const double joint_velocity = (relative_joint_position_[i] - old_relative_position) / elapsed_time.toSec();
 
     // Apply exponential smoothing to velocity obtained from encoder with
     // alpha=0.2

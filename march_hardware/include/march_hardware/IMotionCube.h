@@ -28,6 +28,7 @@ public:
 
   double getAngleRadAbsolute();
   double getAngleRadIncremental();
+  double getAngleRadMostPrecise();
   int16_t getTorque();
   int32_t getAngleIUAbsolute();
   int32_t getAngleIUIncremental();
@@ -84,6 +85,7 @@ private:
   AbsoluteEncoder absolute_encoder_;
   IncrementalEncoder incremental_encoder_;
   ActuationMode actuation_mode_;
+  bool incremental_more_precise_;
 
   std::unordered_map<IMCObjectName, uint8_t> miso_byte_offsets_;
   std::unordered_map<IMCObjectName, uint8_t> mosi_byte_offsets_;
