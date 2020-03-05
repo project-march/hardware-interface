@@ -4,3 +4,4 @@ absoluteEncoder:
   maxPositionIU: 43436
 incrementalEncoder:
   resolution: 12
+  transmission: 75.1

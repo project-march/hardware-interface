@@ -29,14 +29,21 @@ TEST_F(TestIncrementalEncoderBuilder, ValidIncrementalEncoder)
 {
   YAML::Node config = this->loadTestYaml("/incremental_encoder_correct.yaml");
 
-  march::IncrementalEncoder expected = march::IncrementalEncoder(12);
+  march::IncrementalEncoder expected = march::IncrementalEncoder(12, 45.5);
   march::IncrementalEncoder created = HardwareBuilder::createIncrementalEncoder(config);
   ASSERT_EQ(expected, created);
 }
 
 TEST_F(TestIncrementalEncoderBuilder, NoResolution)
 {
-  YAML::Node config;
+  YAML::Node config = this->loadTestYaml("/incremental_encoder_no_resolution.yaml");
+
+  ASSERT_THROW(HardwareBuilder::createIncrementalEncoder(config), MissingKeyException);
+}
+
+TEST_F(TestIncrementalEncoderBuilder, NoTransmission)
+{
+  YAML::Node config = this->loadTestYaml("/incremental_encoder_no_transmission.yaml");
 
   ASSERT_THROW(HardwareBuilder::createIncrementalEncoder(config), MissingKeyException);
 }

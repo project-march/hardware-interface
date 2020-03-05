@@ -13,3 +13,4 @@ testjoint_linear:
            maxPositionIU: 445
          incrementalEncoder:
            resolution: 13
+           transmission: 200

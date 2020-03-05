@@ -45,7 +45,7 @@ TEST_F(JointTest, ValidJointHip)
   march::AbsoluteEncoder absolute_encoder =
       march::AbsoluteEncoder(16, 22134, 43436, this->joint->limits->lower, this->joint->limits->upper,
                              this->joint->safety->soft_lower_limit, this->joint->safety->soft_upper_limit);
-  march::IncrementalEncoder incremental_encoder = march::IncrementalEncoder(12);
+  march::IncrementalEncoder incremental_encoder = march::IncrementalEncoder(12, 50.0);
   march::IMotionCube imc = march::IMotionCube(2, absolute_encoder, incremental_encoder, march::ActuationMode::unknown);
   march::TemperatureGES ges = march::TemperatureGES(1, 2);
   march::Joint expected(imc);
@@ -70,7 +70,7 @@ TEST_F(JointTest, ValidNotActuated)
   march::AbsoluteEncoder absolute_encoder =
       march::AbsoluteEncoder(16, 22134, 43436, this->joint->limits->lower, this->joint->limits->upper,
                              this->joint->safety->soft_lower_limit, this->joint->safety->soft_upper_limit);
-  march::IncrementalEncoder incremental_encoder = march::IncrementalEncoder(12);
+  march::IncrementalEncoder incremental_encoder = march::IncrementalEncoder(12, 50.0);
   march::IMotionCube imc = march::IMotionCube(2, absolute_encoder, incremental_encoder, march::ActuationMode::unknown);
   march::TemperatureGES ges = march::TemperatureGES(1, 2);
   march::Joint expected(imc);
@@ -122,7 +122,7 @@ TEST_F(JointTest, ValidActuationMode)
       1,
       march::AbsoluteEncoder(16, 22134, 43436, this->joint->limits->lower, this->joint->limits->upper,
                              this->joint->safety->soft_lower_limit, this->joint->safety->soft_upper_limit),
-      march::IncrementalEncoder(12), march::ActuationMode::position));
+      march::IncrementalEncoder(12, 50.0), march::ActuationMode::position));
   expected.setName("test_joint_hip");
 
   ASSERT_EQ("test_joint_hip", expected.getName());

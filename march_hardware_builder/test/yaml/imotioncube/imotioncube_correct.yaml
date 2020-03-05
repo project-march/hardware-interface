@@ -7,3 +7,4 @@ absoluteEncoder:
   safetyMarginRad: 0.05
 incrementalEncoder:
   resolution: 12
+  transmission: 101

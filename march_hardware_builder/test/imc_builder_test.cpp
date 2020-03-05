@@ -45,7 +45,7 @@ TEST_F(IMotionCubeTest, ValidIMotionCubeHip)
   march::AbsoluteEncoder absolute_encoder =
       march::AbsoluteEncoder(16, 22134, 43436, this->joint->limits->lower, this->joint->limits->upper,
                              this->joint->safety->soft_lower_limit, this->joint->safety->soft_upper_limit);
-  march::IncrementalEncoder incremental_encoder = march::IncrementalEncoder(12);
+  march::IncrementalEncoder incremental_encoder = march::IncrementalEncoder(12, 101.0);
   march::IMotionCube expected =
       march::IMotionCube(2, absolute_encoder, incremental_encoder, march::ActuationMode::unknown);
 

@@ -15,6 +15,7 @@ march4:
             maxPositionIU: 4091
           incrementalEncoder:
             resolution: 13
+            transmission: 200
 
     - left_hip_aa:
         actuationMode: torque
@@ -29,6 +30,7 @@ march4:
             maxPositionIU: 1426
           incrementalEncoder:
             resolution: 13
+            transmission: 200
 
     - right_hip_fe:
         actuationMode: torque
@@ -43,6 +45,7 @@ march4:
             maxPositionIU: 45617
           incrementalEncoder:
             resolution: 12
+            transmission: 101
 
     - left_hip_fe:
         actuationMode: torque
@@ -57,6 +60,7 @@ march4:
             maxPositionIU: 40270
           incrementalEncoder:
             resolution: 12
+            transmission: 101
 
     - right_knee:
         actuationMode: torque
@@ -71,6 +75,7 @@ march4:
             maxPositionIU: 68874
           incrementalEncoder:
             resolution: 12
+            transmission: 101
 
     - left_knee:
         actuationMode: torque
@@ -85,6 +90,7 @@ march4:
             maxPositionIU: 63543
           incrementalEncoder:
             resolution: 12
+            transmission: 101
 
     - right_ankle:
         actuationMode: torque
@@ -99,6 +105,7 @@ march4:
             maxPositionIU: 1210
           incrementalEncoder:
             resolution: 13
+            transmission: 200
 
     - left_ankle:
         actuationMode: torque
@@ -113,3 +120,4 @@ march4:
             maxPositionIU: 4082
           incrementalEncoder:
             resolution: 13
+            transmission: 200

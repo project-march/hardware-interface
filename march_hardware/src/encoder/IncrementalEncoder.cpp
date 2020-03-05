@@ -5,7 +5,8 @@
 
 namespace march
 {
-IncrementalEncoder::IncrementalEncoder(size_t number_of_bits) : Encoder(number_of_bits)
+IncrementalEncoder::IncrementalEncoder(size_t number_of_bits, double transmission)
+  : Encoder(number_of_bits), transmission_(transmission)
 {
 }
 
@@ -16,6 +17,6 @@ double IncrementalEncoder::getAngleRad(uint8_t byte_offset)
 
 double IncrementalEncoder::toRad(int32_t iu)
 {
-  return iu * 2 * M_PI / Encoder::getTotalPositions();
+  return iu * this->transmission_ * 2 * M_PI / Encoder::getTotalPositions();
 }
 }  //  namespace march

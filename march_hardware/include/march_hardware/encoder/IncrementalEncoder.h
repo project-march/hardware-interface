@@ -11,7 +11,7 @@ namespace march
 class IncrementalEncoder : public Encoder
 {
 public:
-  explicit IncrementalEncoder(size_t number_of_bits);
+  IncrementalEncoder(size_t number_of_bits, double transmission);
 
   double getAngleRad(uint8_t byte_offset);
 
@@ -28,6 +28,9 @@ public:
     return os << "slaveIndex: " << encoder.getSlaveIndex() << ", "
               << "totalPositions: " << encoder.getTotalPositions();
   }
+
+private:
+  const double transmission_;
 };
 }  // namespace march
 

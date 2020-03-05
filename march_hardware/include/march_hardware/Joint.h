@@ -79,7 +79,6 @@ public:
 
   void setName(const std::string& name);
   void setAllowActuation(bool allowActuation);
-  void setIMotionCube(const IMotionCube& iMotionCube);
   void setTemperatureGes(const TemperatureGES& temperatureGes);
   void setNetNumber(int netNumber);
 };

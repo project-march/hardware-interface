@@ -12,7 +12,7 @@ const std::vector<std::string> HardwareBuilder::ABSOLUTE_ENCODER_REQUIRED_KEYS =
     {
         "resolution", "minPositionIU", "maxPositionIU"
     };
-const std::vector<std::string> HardwareBuilder::INCREMENTAL_ENCODER_REQUIRED_KEYS = { "resolution" };
+const std::vector<std::string> HardwareBuilder::INCREMENTAL_ENCODER_REQUIRED_KEYS = { "resolution", "transmission" };
 const std::vector<std::string> HardwareBuilder::IMOTIONCUBE_REQUIRED_KEYS =
     {
         "slaveIndex", "incrementalEncoder", "absoluteEncoder"
@@ -168,7 +168,8 @@ march::IncrementalEncoder HardwareBuilder::createIncrementalEncoder(const YAML::
                                              HardwareBuilder::INCREMENTAL_ENCODER_REQUIRED_KEYS, "incrementalEncoder");
 
   auto resolution = incremental_encoder_config["resolution"].as<size_t>();
-  return march::IncrementalEncoder(resolution);
+  auto transmission = incremental_encoder_config["transmission"].as<double>();
+  return { resolution, transmission };
 }
 
 march::TemperatureGES HardwareBuilder::createTemperatureGES(const YAML::Node& temperature_ges_config)

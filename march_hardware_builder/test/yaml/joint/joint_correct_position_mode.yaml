@@ -8,3 +8,4 @@ imotioncube:
     maxPositionIU: 43436
   incrementalEncoder:
     resolution: 12
+    transmission: 50.0

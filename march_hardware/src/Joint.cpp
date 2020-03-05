@@ -150,10 +150,7 @@ void Joint::setAllowActuation(bool allowActuation)
 {
   Joint::allowActuation = allowActuation;
 }
-void Joint::setIMotionCube(const IMotionCube& iMotionCube)
-{
-  Joint::iMotionCube = iMotionCube;
-}
+
 void Joint::setTemperatureGes(const TemperatureGES& temperatureGes)
 {
   temperatureGES = temperatureGes;

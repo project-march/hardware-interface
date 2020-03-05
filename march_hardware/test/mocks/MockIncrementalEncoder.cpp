@@ -5,7 +5,7 @@
 class MockIncrementalEncoder : public march::IncrementalEncoder
 {
 public:
-  MockIncrementalEncoder() : IncrementalEncoder(10)
+  MockIncrementalEncoder() : IncrementalEncoder(10, 100.0)
   {
   }
 
