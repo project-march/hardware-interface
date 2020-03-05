@@ -14,17 +14,7 @@ public:
   AbsoluteEncoder(size_t number_of_bits, int32_t lower_limit_iu, int32_t upper_limit_iu, double lower_limit_rad,
                   double upper_limit_rad, double lower_soft_limit_rad, double upper_soft_limit_rad);
 
-  /*
-   * Reads out the encoder from the slave and transforms the result to radians.
-   * @param actual_position_byte_offset the byte offset in the slave register for the IU position
-   * @returns The current position of the encoder in radians
-   */
-  double getAngleRad(uint8_t byte_offset) const;
-
-  /*
-   * Converts encoder Internal Units (IU) to radians.
-   */
-  double toRad(int32_t iu) const;
+  double toRad(int32_t iu) const override;
 
   /*
    * Converts radians to encoder Internal Units (IU).

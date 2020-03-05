@@ -1,8 +1,6 @@
 // Copyright 2019 Project March.
 #include "march_hardware/encoder/IncrementalEncoder.h"
 
-#include <cmath>
-
 namespace march
 {
 IncrementalEncoder::IncrementalEncoder(size_t number_of_bits, double transmission)
@@ -10,13 +8,8 @@ IncrementalEncoder::IncrementalEncoder(size_t number_of_bits, double transmissio
 {
 }
 
-double IncrementalEncoder::getAngleRad(uint8_t byte_offset)
+double IncrementalEncoder::toRad(int32_t iu) const
 {
-  return this->toRad(Encoder::getAngleIU(byte_offset));
-}
-
-double IncrementalEncoder::toRad(int32_t iu)
-{
-  return iu * this->transmission_ * 2 * M_PI / Encoder::getTotalPositions();
+  return iu * this->transmission_ * PI_2 / this->getTotalPositions();
 }
 }  //  namespace march

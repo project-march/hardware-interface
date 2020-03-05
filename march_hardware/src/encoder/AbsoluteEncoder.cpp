@@ -1,22 +1,17 @@
 // Copyright 2019 Project March.
 #include "march_hardware/encoder/AbsoluteEncoder.h"
-#include "march_hardware/EtherCAT/EthercatIO.h"
 #include "march_hardware/error/hardware_exception.h"
-
-#include <cmath>
 
 #include <ros/ros.h>
 
 namespace march
 {
-const double PI_2 = 2 * M_PI;
-
 AbsoluteEncoder::AbsoluteEncoder(size_t number_of_bits, int32_t lower_limit_iu, int32_t upper_limit_iu,
                                  double lower_limit_rad, double upper_limit_rad, double lower_soft_limit_rad,
                                  double upper_soft_limit_rad)
   : Encoder(number_of_bits), lower_limit_iu_(lower_limit_iu), upper_limit_iu_(upper_limit_iu)
 {
-  this->zero_position_iu_ = this->lower_limit_iu_ - lower_limit_rad * Encoder::getTotalPositions() / PI_2;
+  this->zero_position_iu_ = this->lower_limit_iu_ - lower_limit_rad * this->getTotalPositions() / PI_2;
   this->lower_soft_limit_iu_ = this->fromRad(lower_soft_limit_rad);
   this->upper_soft_limit_iu_ = this->fromRad(upper_soft_limit_rad);
 
@@ -42,19 +37,14 @@ AbsoluteEncoder::AbsoluteEncoder(size_t number_of_bits, int32_t lower_limit_iu, 
   }
 }
 
-double AbsoluteEncoder::getAngleRad(uint8_t byte_offset) const
+double AbsoluteEncoder::toRad(int32_t iu) const
 {
-  return this->toRad(Encoder::getAngleIU(byte_offset));
+  return (iu - this->zero_position_iu_) * PI_2 / this->getTotalPositions();
 }
 
 int32_t AbsoluteEncoder::fromRad(double rad) const
 {
-  return (rad * Encoder::getTotalPositions() / PI_2) + this->zero_position_iu_;
-}
-
-double AbsoluteEncoder::toRad(int32_t iu) const
-{
-  return (iu - this->zero_position_iu_) * PI_2 / Encoder::getTotalPositions();
+  return (rad * this->getTotalPositions() / PI_2) + this->zero_position_iu_;
 }
 
 bool AbsoluteEncoder::isWithinHardLimitsIU(int32_t iu) const

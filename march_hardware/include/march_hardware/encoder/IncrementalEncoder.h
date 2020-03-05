@@ -13,20 +13,20 @@ class IncrementalEncoder : public Encoder
 public:
   IncrementalEncoder(size_t number_of_bits, double transmission);
 
-  double getAngleRad(uint8_t byte_offset);
-
-  double toRad(int32_t iu);
+  double toRad(int32_t iu) const override;
 
   /** @brief Override comparison operator */
   friend bool operator==(const IncrementalEncoder& lhs, const IncrementalEncoder& rhs)
   {
-    return lhs.getSlaveIndex() == rhs.getSlaveIndex() && lhs.getTotalPositions() == rhs.getTotalPositions();
+    return lhs.getSlaveIndex() == rhs.getSlaveIndex() && lhs.getTotalPositions() == rhs.getTotalPositions() &&
+           lhs.transmission_ == rhs.transmission_;
   }
   /** @brief Override stream operator for clean printing */
   friend std::ostream& operator<<(std::ostream& os, const IncrementalEncoder& encoder)
   {
     return os << "slaveIndex: " << encoder.getSlaveIndex() << ", "
-              << "totalPositions: " << encoder.getTotalPositions();
+              << "totalPositions: " << encoder.getTotalPositions() << ", "
+              << "transmission: " << encoder.transmission_;
   }
 
 private:

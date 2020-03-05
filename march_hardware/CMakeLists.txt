@@ -110,8 +110,9 @@ if(CATKIN_ENABLE_TESTING)
         test/error/test_hardware_exception.cpp
         test/error/test_motion_error.cpp
         test/mocks/MockAbsoluteEncoder.cpp
-        test/mocks/MockIncrementalEncoder.cpp
+        test/mocks/MockEncoder.cpp
         test/mocks/MockIMotionCube.cpp
+        test/mocks/MockIncrementalEncoder.cpp
         test/mocks/MockJoint.cpp
         test/mocks/MockTemperatureGES.cpp
         test/mocks/MockTemperatureSensor.cpp

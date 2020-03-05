@@ -2,7 +2,7 @@
 
 #ifndef MARCH_HARDWARE_ENCODER_H
 #define MARCH_HARDWARE_ENCODER_H
-
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 
@@ -20,6 +20,20 @@ public:
    */
   int32_t getAngleIU(uint8_t byte_offset) const;
 
+  /*
+   * Reads out the encoder from the slave and transforms the result to radians.
+   * @param byte_offset the byte offset in the slave register for the IU position
+   * @returns The current position of the encoder in radians
+   */
+  double getAngleRad(uint8_t byte_offset) const;
+
+  /*
+   * Converts encoder Internal Units (IU) to radians.
+   * This is a pure virtual function and must be implemented by subclasses,
+   * since each type of encoder has a different way of calculating radians.
+   */
+  virtual double toRad(int32_t iu) const = 0;
+
   size_t getTotalPositions() const;
 
   int getSlaveIndex() const;
@@ -27,6 +41,8 @@ public:
 
   static const size_t MIN_RESOLUTION = 1;
   static const size_t MAX_RESOLUTION = 32;
+
+  static constexpr double PI_2 = 2 * M_PI;
 
 private:
   /*
