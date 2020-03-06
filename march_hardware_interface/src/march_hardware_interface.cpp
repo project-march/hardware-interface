@@ -284,6 +284,7 @@ int MarchHardwareInterface::getEthercatCycleTime() const
 void MarchHardwareInterface::reserveMemory()
 {
   joint_position_.resize(num_joints_);
+  relative_joint_position_.resize(num_joints_);
   joint_position_command_.resize(num_joints_);
   joint_velocity_.resize(num_joints_);
   joint_velocity_command_.resize(num_joints_);
