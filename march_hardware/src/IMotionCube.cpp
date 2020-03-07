@@ -25,10 +25,6 @@ IMotionCube::IMotionCube(int slave_index, AbsoluteEncoder absolute_encoder, Incr
   this->incremental_more_precise_ =
       (this->incremental_encoder_.getTotalPositions() * this->incremental_encoder_.getTransmission() >
        this->absolute_encoder_.getTotalPositions() * 10);
-    std::cout << this->incremental_encoder_.getTotalPositions() << "   ";
-    std::cout << this->incremental_encoder_.getTransmission() << "   ";
-    std::cout << this->absolute_encoder_.getTotalPositions() << "   ";
-    std::cout << incremental_more_precise_ << " baaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa \n";
 }
 
 void IMotionCube::writeInitialSDOs(int cycle_time)

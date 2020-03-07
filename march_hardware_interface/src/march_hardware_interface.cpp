@@ -237,7 +237,6 @@ void MarchHardwareInterface::write(const ros::Time& /* time */, const ros::Durat
   // Enforce limits on all joints in effort mode
   effort_joint_soft_limits_interface_.enforceLimits(elapsed_time);
 
-
   // Enforce limits on all joints in position mode
   position_joint_soft_limits_interface_.enforceLimits(elapsed_time);
 
@@ -253,7 +252,7 @@ void MarchHardwareInterface::write(const ros::Time& /* time */, const ros::Durat
       }
       else if (joint.getActuationMode() == march::ActuationMode::torque)
       {
-//        joint.actuateTorque(std::round(joint_effort_command_[i]));
+        //        joint.actuateTorque(std::round(joint_effort_command_[i]));
         joint.actuateRad(0);
       }
     }
