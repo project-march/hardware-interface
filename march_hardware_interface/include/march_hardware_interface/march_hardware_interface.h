@@ -83,7 +83,7 @@ private:
   void iMotionCubeStateCheck(size_t joint_index);
 
   /* Exponential smoothing constant of the velocity */
-  static constexpr double ALPHA = 0.5;
+  static constexpr double ALPHA = 1;
 
   /* March hardware */
   std::unique_ptr<march::MarchRobot> march_robot_;
