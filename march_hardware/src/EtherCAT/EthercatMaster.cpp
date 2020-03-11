@@ -3,6 +3,7 @@
 #include "march_hardware/error/hardware_exception.h"
 
 #include <chrono>
+#include <fstream>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -145,6 +146,8 @@ void EthercatMaster::ethercatLoop()
   size_t not_achieved_count = 0;
   const size_t rate = 1000 / this->cycle_time_ms_;
   const std::chrono::milliseconds cycle_time(this->cycle_time_ms_);
+  std::vector<size_t> durations;
+  durations.reserve(15000);
 
   while (this->is_operational_)
   {
@@ -155,6 +158,7 @@ void EthercatMaster::ethercatLoop()
 
     const auto end_time = std::chrono::high_resolution_clock::now();
     const auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - begin_time);
+    durations.push_back(duration.count());
 
     if (duration > cycle_time)
     {
@@ -177,6 +181,16 @@ void EthercatMaster::ethercatLoop()
       total_loops = 0;
       not_achieved_count = 0;
     }
+  }
+
+  std::ofstream file("ethercat_cycles.txt");
+  if (file.is_open())
+  {
+    for (const size_t& d : durations)
+    {
+      file << d << std::endl;
+    }
+    file.close();
   }
 }
 
