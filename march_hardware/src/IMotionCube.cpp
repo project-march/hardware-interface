@@ -25,6 +25,8 @@ IMotionCube::IMotionCube(int slave_index, AbsoluteEncoder absolute_encoder, Incr
   this->is_incremental_more_precise_ =
       (this->incremental_encoder_.getTotalPositions() * this->incremental_encoder_.getTransmission() >
        this->absolute_encoder_.getTotalPositions() * 10);
+  // Multiply by ten to ensure the rotational joints keep using absolute encoders. These are somehow more accurate
+  // even though they theoretically shouldn't be.
 }
 
 void IMotionCube::writeInitialSDOs(int cycle_time)
