@@ -22,7 +22,7 @@ IMotionCube::IMotionCube(int slave_index, AbsoluteEncoder absolute_encoder, Incr
 {
   this->absolute_encoder_.setSlaveIndex(slave_index);
   this->incremental_encoder_.setSlaveIndex(slave_index);
-  this->incremental_more_precise_ =
+  this->is_incremental_more_precise_ =
       (this->incremental_encoder_.getTotalPositions() * this->incremental_encoder_.getTransmission() >
        this->absolute_encoder_.getTotalPositions() * 10);
 }
@@ -179,7 +179,7 @@ double IMotionCube::getAngleRadIncremental()
 
 double IMotionCube::getAngleRadMostPrecise()
 {
-  if (this->incremental_more_precise_)
+  if (this->is_incremental_more_precise_)
   {
     return this->getAngleRadIncremental();
   }
