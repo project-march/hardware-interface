@@ -146,8 +146,11 @@ void EthercatMaster::ethercatLoop()
   size_t not_achieved_count = 0;
   const size_t rate = 1000 / this->cycle_time_ms_;
   const std::chrono::milliseconds cycle_time(this->cycle_time_ms_);
+  auto last_begin_time = std::chrono::high_resolution_clock::now();
   std::vector<size_t> durations;
+  std::vector<size_t> total_durations;
   durations.reserve(15000);
+  total_durations.reserve(15000);
 
   while (this->is_operational_)
   {
@@ -159,6 +162,9 @@ void EthercatMaster::ethercatLoop()
     const auto end_time = std::chrono::high_resolution_clock::now();
     const auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - begin_time);
     durations.push_back(duration.count());
+    total_durations.push_back(
+        std::chrono::duration_cast<std::chrono::microseconds>(begin_time - last_begin_time).count());
+    last_begin_time = begin_time;
 
     if (duration > cycle_time)
     {
@@ -183,14 +189,23 @@ void EthercatMaster::ethercatLoop()
     }
   }
 
-  std::ofstream file("ethercat_cycles.txt");
-  if (file.is_open())
+  std::ofstream file1("/home/march/ethercat_cycles.txt");
+  if (file1.is_open())
   {
     for (const size_t& d : durations)
     {
-      file << d << std::endl;
+      file1 << d << std::endl;
     }
-    file.close();
+    file1.close();
+  }
+  std::ofstream file2("/home/march/ethercat_cycles_total.txt");
+  if (file2.is_open())
+  {
+    for (const size_t& d : durations)
+    {
+      file2 << d << std::endl;
+    }
+    file2.close();
   }
 }
 
