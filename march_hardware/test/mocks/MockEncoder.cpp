@@ -1,10 +1,13 @@
-#include "gmock/gmock.h"  // Brings in Google Mock.
-#include "march_hardware/Encoder.h"
+#include "march_hardware/encoder/Encoder.h"
+
+#include <gmock/gmock.h>
 
 class MockEncoder : public march::Encoder
 {
 public:
-  MOCK_METHOD0(getAngleDeg, float());
-  MOCK_METHOD0(getAngleRad, float());
-  MOCK_METHOD0(getAngle, float());
+  MockEncoder(size_t number_of_bits) : Encoder(number_of_bits)
+  {
+  }
+
+  MOCK_CONST_METHOD1(toRad, double(int32_t));
 };

@@ -1,10 +1,9 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(march_hardware_interface)
 
-add_compile_options(-std=c++11 -Wall -Wextra)
+add_compile_options(-std=c++14 -Wall -Wextra -Werror)
 
 find_package(catkin REQUIRED COMPONENTS
-    control_toolbox
     controller_manager
     joint_limits_interface
     joint_state_controller
@@ -32,18 +31,20 @@ catkin_package(
     roscpp
     std_msgs
     urdf
-    CFG_EXTRAS
-    ${PROJECT_NAME}-extras.cmake
 )
-
-include(cmake/${PROJECT_NAME}-extras.cmake)
-
-include_directories(include SYSTEM ${catkin_INCLUDE_DIRS})
 
 # needed to circumvent LD_LIBRARY_PATH being emptied through ethercat_grant
 # in addition to not propagating march_hardware_interface RUNPATH to dependencies, in contrast to RPATH
 set(GCC_NEWDTAGS_LINK_FLAGS "-Wl,--disable-new-dtags")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${GCC_NEWDTAGS_LINK_FLAGS}")
+
+if(CATKIN_ENABLE_TESTING AND ENABLE_COVERAGE_TESTING)
+    find_package(code_coverage REQUIRED)
+    # Add compiler flags for coverage instrumentation before defining any targets
+    append_coverage_compiler_flags()
+endif()
+
+include_directories(include SYSTEM ${catkin_INCLUDE_DIRS})
 
 add_executable(${PROJECT_NAME}_node
     src/march_hardware_interface.cpp
@@ -53,6 +54,7 @@ add_executable(${PROJECT_NAME}_node
 add_dependencies(${PROJECT_NAME}_node ${catkin_EXPORTED_TARGETS})
 
 target_link_libraries(${PROJECT_NAME}_node ${catkin_LIBRARIES})
+# From march_hardware/cmake
 ros_enable_rpath(${PROJECT_NAME}_node)
 
 install(DIRECTORY include/${PROJECT_NAME}/
@@ -69,26 +71,17 @@ install(DIRECTORY config launch
 
 ## Add gtest based cpp test target and link libraries
 if(CATKIN_ENABLE_TESTING)
-    find_package(code_coverage REQUIRED)
-    find_package(rostest REQUIRED)
-
-    if(ENABLE_COVERAGE_TESTING)
-        include(CodeCoverage)
-        append_coverage_compiler_flags()
-    endif()
-
-    add_rostest_gtest(${PROJECT_NAME}-test
-        test/${PROJECT_NAME}.test
+    catkin_add_gtest(${PROJECT_NAME}_test
         test/TestRunner.cpp
         test/TestPdbStateInterface.cpp
     )
-    target_link_libraries(${PROJECT_NAME}-test ${catkin_LIBRARIES} gtest gmock)
+    target_link_libraries(${PROJECT_NAME}_test ${catkin_LIBRARIES})
 
     if(ENABLE_COVERAGE_TESTING)
-        set(COVERAGE_EXCLUDES "*/${PROJECT_NAME}/test*")
+        set(COVERAGE_EXCLUDES "*/${PROJECT_NAME}/test/*")
         add_code_coverage(
-            NAME ${PROJECT_NAME}_coverage
-            DEPENDS tests
+            NAME coverage_report
+            DEPENDENCIES ${PROJECT_NAME}_test
         )
     endif()
 endif()

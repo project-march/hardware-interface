@@ -17,7 +17,6 @@
   <depend>joint_state_controller</depend>
   <depend>controller_manager</depend>
   <depend>realtime_tools</depend>
-  <depend>control_toolbox</depend>
   <depend>urdf</depend>
   <depend>march_shared_resources</depend>
   <depend>march_description</depend>
@@ -28,6 +27,6 @@
   <exec_depend>xacro</exec_depend>
   <exec_depend>ethercat_grant</exec_depend>
 
-  <test_depend>rostest</test_depend>
+  <test_depend>rosunit</test_depend>
   <test_depend>code_coverage</test_depend>
 </package>

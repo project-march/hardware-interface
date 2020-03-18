@@ -1,10 +1,14 @@
 <launch>
     <arg name="robot" default="march4" doc="The robot to run. Can be: march3, march4, test_joint_linear, test_joint_rotational."/>
+    <arg name="control_loop_multiplier" default="1"
+         doc="Multiplier for the duration of the control loop cycle time compared
+              to the ethercat cycle time. This must be a positive integer and
+              always assures that the control loop cycle time is a multiple of
+              the ethercat cycle time."/>
 
     <rosparam file="$(find march_hardware_interface)/config/$(arg robot)/controllers.yaml" command="load"/>
 
-    <param name="robot_description"
-           command="$(find xacro)/xacro --inorder '$(find march_description)/urdf/$(arg robot).xacro'" />
+    <param name="robot_description" textfile="$(find march_description)/urdf/$(arg robot).urdf"/>
 
     <group ns="march">
         <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
@@ -21,6 +25,8 @@
                 args="$(arg robot)"
                 output="screen"
                 required="true"
-        />
+        >
+            <param name="control_loop_multiplier" value="$(arg control_loop_multiplier)"/>
+        </node>
     </group>
 </launch>

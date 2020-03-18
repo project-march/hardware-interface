@@ -9,7 +9,7 @@ namespace march_pdb_state_controller
 // TODO(TIM) Remove the callbacks and subscribers when they are not needed anymore
 // These topics make it able to tests write to pdb commands.
 bool MarchPdbStateController::serviceDisableEnableHighVoltage(std_srvs::SetBool::Request& req,
-                                                              std_srvs::SetBool::Response& res)
+                                                              std_srvs::SetBool::Response& /* res */)
 {
   if (pdb_state_.getHighVoltageEnabled() != req.data)
   {
@@ -129,7 +129,6 @@ MarchPdbStateController::createLowVoltageNetsMessage(march::LowVoltage low_volta
 
 void MarchPdbStateController::update(const ros::Time& time, const ros::Duration& /*period*/)
 {
-  ROS_DEBUG_THROTTLE(1, "update MarchPdbStateController");
   // limit rate of publishing
   if (publish_rate_ > 0.0 && last_publish_times_ + ros::Duration(1.0 / publish_rate_) < time)
   {

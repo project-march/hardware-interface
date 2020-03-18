@@ -23,21 +23,23 @@ private:
   TemperatureGES temperatureGES;
 
 public:
-  Joint() : name(""), netNumber(-1), allowActuation(false)
+  explicit Joint(const IMotionCube& imc) : name(""), netNumber(-1), allowActuation(false), iMotionCube(imc)
   {
   }
 
   void initialize(int ecatCycleTime);
   void prepareActuation();
-  // TODO(Martijn) Refactor this to make joint less dependent on knowledge of the IMC
-  void resetIMotionCube();
+  void shutdown();
 
-  void actuateRad(float targetPositionRad);
-  void actuateTorque(int targetTorque);
+  void actuateRad(double targetPositionRad);
+  void actuateTorque(int16_t targetTorque);
 
-  float getAngleRad();
-  float getTorque();
-  int getAngleIU();
+  double getAngleRadAbsolute();
+  double getAngleRadIncremental();
+  double getAngleRadMostPrecise();
+  int16_t getTorque();
+  int32_t getAngleIUAbsolute();
+  int32_t getAngleIUIncremental();
   float getTemperature();
   IMotionCubeState getIMotionCubeState();
 
@@ -50,8 +52,6 @@ public:
   }
 
   ActuationMode getActuationMode() const;
-
-  void setActuationMode(ActuationMode actuationMode);
 
   bool hasIMotionCube();
   bool hasTemperatureGES();
@@ -81,7 +81,6 @@ public:
 
   void setName(const std::string& name);
   void setAllowActuation(bool allowActuation);
-  void setIMotionCube(const IMotionCube& iMotionCube);
   void setTemperatureGes(const TemperatureGES& temperatureGes);
   void setNetNumber(int netNumber);
 };
