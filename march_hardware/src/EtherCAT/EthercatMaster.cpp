@@ -201,7 +201,7 @@ void EthercatMaster::ethercatLoop()
   std::ofstream file2("/home/march/ethercat_cycles_total.txt");
   if (file2.is_open())
   {
-    for (const size_t& d : durations)
+    for (const size_t& d : total_durations)
     {
       file2 << d << std::endl;
     }
