@@ -254,6 +254,15 @@ float IMotionCube::getIMCVoltage()
          static_cast<float>(imc_voltage_iu);  // Conversion to Volt, see Technosoft CoE programming manual
 }
 
+float IMotionCube::getMotorVoltage()
+{
+    uint16_t motor_voltage = 0;
+    int val_size = 16;
+    sdo_bit32_write(slaveIndex, 0x2064, 0, 0x0232);
+    sdo_bit16_read(slaveIndex, 0x2066, 0, val_size, motor_voltage);
+    return motor_voltage;
+}
+
 void IMotionCube::setControlWord(uint16_t control_word)
 {
   bit16 control_word_ui = { .ui = control_word };

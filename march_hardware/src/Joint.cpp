@@ -174,6 +174,7 @@ IMotionCubeState Joint::getIMotionCubeState()
 
   states.motorCurrent = this->imc_->getMotorCurrent();
   states.IMCVoltage = this->imc_->getIMCVoltage();
+  states.motorVoltage = this->imc_->getMotorVoltage();
 
   states.absoluteEncoderValue = this->imc_->getAngleIUAbsolute();
   states.incrementalEncoderValue = this->imc_->getAngleIUIncremental();

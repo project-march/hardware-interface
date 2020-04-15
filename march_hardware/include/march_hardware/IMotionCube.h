@@ -55,6 +55,7 @@ public:
 
   float getMotorCurrent();
   float getIMCVoltage();
+  float getMotorVoltage();
 
   void setControlWord(uint16_t control_word);
 
