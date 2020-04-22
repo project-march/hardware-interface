@@ -271,7 +271,7 @@ float IMotionCube::getMotorVoltage()
   uint16_t motor_voltage = 0;
   int val_size = 16;
   sdo_bit32_write(slaveIndex, 0x2064, 0, 0x0232);
-  sdo_bit16_read(slaveIndex, 0x2066, 0, val_size, motor_voltage);
+  sdo_bit32_read(slaveIndex, 0x2066, 0, val_size, motor_voltage);
   return motor_voltage;
 }
 
