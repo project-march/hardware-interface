@@ -8,9 +8,9 @@
 #include <ros/package.h>
 #include <urdf/model.h>
 
-#include <march_hardware/encoder/AbsoluteEncoder.h>
+#include <march_hardware/encoder/absolute_encoder.h>
 
-class TestAbsoluteEncoderBuilder : public ::testing::Test
+class AbsoluteEncoderBuilderTest : public ::testing::Test
 {
 protected:
   std::string base_path;
@@ -30,7 +30,7 @@ protected:
   }
 };
 
-TEST_F(TestAbsoluteEncoderBuilder, ValidEncoderHip)
+TEST_F(AbsoluteEncoderBuilderTest, ValidEncoderHip)
 {
   YAML::Node config = this->loadTestYaml("/absolute_encoder_correct.yaml");
   this->joint->limits->lower = 0.0;
@@ -41,25 +41,31 @@ TEST_F(TestAbsoluteEncoderBuilder, ValidEncoderHip)
   march::AbsoluteEncoder expected =
       march::AbsoluteEncoder(16, 22134, 43436, this->joint->limits->lower, this->joint->limits->upper,
                              this->joint->safety->soft_lower_limit, this->joint->safety->soft_upper_limit);
-  march::AbsoluteEncoder created = HardwareBuilder::createAbsoluteEncoder(config, this->joint);
-  ASSERT_EQ(expected, created);
+  auto created = HardwareBuilder::createAbsoluteEncoder(config, this->joint);
+  ASSERT_EQ(expected, *created);
 }
 
-TEST_F(TestAbsoluteEncoderBuilder, NoResolution)
+TEST_F(AbsoluteEncoderBuilderTest, NoConfig)
+{
+  YAML::Node config;
+  ASSERT_EQ(nullptr, HardwareBuilder::createAbsoluteEncoder(config[""], this->joint));
+}
+
+TEST_F(AbsoluteEncoderBuilderTest, NoResolution)
 {
   YAML::Node config = this->loadTestYaml("/absolute_encoder_no_resolution.yaml");
 
   ASSERT_THROW(HardwareBuilder::createAbsoluteEncoder(config, this->joint), MissingKeyException);
 }
 
-TEST_F(TestAbsoluteEncoderBuilder, NoMinPosition)
+TEST_F(AbsoluteEncoderBuilderTest, NoMinPosition)
 {
   YAML::Node config = this->loadTestYaml("/absolute_encoder_no_min_position.yaml");
 
   ASSERT_THROW(HardwareBuilder::createAbsoluteEncoder(config, this->joint), MissingKeyException);
 }
 
-TEST_F(TestAbsoluteEncoderBuilder, NoMaxPosition)
+TEST_F(AbsoluteEncoderBuilderTest, NoMaxPosition)
 {
   YAML::Node config = this->loadTestYaml("/absolute_encoder_no_max_position.yaml");
 

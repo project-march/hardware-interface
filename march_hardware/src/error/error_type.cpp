@@ -37,6 +37,20 @@ const char* getErrorDescription(ErrorType type)
       return "The encoder resolution is outside the allowed range";
     case ErrorType::INVALID_RANGE_OF_MOTION:
       return "The lower and upper limits of an encoder are conflicting";
+    case ErrorType::INVALID_SLAVE_CONFIGURATION:
+      return "The slave configuration contains duplicate slave indices";
+    case ErrorType::NOT_ALLOWED_TO_ACTUATE:
+      return "A joint is not allowed to actuate, yet it's trying to actuate";
+    case ErrorType::INVALID_SLAVE_INDEX:
+      return "Slave index has an invalid value";
+    case ErrorType::MISSING_URDF_JOINT:
+      return "Required joint not defined in URDF";
+    case ErrorType::MISSING_REQUIRED_KEY:
+      return "Required robot config key not defined";
+    case ErrorType::INIT_URDF_FAILED:
+      return "Failed to load URDF from parameter server";
+    case ErrorType::INVALID_SW_STRING:
+      return "Slave has incorrect SW file";
     default:
       return "Unknown error occurred. Please create/use a documented error";
   }

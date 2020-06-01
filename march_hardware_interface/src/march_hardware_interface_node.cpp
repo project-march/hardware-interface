@@ -1,11 +1,16 @@
 // Copyright 2019 Project March.
 #include "march_hardware_interface/march_hardware_interface.h"
 
+#include <cstdlib>
+
 #include <controller_manager/controller_manager.h>
 #include <ros/ros.h>
 
+#include <march_hardware/march_robot.h>
 #include <march_hardware/error/hardware_exception.h>
 #include <march_hardware_builder/hardware_builder.h>
+
+std::unique_ptr<march::MarchRobot> build(AllowedRobot robot);
 
 int main(int argc, char** argv)
 {
@@ -21,41 +26,44 @@ int main(int argc, char** argv)
   AllowedRobot selected_robot = AllowedRobot(argv[1]);
   ROS_INFO_STREAM("Selected robot: " << selected_robot);
 
+  bool reset_imc = ros::param::param<bool>("~reset_imc", false);
+
   spinner.start();
 
-  HardwareBuilder builder(selected_robot);
-  MarchHardwareInterface march(builder.createMarchRobot());
+  MarchHardwareInterface march(build(selected_robot), reset_imc);
 
   try
   {
     bool success = march.init(nh, nh);
     if (!success)
     {
-      return 1;
+      std::exit(1);
     }
   }
   catch (const std::exception& e)
   {
     ROS_FATAL("Hardware interface caught an exception during init");
     ROS_FATAL("%s", e.what());
-    return 1;
+    std::exit(1);
   }
 
-  ros::Rate rate(
-      ros::Duration(march.getEthercatCycleTime() * ros::param::param<int>("~control_loop_multiplier", 1) / 1000.0));
-
   controller_manager::ControllerManager controller_manager(&march, nh);
+  ros::Time last_update_time = ros::Time::now();
 
   while (ros::ok())
   {
-    const ros::Time now = ros::Time::now();
     try
     {
-      march.read(now, rate.expectedCycleTime());
+      march.waitForPdo();
+
+      const ros::Time now = ros::Time::now();
+      ros::Duration elapsed_time = now - last_update_time;
+      last_update_time = now;
+
+      march.read(now, elapsed_time);
       march.validate();
-      controller_manager.update(now, rate.expectedCycleTime());
-      march.write(now, rate.expectedCycleTime());
-      rate.sleep();
+      controller_manager.update(now, elapsed_time);
+      march.write(now, elapsed_time);
     }
     catch (const std::exception& e)
     {
@@ -66,4 +74,19 @@ int main(int argc, char** argv)
   }
 
   return 0;
+}
+
+std::unique_ptr<march::MarchRobot> build(AllowedRobot robot)
+{
+  HardwareBuilder builder(robot);
+  try
+  {
+    return builder.createMarchRobot();
+  }
+  catch (const std::exception& e)
+  {
+    ROS_FATAL("Hardware interface caught an exception during building hardware");
+    ROS_FATAL("%s", e.what());
+    std::exit(1);
+  }
 }

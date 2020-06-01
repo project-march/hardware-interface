@@ -8,15 +8,17 @@
 #include <ros/package.h>
 #include <urdf/model.h>
 
-#include <march_hardware/encoder/AbsoluteEncoder.h>
-#include <march_hardware/encoder/IncrementalEncoder.h>
-#include <march_hardware/IMotionCube.h>
+#include <march_hardware/encoder/absolute_encoder.h>
+#include <march_hardware/encoder/incremental_encoder.h>
+#include <march_hardware/imotioncube/imotioncube.h>
 
-class IMotionCubeTest : public ::testing::Test
+class IMotionCubeBuilderTest : public ::testing::Test
 {
 protected:
   std::string base_path;
   urdf::JointSharedPtr joint;
+  march::PdoInterfacePtr pdo_interface;
+  march::SdoInterfacePtr sdo_interface;
 
   void SetUp() override
   {
@@ -24,6 +26,8 @@ protected:
     this->joint = std::make_shared<urdf::Joint>();
     this->joint->limits = std::make_shared<urdf::JointLimits>();
     this->joint->safety = std::make_shared<urdf::JointSafety>();
+    this->pdo_interface = march::PdoInterfaceImpl::create();
+    this->sdo_interface = march::SdoInterfaceImpl::create();
   }
 
   YAML::Node loadTestYaml(const std::string& relative_path)
@@ -32,7 +36,7 @@ protected:
   }
 };
 
-TEST_F(IMotionCubeTest, ValidIMotionCubeHip)
+TEST_F(IMotionCubeBuilderTest, ValidIMotionCubeHip)
 {
   YAML::Node config = this->loadTestYaml("/imotioncube_correct.yaml");
   this->joint->limits->lower = 0.0;
@@ -40,38 +44,56 @@ TEST_F(IMotionCubeTest, ValidIMotionCubeHip)
   this->joint->safety->soft_lower_limit = 0.1;
   this->joint->safety->soft_upper_limit = 1.9;
 
-  march::IMotionCube created = HardwareBuilder::createIMotionCube(config, march::ActuationMode::unknown, this->joint);
+  auto created = HardwareBuilder::createIMotionCube(config, march::ActuationMode::unknown, this->joint,
+                                                    this->pdo_interface, this->sdo_interface);
 
-  march::AbsoluteEncoder absolute_encoder =
-      march::AbsoluteEncoder(16, 22134, 43436, this->joint->limits->lower, this->joint->limits->upper,
-                             this->joint->safety->soft_lower_limit, this->joint->safety->soft_upper_limit);
-  march::IncrementalEncoder incremental_encoder = march::IncrementalEncoder(12, 101.0);
-  march::IMotionCube expected =
-      march::IMotionCube(2, absolute_encoder, incremental_encoder, march::ActuationMode::unknown);
+  auto absolute_encoder = std::make_unique<march::AbsoluteEncoder>(
+      16, 22134, 43436, this->joint->limits->lower, this->joint->limits->upper, this->joint->safety->soft_lower_limit,
+      this->joint->safety->soft_upper_limit);
+  auto incremental_encoder = std::make_unique<march::IncrementalEncoder>(12, 101.0);
+  march::IMotionCube expected(march::Slave(2, this->pdo_interface, this->sdo_interface), std::move(absolute_encoder),
+                              std::move(incremental_encoder), march::ActuationMode::unknown);
 
-  ASSERT_EQ(expected, created);
+  ASSERT_EQ(expected, *created);
 }
 
-TEST_F(IMotionCubeTest, NoAbsoluteEncoder)
+TEST_F(IMotionCubeBuilderTest, NoConfig)
 {
-  YAML::Node iMotionCubeConfig = this->loadTestYaml("/imotioncube_no_absolute_encoder.yaml");
+  YAML::Node config;
+  ASSERT_EQ(nullptr, HardwareBuilder::createIMotionCube(config["imotioncube"], march::ActuationMode::unknown,
+                                                        this->joint, this->pdo_interface, this->sdo_interface));
+}
 
-  ASSERT_THROW(HardwareBuilder::createIMotionCube(iMotionCubeConfig, march::ActuationMode::unknown, this->joint),
+TEST_F(IMotionCubeBuilderTest, NoUrdfJoint)
+{
+  YAML::Node config = this->loadTestYaml("/imotioncube_correct.yaml");
+  ASSERT_EQ(nullptr, HardwareBuilder::createIMotionCube(config, march::ActuationMode::unknown, nullptr,
+                                                        this->pdo_interface, this->sdo_interface));
+}
+
+TEST_F(IMotionCubeBuilderTest, NoAbsoluteEncoder)
+{
+  YAML::Node config = this->loadTestYaml("/imotioncube_no_absolute_encoder.yaml");
+
+  ASSERT_THROW(HardwareBuilder::createIMotionCube(config, march::ActuationMode::unknown, this->joint,
+                                                  this->pdo_interface, this->sdo_interface),
                MissingKeyException);
 }
 
-TEST_F(IMotionCubeTest, NoIncrementalEncoder)
+TEST_F(IMotionCubeBuilderTest, NoIncrementalEncoder)
 {
-  YAML::Node iMotionCubeConfig = this->loadTestYaml("/imotioncube_no_incremental_encoder.yaml");
+  YAML::Node config = this->loadTestYaml("/imotioncube_no_incremental_encoder.yaml");
 
-  ASSERT_THROW(HardwareBuilder::createIMotionCube(iMotionCubeConfig, march::ActuationMode::unknown, this->joint),
+  ASSERT_THROW(HardwareBuilder::createIMotionCube(config, march::ActuationMode::unknown, this->joint,
+                                                  this->pdo_interface, this->sdo_interface),
                MissingKeyException);
 }
 
-TEST_F(IMotionCubeTest, NoSlaveIndex)
+TEST_F(IMotionCubeBuilderTest, NoSlaveIndex)
 {
-  YAML::Node iMotionCubeConfig = this->loadTestYaml("/imotioncube_no_slave_index.yaml");
+  YAML::Node config = this->loadTestYaml("/imotioncube_no_slave_index.yaml");
 
-  ASSERT_THROW(HardwareBuilder::createIMotionCube(iMotionCubeConfig, march::ActuationMode::unknown, this->joint),
+  ASSERT_THROW(HardwareBuilder::createIMotionCube(config, march::ActuationMode::unknown, this->joint,
+                                                  this->pdo_interface, this->sdo_interface),
                MissingKeyException);
 }
