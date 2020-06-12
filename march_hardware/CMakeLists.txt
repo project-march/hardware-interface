@@ -26,7 +26,6 @@ include_directories(
     include
     SYSTEM
     ${catkin_INCLUDE_DIRS}
-    ${soem_INCLUDE_DIRS}/soem
 )
 
 # needed to circumvent LD_LIBRARY_PATH being emptied through ethercat_grant
