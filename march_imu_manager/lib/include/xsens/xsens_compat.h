@@ -309,15 +309,5 @@ XSEXTC int IsBadWritePtr(void *p, size_t size);
 #define vsprintf_s(str, size, format, args) vsprintf(str, format, args)
 #endif
 
-// MRO (10/24/2013): Linux compiler does not support override keyword yet
-// \todo Remove override define when linux compiler supports it
-#ifdef __GNUC__
-#if (__GNUC__ >= 4) && (__GNUC_MINOR__ >= 7)
-	// override keyword supported
-#else
-	#define override
-#endif
-#endif
-
 #endif // __GNUC__
 #endif // __XSENS_LINUX_H

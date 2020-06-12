@@ -30,10 +30,9 @@
 // Adaptation by Leonardo Felipe L. S. dos Santos, 2019 (@qleonardolp) //
 /////////////////////////////////////////////////////////////////////////
 // Further adapted for the March exoskeleton by Project March 2019
+#include "march_imu_manager/wireless_master.h"
 
 #include <ros/ros.h>
-
-#include "march_imu_manager/wireless_master.h"
 
 /*
    | MTw  | desiredUpdateRate (max) |
@@ -54,12 +53,7 @@ int main(int argc, char* argv[])
   ros::init(argc, argv, "march_imu_manager");
   ros::NodeHandle node;
 
-  if (ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug))
-  {
-    ros::console::notifyLoggerLevelsChanged();
-  }
-
-  WirelessMaster wireless_master(&node);
+  WirelessMaster wireless_master(node);
   int error = wireless_master.init();
   if (error)
   {

@@ -1,4 +1,5 @@
 #pragma once
+#include "march_imu_manager/mtw.h"
 
 #include <condition_variable>
 #include <memory>
@@ -6,21 +7,18 @@
 #include <unordered_map>
 
 #include <ros/ros.h>
-
 #include <xsensdeviceapi.h>
 #include <xstypes.h>
 
-#include "march_imu_manager/mtw.h"
-
 /**
  * The wireless master class that connects to MTws and publishes the data on
- * '/march/imu/' ROS topics.
+ * '/march/imu' ROS topic.
  */
 class WirelessMaster : public XsCallback
 {
 public:
-  WirelessMaster(ros::NodeHandle* node);
-  ~WirelessMaster();
+  explicit WirelessMaster(ros::NodeHandle& node);
+  ~WirelessMaster() override;
 
   /**
    * Finds and constructs a wireless master.
@@ -36,7 +34,7 @@ public:
    * @param channel the desired radio channel, defaults to 25.
    * @returns error code, 0 if successfull, -1 otherwise.
    */
-  int configure(const int update_rate, const int channel = 25);
+  int configure(int update_rate, int channel = 25);
 
   /**
    * Waits for the given amount of MTws to connect.
@@ -44,14 +42,14 @@ public:
    *
    * @param connections the amount of connections to wait for, defaults to 1.
    */
-  void waitForConnections(const size_t connections = 1);
+  void waitForConnections(size_t connections = 1);
 
   /**
    * Starts the measurement of the MTw. This is required in order to
    * publish anything in the update loop. Once the measurement is started
    * no MTws will be able to connect.
    *
-   * @returns true if successfull, false otherwise.
+   * @returns true if successful, false otherwise.
    */
   bool startMeasurement();
 
@@ -72,17 +70,17 @@ public:
    * @param supported_update_rates rates that are supported by the master.
    * @param desired_update_rate rate that is desired.
    */
-  static int findClosestUpdateRate(const XsIntArray& supported_update_rates, const int desired_update_rate);
+  static int findClosestUpdateRate(const XsIntArray& supported_update_rates, int desired_update_rate);
 
 protected:
   /**
    * Callback for when new MTws connect or disconnect.
    * Runs in a separate thread.
    */
-  virtual void onConnectivityChanged(XsDevice* dev, XsConnectivityState new_state);
+  void onConnectivityChanged(XsDevice* dev, XsConnectivityState new_state) override;
 
 private:
-  ros::NodeHandle* node_;
+  ros::Publisher imu_pub_;
 
   std::mutex mutex_;
   std::condition_variable cv_;
@@ -91,5 +89,4 @@ private:
   XsDevicePtr master_ = nullptr;
 
   std::unordered_map<uint32_t, std::unique_ptr<Mtw>> connected_mtws_;
-  std::unordered_map<uint32_t, ros::Publisher> publishers_;
 };

@@ -6,9 +6,10 @@
 
 #include <sensor_msgs/Imu.h>
 
-WirelessMaster::WirelessMaster(ros::NodeHandle* node) : node_(node)
+WirelessMaster::WirelessMaster(ros::NodeHandle& node)
 {
   this->control_ = XsControl::construct();
+  this->imu_pub_ = node.advertise<sensor_msgs::Imu>("/march/imu", 10);
 }
 
 WirelessMaster::~WirelessMaster()
@@ -69,7 +70,7 @@ int WirelessMaster::init()
   return 0;
 }
 
-int WirelessMaster::configure(const int update_rate, const int channel)
+int WirelessMaster::configure(int update_rate, int channel)
 {
   if (this->master_ && !this->master_->gotoConfig())
   {
@@ -116,7 +117,7 @@ int WirelessMaster::configure(const int update_rate, const int channel)
   return 0;
 }
 
-void WirelessMaster::waitForConnections(const size_t connections)
+void WirelessMaster::waitForConnections(size_t connections)
 {
   std::unique_lock<std::mutex> lck(this->mutex_);
 
@@ -167,7 +168,7 @@ void WirelessMaster::update()
         imu_msg.orientation.w = packet->orientationQuaternion().w();
         imu_msg.orientation_covariance[0] = -1;
 
-        this->publishers_[mtw.first].publish(imu_msg);
+        this->imu_pub_.publish(imu_msg);
       }
 
       mtw.second->deleteOldestPacket();
@@ -185,48 +186,37 @@ void WirelessMaster::onConnectivityChanged(XsDevice* dev, XsConnectivityState ne
     case XCS_Disconnected:
       ROS_WARN_STREAM("EVENT: MTW Disconnected -> " << device_id_string);
       this->connected_mtws_.erase(device_id);
-      this->publishers_.erase(device_id);
       break;
     case XCS_Rejected:
       ROS_WARN_STREAM("EVENT: MTW Rejected -> " << device_id_string);
       this->connected_mtws_.erase(device_id);
-      this->publishers_.erase(device_id);
       break;
     case XCS_PluggedIn:
       ROS_INFO_STREAM("EVENT: MTW PluggedIn -> " << device_id_string);
       this->connected_mtws_.erase(device_id);
-      this->publishers_.erase(device_id);
       break;
     case XCS_Wireless:
-    {
       ROS_INFO_STREAM("EVENT: MTW Connected -> " << device_id_string);
-      this->connected_mtws_.insert(std::make_pair(device_id, std::unique_ptr<Mtw>(new Mtw(dev))));
-
-      ros::Publisher publisher = this->node_->advertise<sensor_msgs::Imu>("/march/imu", 10);
-      this->publishers_.insert(std::make_pair(device_id, publisher));
+      this->connected_mtws_.insert(std::make_pair(device_id, std::make_unique<Mtw>(dev)));
       break;
-    }
     case XCS_File:
       ROS_INFO_STREAM("EVENT: MTW File -> " << device_id_string);
       this->connected_mtws_.erase(device_id);
-      this->publishers_.erase(device_id);
       break;
     case XCS_Unknown:
       ROS_INFO_STREAM("EVENT: MTW Unkown -> " << device_id_string);
       this->connected_mtws_.erase(device_id);
-      this->publishers_.erase(device_id);
       break;
     default:
       ROS_ERROR_STREAM("EVENT: MTW Error -> " << device_id_string);
       this->connected_mtws_.erase(device_id);
-      this->publishers_.erase(device_id);
       break;
   }
   lck.unlock();
   this->cv_.notify_one();
 }
 
-int WirelessMaster::findClosestUpdateRate(const XsIntArray& supported_update_rates, const int desired_update_rate)
+int WirelessMaster::findClosestUpdateRate(const XsIntArray& supported_update_rates, int desired_update_rate)
 {
   int min_distance = std::numeric_limits<int>::max();
   int closest_update_rate = 0;
