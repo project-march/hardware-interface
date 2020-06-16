@@ -140,7 +140,7 @@ double Joint::getVoltageVelocity() const
   const double velocity_constant = 355;
   const double rpm_to_rad = M_PI / 30;
   const double electric_constant = velocity_constant * rpm_to_rad;
-  return (this->imc_->getMotorVoltage() + this->imc_->getMotorCurrent() * resistance) / electric_constant;
+  return (this->imc_->getMotorVoltage() + this->imc_->getMotorCurrent() * resistance) * electric_constant;
 }
 
 double Joint::getIncrementalPosition() const
