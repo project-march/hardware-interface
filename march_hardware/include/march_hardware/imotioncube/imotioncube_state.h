@@ -130,9 +130,9 @@ public:
   IMCState state;
   std::string detailedErrorDescription;
   std::string motionErrorDescription;
-  float motorCurrent;
+  double motorCurrent;
   float IMCVoltage;
-  float motorVoltage;
+  double motorVoltage;
   int absoluteEncoderValue;
   int incrementalEncoderValue;
   double absoluteVelocity;

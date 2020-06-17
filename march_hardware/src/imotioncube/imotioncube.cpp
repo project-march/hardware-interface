@@ -280,14 +280,14 @@ uint16_t IMotionCube::getDetailedError()
   return this->read16(this->miso_byte_offsets_.at(IMCObjectName::DetailedErrorRegister)).ui;
 }
 
-float IMotionCube::getMotorCurrent()
+double IMotionCube::getMotorCurrent()
 {
   const float PEAK_CURRENT = 40.0;            // Peak current of iMC drive
   const float IU_CONVERSION_CONST = 65520.0;  // Conversion parameter, see Technosoft CoE programming manual
 
   int16_t motor_current_iu = this->read16(this->miso_byte_offsets_.at(IMCObjectName::ActualTorque)).i;
   return (2.0f * PEAK_CURRENT / IU_CONVERSION_CONST) *
-         static_cast<float>(motor_current_iu);  // Conversion to Amp, see Technosoft CoE programming manual
+         static_cast<double>(motor_current_iu);  // Conversion to Amp, see Technosoft CoE programming manual
 }
 
 float IMotionCube::getIMCVoltage()
@@ -302,7 +302,7 @@ float IMotionCube::getIMCVoltage()
          static_cast<float>(imc_voltage_iu);  // Conversion to Volt, see Technosoft CoE programming manual
 }
 
-float IMotionCube::getMotorVoltage()
+double IMotionCube::getMotorVoltage()
 {
   return this->read16(this->miso_byte_offsets_.at(IMCObjectName::MotorVoltage)).i;
 }
