@@ -6,6 +6,4 @@
     local-name: ethercat_grant
     uri: https://github.com/project-march/ethercat_grant
     version: noetic-devel
-- git:
-    local-name: soem
-    uri: https://github.com/mgruhler/soem
+
