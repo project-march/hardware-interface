@@ -18,7 +18,7 @@
 
 namespace march
 {
-class IMotionCube : public Slave
+class IMotionCube : public Slave, public MotorController
 {
 public:
   /**

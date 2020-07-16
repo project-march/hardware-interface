@@ -18,17 +18,17 @@ Joint::Joint(std::string name, int net_number) : name_(std::move(name)), net_num
 {
 }
 
-Joint::Joint(std::string name, int net_number, bool allow_actuation, std::unique_ptr<IMotionCube> imc)
-  : name_(std::move(name)), net_number_(net_number), allow_actuation_(allow_actuation), imc_(std::move(imc))
+Joint::Joint(std::string name, int net_number, bool allow_actuation, std::unique_ptr<MotorController> controller)
+  : name_(std::move(name)), net_number_(net_number), allow_actuation_(allow_actuation), controller_(std::move(controller))
 {
 }
 
-Joint::Joint(std::string name, int net_number, bool allow_actuation, std::unique_ptr<IMotionCube> imc,
+Joint::Joint(std::string name, int net_number, bool allow_actuation, std::unique_ptr<MotorController> controller,
              std::unique_ptr<TemperatureGES> temperature_ges)
   : name_(std::move(name))
   , net_number_(net_number)
   , allow_actuation_(allow_actuation)
-  , imc_(std::move(imc))
+  , controller_(std::move(controller))
   , temperature_ges_(std::move(temperature_ges))
 {
 }
@@ -55,11 +55,11 @@ void Joint::prepareActuation()
                                    this->name_.c_str());
   }
   ROS_INFO("[%s] Preparing for actuation", this->name_.c_str());
-  this->imc_->goToOperationEnabled();
+  this->controller_->goToOperationEnabled();
   ROS_INFO("[%s] Successfully prepared for actuation", this->name_.c_str());
 
-  this->incremental_position_ = this->imc_->getAngleRadIncremental();
-  this->absolute_position_ = this->imc_->getAngleRadAbsolute();
+  this->incremental_position_ = this->controller_->getAngleRadIncremental();
+  this->absolute_position_ = this->controller_->getAngleRadAbsolute();
   this->position_ = this->absolute_position_;
   this->velocity_ = 0;
 }
@@ -83,7 +83,7 @@ void Joint::actuateRad(double target_position)
     throw error::HardwareException(error::ErrorType::NOT_ALLOWED_TO_ACTUATE, "Joint %s is not allowed to actuate",
                                    this->name_.c_str());
   }
-  this->imc_->actuateRad(target_position);
+  this->controller_->actuateRad(target_position);
 }
 
 void Joint::readEncoders(const ros::Duration& elapsed_time)
@@ -96,21 +96,21 @@ void Joint::readEncoders(const ros::Duration& elapsed_time)
 
   if (this->receivedDataUpdate())
   {
-    const double incremental_position_change = this->imc_->getAngleRadIncremental() - this->incremental_position_;
+    const double incremental_position_change = this->controller_->getAngleRadIncremental() - this->incremental_position_;
 
     // Take the velocity and position from the encoder with the highest resolution.
-    if (this->imc_->getIncrementalRadPerBit() < this->imc_->getAbsoluteRadPerBit())
+    if (this->controller_->getIncrementalRadPerBit() < this->controller_->getAbsoluteRadPerBit())
     {
-      this->velocity_ = this->imc_->getVelocityRadIncremental();
+      this->velocity_ = this->controller_->getVelocityRadIncremental();
       this->position_ += incremental_position_change;
     }
     else
     {
-      this->velocity_ = this->imc_->getVelocityRadAbsolute();
-      this->position_ = this->imc_->getAngleRadAbsolute();
+      this->velocity_ = this->controller_->getVelocityRadAbsolute();
+      this->position_ = this->controller_->getAngleRadAbsolute();
     }
     this->incremental_position_ += incremental_position_change;
-    this->absolute_position_ = this->imc_->getAngleRadAbsolute();
+    this->absolute_position_ = this->controller_->getAngleRadAbsolute();
   }
   else
   {
@@ -140,7 +140,7 @@ double Joint::getVoltageVelocity() const
   const double velocity_constant = 355;
   const double rpm_to_rad = M_PI / 30;
   const double electric_constant = velocity_constant * rpm_to_rad;
-  return (this->imc_->getMotorVoltage() + this->imc_->getMotorCurrent() * resistance) / electric_constant;
+  return (this->controller_->getMotorVoltage() + this->controller_->getMotorCurrent() * resistance) / electric_constant;
 }
 
 double Joint::getIncrementalPosition() const
@@ -160,7 +160,7 @@ void Joint::actuateTorque(int16_t target_torque)
     throw error::HardwareException(error::ErrorType::NOT_ALLOWED_TO_ACTUATE, "Joint %s is not allowed to actuate",
                                    this->name_.c_str());
   }
-  this->imc_->actuateTorque(target_torque);
+  this->controller_->actuateTorque(target_torque);
 }
 
 int16_t Joint::getTorque()
@@ -170,7 +170,7 @@ int16_t Joint::getTorque()
     ROS_WARN("[%s] Has no iMotionCube", this->name_.c_str());
     return -1;
   }
-  return this->imc_->getTorque();
+  return this->controller_->getTorque();
 }
 
 int32_t Joint::getAngleIUAbsolute()
