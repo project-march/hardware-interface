@@ -7,6 +7,7 @@
 #include "march_hardware/ethercat/pdo_types.h"
 #include "march_hardware/ethercat/sdo_interface.h"
 #include "march_hardware/ethercat/slave.h"
+#include "motor_controller.h"
 #include "imotioncube_state.h"
 #include "imotioncube_target_state.h"
 #include "march_hardware/encoder/absolute_encoder.h"
@@ -18,7 +19,7 @@
 
 namespace march
 {
-class IMotionCube : public Slave, public MotorController
+class IMotionCube : public MotorController, public Slave
 {
 public:
   /**

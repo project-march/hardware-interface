@@ -54,6 +54,7 @@ add_library(${PROJECT_NAME}
     include/${PROJECT_NAME}/ethercat/sdo_interface.h
     include/${PROJECT_NAME}/ethercat/slave.h
     include/${PROJECT_NAME}/imotioncube/actuation_mode.h
+    include/${PROJECT_NAME}/imotioncube/motor_controller.h
     include/${PROJECT_NAME}/imotioncube/imotioncube.h
     include/${PROJECT_NAME}/imotioncube/imotioncube_state.h
     include/${PROJECT_NAME}/imotioncube/imotioncube_target_state.h

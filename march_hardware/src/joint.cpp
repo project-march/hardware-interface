@@ -36,9 +36,9 @@ Joint::Joint(std::string name, int net_number, bool allow_actuation, std::unique
 bool Joint::initialize(int cycle_time)
 {
   bool reset = false;
-  if (this->hasIMotionCube())
+  if (this->hasMotorController())
   {
-    reset |= this->imc_->Slave::initSdo(cycle_time);
+    reset |= this->controller_->Slave::initSdo(cycle_time);
   }
   if (this->hasTemperatureGES())
   {
@@ -64,15 +64,15 @@ void Joint::prepareActuation()
   this->velocity_ = 0;
 }
 
-void Joint::resetIMotionCube()
+void Joint::resetMotorController()
 {
-  if (!this->hasIMotionCube())
+  if (!this->hasMotorController())
   {
-    ROS_WARN("[%s] Has no iMotionCube", this->name_.c_str());
+    ROS_WARN("[%s] Has no motor controller", this->name_.c_str());
   }
   else
   {
-    this->imc_->Slave::reset();
+    this->controller_->Slave::reset();
   }
 }
 
@@ -88,9 +88,9 @@ void Joint::actuateRad(double target_position)
 
 void Joint::readEncoders(const ros::Duration& elapsed_time)
 {
-  if (!this->hasIMotionCube())
+  if (!this->hasMotorController())
   {
-    ROS_WARN("[%s] Has no iMotionCube", this->name_.c_str());
+    ROS_WARN("[%s] Has no motor controller", this->name_.c_str());
     return;
   }
 
@@ -165,9 +165,9 @@ void Joint::actuateTorque(int16_t target_torque)
 
 int16_t Joint::getTorque()
 {
-  if (!this->hasIMotionCube())
+  if (!this->hasMotorController())
   {
-    ROS_WARN("[%s] Has no iMotionCube", this->name_.c_str());
+    ROS_WARN("[%s] Has no motor controller", this->name_.c_str());
     return -1;
   }
   return this->controller_->getTorque();
@@ -175,42 +175,42 @@ int16_t Joint::getTorque()
 
 int32_t Joint::getAngleIUAbsolute()
 {
-  if (!this->hasIMotionCube())
+  if (!this->hasMotorController())
   {
-    ROS_WARN("[%s] Has no iMotionCube", this->name_.c_str());
+    ROS_WARN("[%s] Has no motor controller", this->name_.c_str());
     return -1;
   }
-  return this->imc_->getAngleIUAbsolute();
+  return this->controller_->getAngleIUAbsolute();
 }
 
 int32_t Joint::getAngleIUIncremental()
 {
-  if (!this->hasIMotionCube())
+  if (!this->hasMotorController())
   {
-    ROS_WARN("[%s] Has no iMotionCube", this->name_.c_str());
+    ROS_WARN("[%s] Has no motor controller", this->name_.c_str());
     return -1;
   }
-  return this->imc_->getAngleIUIncremental();
+  return this->controller_->getAngleIUIncremental();
 }
 
 double Joint::getVelocityIUAbsolute()
 {
-  if (!this->hasIMotionCube())
+  if (!this->hasMotorController())
   {
-    ROS_WARN("[%s] Has no iMotionCube", this->name_.c_str());
+    ROS_WARN("[%s] Has no motor controller", this->name_.c_str());
     return -1;
   }
-  return this->imc_->getVelocityIUAbsolute();
+  return this->controller_->getVelocityIUAbsolute();
 }
 
 double Joint::getVelocityIUIncremental()
 {
-  if (!this->hasIMotionCube())
+  if (!this->hasMotorController())
   {
-    ROS_WARN("[%s] Has no iMotionCube", this->name_.c_str());
+    ROS_WARN("[%s] Has no motor controller", this->name_.c_str());
     return -1;
   }
-  return this->imc_->getVelocityIUIncremental();
+  return this->controller_->getVelocityIUIncremental();
 }
 
 float Joint::getTemperature()
@@ -270,11 +270,11 @@ int Joint::getTemperatureGESSlaveIndex() const
   return -1;
 }
 
-int Joint::getIMotionCubeSlaveIndex() const
+int Joint::getMotorControllerSlaveIndex() const
 {
-  if (this->hasIMotionCube())
+  if (this->hasMotorController())
   {
-    return this->imc_->getSlaveIndex();
+    return this->controller_->getSlaveIndex();
   }
   return -1;
 }
@@ -289,9 +289,9 @@ std::string Joint::getName() const
   return this->name_;
 }
 
-bool Joint::hasIMotionCube() const
+bool Joint::hasMotorController() const
 {
-  return this->imc_ != nullptr;
+  return this->controller_ != nullptr;
 }
 
 bool Joint::hasTemperatureGES() const
@@ -301,12 +301,12 @@ bool Joint::hasTemperatureGES() const
 
 bool Joint::canActuate() const
 {
-  return this->allow_actuation_ && this->hasIMotionCube();
+  return this->allow_actuation_ && this->hasMotorController();
 }
 
 bool Joint::receivedDataUpdate()
 {
-  if (!this->hasIMotionCube())
+  if (!this->hasMotorController())
   {
     return false;
   }

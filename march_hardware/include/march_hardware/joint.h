@@ -26,12 +26,12 @@ public:
   /**
    * Initializes a Joint with motor controller and without temperature slave.
    */
-  Joint(std::string name, int net_number, bool allow_actuation, std::unique_ptr<IMotionCube> imc);
+  Joint(std::string name, int net_number, bool allow_actuation, std::unique_ptr<MotorController> controller);
 
   /**
    * Initializes a Joint with motor controller and temperature slave.
    */
-  Joint(std::string name, int net_number, bool allow_actuation, std::unique_ptr<IMotionCube> imc,
+  Joint(std::string name, int net_number, bool allow_actuation, std::unique_ptr<MotorController> controller,
         std::unique_ptr<TemperatureGES> temperature_ges);
 
   virtual ~Joint() noexcept = default;
@@ -82,7 +82,7 @@ public:
   /** @brief Override comparison operator */
   friend bool operator==(const Joint& lhs, const Joint& rhs)
   {
-    return lhs.name_ == rhs.name_ && ((lhs.imc_ && rhs.imc_ && *lhs.imc_ == *rhs.imc_) || (!lhs.imc_ && !rhs.imc_)) &&
+    return lhs.name_ == rhs.name_ && ((lhs.controller_ && rhs.controller_ && *lhs.controller_ == *rhs.controller_) || (!lhs.controller_ && !rhs.controller_)) &&
            ((lhs.temperature_ges_ && rhs.temperature_ges_ && *lhs.temperature_ges_ == *rhs.temperature_ges_) ||
             (!lhs.temperature_ges_ && !rhs.temperature_ges_)) &&
            lhs.allow_actuation_ == rhs.allow_actuation_ &&
@@ -100,9 +100,9 @@ public:
        << "ActuationMode: " << joint.getActuationMode().toString() << ", "
        << "allowActuation: " << joint.allow_actuation_ << ", "
        << "imotioncube: ";
-    if (joint.imc_)
+    if (joint.controller_)
     {
-      os << *joint.imc_;
+      os << *joint.controller_;
     }
     else
     {
@@ -139,7 +139,7 @@ private:
   double absolute_position_ = 0.0;
   double velocity_ = 0.0;
 
-  std::unique_ptr<IMotionCube> imc_ = nullptr;
+  std::unique_ptr<MotorController> controller_ = nullptr;
   std::unique_ptr<TemperatureGES> temperature_ges_ = nullptr;
 };
 
