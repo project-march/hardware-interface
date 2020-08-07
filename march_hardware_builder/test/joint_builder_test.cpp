@@ -101,7 +101,7 @@ TEST_F(JointBuilderTest, NoIMotionCube)
   march::Joint joint = HardwareBuilder::createJoint(config, "test_joint_no_imotioncube", this->joint,
                                                     this->pdo_interface, this->sdo_interface);
 
-  ASSERT_FALSE(joint.hasIMotionCube());
+  ASSERT_FALSE(joint.hasMotorController());
 }
 
 TEST_F(JointBuilderTest, NoTemperatureGES)

@@ -27,7 +27,7 @@ public:
   MOCK_METHOD0(getVelocityRadIncremental, double());
   MOCK_METHOD0(getVelocityRadAbsolute, double());
 
-  MOCK_METHOD0(getIMCVoltage, float());
+  MOCK_METHOD0(getMotorControllerVoltage, float());
   MOCK_METHOD0(getMotorVoltage, float());
   MOCK_METHOD0(getMotorCurrent, float());
 
@@ -36,4 +36,5 @@ public:
 
   MOCK_METHOD2(initSdo, bool(march::SdoSlaveInterface& sdo, int cycle_time));
   MOCK_METHOD1(reset, void(march::SdoSlaveInterface&));
+  MOCK_METHOD0(reset, void());
 };

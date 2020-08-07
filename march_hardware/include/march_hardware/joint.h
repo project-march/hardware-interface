@@ -79,21 +79,23 @@ public:
   bool receivedDataUpdate();
   void setAllowActuation(bool allow_actuation);
 
-  //  /** @brief Override comparison operator */
-  //  friend bool operator==(const Joint& lhs, const Joint& rhs)
-  //  {
-  //    return lhs.name_ == rhs.name_ && ((lhs.controller_ && rhs.controller_ && *lhs.controller_ == *rhs.controller_)
-  //    || (!lhs.controller_ && !rhs.controller_)) &&
-  //           ((lhs.temperature_ges_ && rhs.temperature_ges_ && *lhs.temperature_ges_ == *rhs.temperature_ges_) ||
-  //            (!lhs.temperature_ges_ && !rhs.temperature_ges_)) &&
-  //           lhs.allow_actuation_ == rhs.allow_actuation_ &&
-  //           lhs.getActuationMode().getValue() == rhs.getActuationMode().getValue();
-  //  }
-  //
-  //  friend bool operator!=(const Joint& lhs, const Joint& rhs)
-  //  {
-  //    return !(lhs == rhs);
-  //  }
+  /** @brief Override comparison operator */
+  friend bool operator==(const Joint& lhs, const Joint& rhs)
+  {
+    return lhs.name_ == rhs.name_ &&
+           ((lhs.controller_ && rhs.controller_ &&
+             lhs.controller_->getSlaveIndex() == rhs.controller_->getSlaveIndex()) ||
+            (!lhs.controller_ && !rhs.controller_)) &&
+           ((lhs.temperature_ges_ && rhs.temperature_ges_ && *lhs.temperature_ges_ == *rhs.temperature_ges_) ||
+            (!lhs.temperature_ges_ && !rhs.temperature_ges_)) &&
+           lhs.allow_actuation_ == rhs.allow_actuation_ &&
+           lhs.getActuationMode().getValue() == rhs.getActuationMode().getValue();
+  }
+
+  friend bool operator!=(const Joint& lhs, const Joint& rhs)
+  {
+    return !(lhs == rhs);
+  }
   //  /** @brief Override stream operator for clean printing */
   //  friend ::std::ostream& operator<<(std::ostream& os, const Joint& joint)
   //  {

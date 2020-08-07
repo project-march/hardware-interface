@@ -78,19 +78,19 @@ public:
 
   uint16_t getSlaveIndex() const;
 
-  //  /** @brief Override comparison operator */
-  //  friend bool operator==(const IMotionCube& lhs, const IMotionCube& rhs)
-  //  {
-  //    return lhs.getSlaveIndex() == rhs.getSlaveIndex() && *lhs.absolute_encoder_ == *rhs.absolute_encoder_ &&
-  //           *lhs.incremental_encoder_ == *rhs.incremental_encoder_;
-  //  }
-  //  /** @brief Override stream operator for clean printing */
-  //  friend std::ostream& operator<<(std::ostream& os, const MotorController& imc)
-  //  {
-  //    return os << "slaveIndex: " << imc.getSlaveIndex() << ", "
-  //              << "incrementalEncoder: " << *imc.incremental_encoder_ << ", "
-  //              << "absoluteEncoder: " << *imc.absolute_encoder_;
-  //  }
+  /** @brief Override comparison operator */
+  friend bool operator==(const IMotionCube& lhs, const IMotionCube& rhs)
+  {
+    return lhs.getSlaveIndex() == rhs.getSlaveIndex() && *lhs.absolute_encoder_ == *rhs.absolute_encoder_ &&
+           *lhs.incremental_encoder_ == *rhs.incremental_encoder_;
+  }
+  /** @brief Override stream operator for clean printing */
+  friend std::ostream& operator<<(std::ostream& os, const IMotionCube& imc)
+  {
+    return os << "slaveIndex: " << imc.getSlaveIndex() << ", "
+              << "incrementalEncoder: " << *imc.incremental_encoder_ << ", "
+              << "absoluteEncoder: " << *imc.absolute_encoder_;
+  }
 
   constexpr static double MAX_TARGET_DIFFERENCE = 0.393;
   // This value is slightly larger than the current limit of the
