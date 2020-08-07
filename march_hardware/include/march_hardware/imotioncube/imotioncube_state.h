@@ -1,6 +1,4 @@
 // Copyright 2019 Project March.
-#ifndef MARCH_HARDWARE_IMOTIONCUBE_STATE_H
-#define MARCH_HARDWARE_IMOTIONCUBE_STATE_H
 
 #include <string>
 
@@ -106,10 +104,12 @@ public:
   {
     return this->value_ == v;
   }
+
   bool operator==(IMCState a) const
   {
     return this->value_ == a.value_;
   }
+
   bool operator!=(IMCState a) const
   {
     return this->value_ != a.value_;
@@ -118,30 +118,4 @@ public:
 private:
   Value value_;
 };
-
-struct IMotionCubeState
-{
-public:
-  IMotionCubeState() = default;
-
-  std::string statusWord;
-  std::string motionError;
-  std::string detailedError;
-  std::string secondDetailedError;
-  IMCState state;
-  std::string detailedErrorDescription;
-  std::string motionErrorDescription;
-  std::string secondDetailedErrorDescription;
-
-  float motorCurrent;
-  float IMCVoltage;
-  float motorVoltage;
-  int absoluteEncoderValue;
-  int incrementalEncoderValue;
-  double absoluteVelocity;
-  double incrementalVelocity;
-};
-
 }  // namespace march
-
-#endif  // MARCH_HARDWARE_IMOTIONCUBE_STATE_H

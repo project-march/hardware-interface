@@ -32,9 +32,10 @@ MarchHardwareInterface::MarchHardwareInterface(std::unique_ptr<march::MarchRobot
 
 bool MarchHardwareInterface::init(ros::NodeHandle& nh, ros::NodeHandle& /* robot_hw_nh */)
 {
-  // Initialize realtime publisher for the IMotionCube states
-  this->imc_state_pub_ = std::make_unique<realtime_tools::RealtimePublisher<march_shared_resources::ImcState>>(
-      nh, "/march/imc_states/", 4);
+  // Initialize realtime publisher for the motor controller states
+  this->motor_controller_state_pub_ =
+      std::make_unique<realtime_tools::RealtimePublisher<march_shared_resources::ImcState>>(nh, "/march/imc_states/",
+                                                                                            4);
 
   this->after_limit_joint_command_pub_ =
       std::make_unique<realtime_tools::RealtimePublisher<march_shared_resources::AfterLimitJointCommand>>(
@@ -184,7 +185,7 @@ void MarchHardwareInterface::validate()
   for (size_t i = 0; i < num_joints_; i++)
   {
     this->outsideLimitsCheck(i);
-    if (!this->iMotionCubeStateCheck(i))
+    if (!this->motorControllerStateCheck(i))
     {
       fault_state = true;
     }
@@ -192,7 +193,7 @@ void MarchHardwareInterface::validate()
   if (fault_state)
   {
     this->march_robot_->stopEtherCAT();
-    throw std::runtime_error("One or more IMC's are in fault state");
+    throw std::runtime_error("One or more motor controllers are in fault state");
   }
 }
 
@@ -219,7 +220,7 @@ void MarchHardwareInterface::read(const ros::Time& /* time */, const ros::Durati
     joint_effort_[i] = joint.getTorque();
   }
 
-  this->updateIMotionCubeState();
+  this->updateMotorControllerState();
 }
 
 void MarchHardwareInterface::write(const ros::Time& /* time */, const ros::Duration& elapsed_time)
@@ -320,20 +321,20 @@ void MarchHardwareInterface::reserveMemory()
   after_limit_joint_command_pub_->msg_.position_command.resize(num_joints_);
   after_limit_joint_command_pub_->msg_.effort_command.resize(num_joints_);
 
-  imc_state_pub_->msg_.joint_names.resize(num_joints_);
-  imc_state_pub_->msg_.status_word.resize(num_joints_);
-  imc_state_pub_->msg_.detailed_error.resize(num_joints_);
-  imc_state_pub_->msg_.motion_error.resize(num_joints_);
-  imc_state_pub_->msg_.state.resize(num_joints_);
-  imc_state_pub_->msg_.detailed_error_description.resize(num_joints_);
-  imc_state_pub_->msg_.motion_error_description.resize(num_joints_);
-  imc_state_pub_->msg_.motor_current.resize(num_joints_);
-  imc_state_pub_->msg_.imc_voltage.resize(num_joints_);
-  imc_state_pub_->msg_.motor_voltage.resize(num_joints_);
-  imc_state_pub_->msg_.absolute_encoder_value.resize(num_joints_);
-  imc_state_pub_->msg_.incremental_encoder_value.resize(num_joints_);
-  imc_state_pub_->msg_.absolute_velocity.resize(num_joints_);
-  imc_state_pub_->msg_.incremental_velocity.resize(num_joints_);
+  motor_controller_state_pub_->msg_.joint_names.resize(num_joints_);
+  motor_controller_state_pub_->msg_.status_word.resize(num_joints_);
+  motor_controller_state_pub_->msg_.detailed_error.resize(num_joints_);
+  motor_controller_state_pub_->msg_.motion_error.resize(num_joints_);
+  motor_controller_state_pub_->msg_.state.resize(num_joints_);
+  motor_controller_state_pub_->msg_.detailed_error_description.resize(num_joints_);
+  motor_controller_state_pub_->msg_.motion_error_description.resize(num_joints_);
+  motor_controller_state_pub_->msg_.motor_current.resize(num_joints_);
+  motor_controller_state_pub_->msg_.imc_voltage.resize(num_joints_);
+  motor_controller_state_pub_->msg_.motor_voltage.resize(num_joints_);
+  motor_controller_state_pub_->msg_.absolute_encoder_value.resize(num_joints_);
+  motor_controller_state_pub_->msg_.incremental_encoder_value.resize(num_joints_);
+  motor_controller_state_pub_->msg_.absolute_velocity.resize(num_joints_);
+  motor_controller_state_pub_->msg_.incremental_velocity.resize(num_joints_);
 }
 
 void MarchHardwareInterface::updatePowerDistributionBoard()
@@ -428,52 +429,54 @@ void MarchHardwareInterface::updateAfterLimitJointCommand()
   after_limit_joint_command_pub_->unlockAndPublish();
 }
 
-void MarchHardwareInterface::updateIMotionCubeState()
+void MarchHardwareInterface::updateMotorControllerState()
 {
-  if (!imc_state_pub_->trylock())
+  if (!motor_controller_state_pub_->trylock())
   {
     return;
   }
 
-  imc_state_pub_->msg_.header.stamp = ros::Time::now();
+  motor_controller_state_pub_->msg_.header.stamp = ros::Time::now();
   for (size_t i = 0; i < num_joints_; i++)
   {
     march::Joint& joint = march_robot_->getJoint(i);
-    march::IMotionCubeState imc_state = joint.getIMotionCubeState();
-    imc_state_pub_->msg_.header.stamp = ros::Time::now();
-    imc_state_pub_->msg_.joint_names[i] = joint.getName();
-    imc_state_pub_->msg_.status_word[i] = imc_state.statusWord;
-    imc_state_pub_->msg_.detailed_error[i] = imc_state.detailedError;
-    imc_state_pub_->msg_.motion_error[i] = imc_state.motionError;
-    imc_state_pub_->msg_.state[i] = imc_state.state.getString();
-    imc_state_pub_->msg_.detailed_error_description[i] = imc_state.detailedErrorDescription;
-    imc_state_pub_->msg_.motion_error_description[i] = imc_state.motionErrorDescription;
-    imc_state_pub_->msg_.motor_current[i] = imc_state.motorCurrent;
-    imc_state_pub_->msg_.imc_voltage[i] = imc_state.IMCVoltage;
-    imc_state_pub_->msg_.motor_voltage[i] = imc_state.motorVoltage;
-    imc_state_pub_->msg_.absolute_encoder_value[i] = imc_state.absoluteEncoderValue;
-    imc_state_pub_->msg_.incremental_encoder_value[i] = imc_state.incrementalEncoderValue;
-    imc_state_pub_->msg_.absolute_velocity[i] = imc_state.absoluteVelocity;
-    imc_state_pub_->msg_.incremental_velocity[i] = imc_state.incrementalVelocity;
+    march::MotorControllerState motor_controller_state = joint.getMotorControllerState();
+    motor_controller_state_pub_->msg_.header.stamp = ros::Time::now();
+    motor_controller_state_pub_->msg_.joint_names[i] = joint.getName();
+    motor_controller_state_pub_->msg_.motor_current[i] = motor_controller_state.motorCurrent;
+    motor_controller_state_pub_->msg_.imc_voltage[i] = motor_controller_state.controllerVoltage;
+    motor_controller_state_pub_->msg_.motor_voltage[i] = motor_controller_state.motorVoltage;
+    motor_controller_state_pub_->msg_.absolute_encoder_value[i] = motor_controller_state.absoluteEncoderValue;
+    motor_controller_state_pub_->msg_.incremental_encoder_value[i] = motor_controller_state.incrementalEncoderValue;
+    motor_controller_state_pub_->msg_.absolute_velocity[i] = motor_controller_state.absoluteVelocity;
+    motor_controller_state_pub_->msg_.incremental_velocity[i] = motor_controller_state.incrementalVelocity;
+
+    motor_controller_state_pub_->msg_.state[i] = motor_controller_state.state.getString();
+    motor_controller_state_pub_->msg_.status_word[i] = motor_controller_state.statusWord;
+    motor_controller_state_pub_->msg_.detailed_error[i] = motor_controller_state.detailedError;
+    motor_controller_state_pub_->msg_.motion_error[i] = motor_controller_state.motionError;
+    motor_controller_state_pub_->msg_.detailed_error_description[i] = motor_controller_state.detailedErrorDescription;
+    motor_controller_state_pub_->msg_.motion_error_description[i] = motor_controller_state.motionErrorDescription;
   }
 
-  imc_state_pub_->unlockAndPublish();
+  motor_controller_state_pub_->unlockAndPublish();
 }
 
-bool MarchHardwareInterface::iMotionCubeStateCheck(size_t joint_index)
+bool MarchHardwareInterface::motorControllerStateCheck(size_t joint_index)
 {
   march::Joint& joint = march_robot_->getJoint(joint_index);
-  march::IMotionCubeState imc_state = joint.getIMotionCubeState();
-  if (imc_state.state == march::IMCState::FAULT)
+  march::MotorControllerState motor_controller_state = joint.getMotorControllerState();
+  if (motor_controller_state.state == march::IMCState::FAULT)
   {
     ROS_ERROR("IMotionCube of joint %s is in fault state %s"
               "\nMotion Error: %s (%s)"
               "\nDetailed Error: %s (%s)"
               "\nSecond Detailed Error: %s (%s)",
-              joint.getName().c_str(), imc_state.state.getString().c_str(), imc_state.motionErrorDescription.c_str(),
-              imc_state.motionError.c_str(), imc_state.detailedErrorDescription.c_str(),
-              imc_state.detailedError.c_str(), imc_state.secondDetailedErrorDescription.c_str(),
-              imc_state.secondDetailedError.c_str());
+              joint.getName().c_str(), motor_controller_state.state.getString().c_str(),
+              motor_controller_state.motionErrorDescription.c_str(), motor_controller_state.motionError.c_str(),
+              motor_controller_state.detailedErrorDescription.c_str(), motor_controller_state.detailedError.c_str(),
+              motor_controller_state.secondDetailedErrorDescription.c_str(),
+              motor_controller_state.secondDetailedError.c_str());
     return false;
   }
   return true;

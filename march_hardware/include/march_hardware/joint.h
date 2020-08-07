@@ -10,7 +10,7 @@
 #include <march_hardware/imotioncube/imotioncube.h>
 #include <march_hardware/power/power_distribution_board.h>
 #include <march_hardware/temperature/temperature_ges.h>
-#include <march_hardware/imotioncube/imotioncube_state.h>
+#include <march_hardware/imotioncube/motor_controller_state.h>
 
 namespace march
 {
@@ -40,7 +40,7 @@ public:
   Joint(const Joint&) = delete;
   Joint& operator=(const Joint&) = delete;
 
-  void resetIMotionCube();
+  void resetMotorController();
 
   /* Delete move assignment since string cannot be move assigned */
   Joint(Joint&&) = default;
@@ -64,69 +64,70 @@ public:
   double getVelocityIUAbsolute();
   double getVelocityIUIncremental();
   float getTemperature();
-  IMotionCubeState getIMotionCubeState();
+  MotorControllerState getMotorControllerState();
 
   std::string getName() const;
   int getTemperatureGESSlaveIndex() const;
-  int getIMotionCubeSlaveIndex() const;
+  int getMotorControllerSlaveIndex() const;
   int getNetNumber() const;
 
   ActuationMode getActuationMode() const;
 
-  bool hasIMotionCube() const;
+  bool hasMotorController() const;
   bool hasTemperatureGES() const;
   bool canActuate() const;
   bool receivedDataUpdate();
   void setAllowActuation(bool allow_actuation);
 
-  /** @brief Override comparison operator */
-  friend bool operator==(const Joint& lhs, const Joint& rhs)
-  {
-    return lhs.name_ == rhs.name_ && ((lhs.controller_ && rhs.controller_ && *lhs.controller_ == *rhs.controller_) || (!lhs.controller_ && !rhs.controller_)) &&
-           ((lhs.temperature_ges_ && rhs.temperature_ges_ && *lhs.temperature_ges_ == *rhs.temperature_ges_) ||
-            (!lhs.temperature_ges_ && !rhs.temperature_ges_)) &&
-           lhs.allow_actuation_ == rhs.allow_actuation_ &&
-           lhs.getActuationMode().getValue() == rhs.getActuationMode().getValue();
-  }
-
-  friend bool operator!=(const Joint& lhs, const Joint& rhs)
-  {
-    return !(lhs == rhs);
-  }
-  /** @brief Override stream operator for clean printing */
-  friend ::std::ostream& operator<<(std::ostream& os, const Joint& joint)
-  {
-    os << "name: " << joint.name_ << ", "
-       << "ActuationMode: " << joint.getActuationMode().toString() << ", "
-       << "allowActuation: " << joint.allow_actuation_ << ", "
-       << "imotioncube: ";
-    if (joint.controller_)
-    {
-      os << *joint.controller_;
-    }
-    else
-    {
-      os << "none";
-    }
-
-    os << ", temperatureges: ";
-    if (joint.temperature_ges_)
-    {
-      os << *joint.temperature_ges_;
-    }
-    else
-    {
-      os << "none";
-    }
-
-    return os;
-  }
+  //  /** @brief Override comparison operator */
+  //  friend bool operator==(const Joint& lhs, const Joint& rhs)
+  //  {
+  //    return lhs.name_ == rhs.name_ && ((lhs.controller_ && rhs.controller_ && *lhs.controller_ == *rhs.controller_)
+  //    || (!lhs.controller_ && !rhs.controller_)) &&
+  //           ((lhs.temperature_ges_ && rhs.temperature_ges_ && *lhs.temperature_ges_ == *rhs.temperature_ges_) ||
+  //            (!lhs.temperature_ges_ && !rhs.temperature_ges_)) &&
+  //           lhs.allow_actuation_ == rhs.allow_actuation_ &&
+  //           lhs.getActuationMode().getValue() == rhs.getActuationMode().getValue();
+  //  }
+  //
+  //  friend bool operator!=(const Joint& lhs, const Joint& rhs)
+  //  {
+  //    return !(lhs == rhs);
+  //  }
+  //  /** @brief Override stream operator for clean printing */
+  //  friend ::std::ostream& operator<<(std::ostream& os, const Joint& joint)
+  //  {
+  //    os << "name: " << joint.name_ << ", "
+  //       << "ActuationMode: " << joint.getActuationMode().toString() << ", "
+  //       << "allowActuation: " << joint.allow_actuation_ << ", "
+  //       << "imotioncube: ";
+  //    if (joint.controller_)
+  //    {
+  //      os << *joint.controller_;
+  //    }
+  //    else
+  //    {
+  //      os << "none";
+  //    }
+  //
+  //    os << ", temperatureges: ";
+  //    if (joint.temperature_ges_)
+  //    {
+  //      os << *joint.temperature_ges_;
+  //    }
+  //    else
+  //    {
+  //      os << "none";
+  //    }
+  //
+  //    return os;
+  //  }
 
 private:
   const std::string name_;
   const int net_number_;
   bool allow_actuation_ = false;
-  float previous_imc_volt_ = 0.0;
+  float previous_controller_volt_ = 0.0;
   float previous_motor_current_ = 0.0;
   float previous_motor_volt_ = 0.0;
   double previous_absolute_position_ = 0.0;

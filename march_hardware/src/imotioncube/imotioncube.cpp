@@ -51,6 +51,11 @@ bool IMotionCube::initSdo(SdoSlaveInterface& sdo, int cycle_time)
   return this->writeInitialSettings(sdo, cycle_time);
 }
 
+bool IMotionCube::initSdo(int cycle_time)
+{
+  return this->Slave::initSdo(cycle_time);
+}
+
 // Map Process Data Object (PDO) for by sending SDOs to the IMC
 // Master In, Slave Out
 void IMotionCube::mapMisoPDOs(SdoSlaveInterface& sdo)
@@ -200,6 +205,11 @@ void IMotionCube::actuateTorque(int16_t target_torque)
   this->write16(target_torque_location, target_torque_struct);
 }
 
+uint16_t IMotionCube::getSlaveIndex() const
+{
+  return this->Slave::getSlaveIndex();
+}
+
 double IMotionCube::getAngleRadAbsolute()
 {
   if (!IMotionCubeTargetState::SWITCHED_ON.isReached(this->getStatusWord()) &&
@@ -218,6 +228,11 @@ double IMotionCube::getAngleRadIncremental()
     ROS_WARN_THROTTLE(10, "Invalid use of encoders, you're not in the correct state.");
   }
   return this->incremental_encoder_->getAngleRad(*this, this->miso_byte_offsets_.at(IMCObjectName::MotorPosition));
+}
+
+bool IMotionCube::getIncrementalMorePrecise() const
+{
+  return this->incremental_encoder_->getRadPerBit() < this->absolute_encoder_->getRadPerBit();
 }
 
 double IMotionCube::getAbsoluteRadPerBit() const
@@ -296,7 +311,7 @@ float IMotionCube::getMotorCurrent()
          static_cast<float>(motor_current_iu);  // Conversion to Amp, see Technosoft CoE programming manual
 }
 
-float IMotionCube::getIMCVoltage()
+float IMotionCube::getMotorControllerVoltage()
 {
   // maximum measurable DC voltage found in EMS Setup/Drive info button
   const float V_DC_MAX_MEASURABLE = 102.3;
@@ -317,6 +332,40 @@ void IMotionCube::setControlWord(uint16_t control_word)
 {
   bit16 control_word_ui = { .ui = control_word };
   this->write16(this->mosi_byte_offsets_.at(IMCObjectName::ControlWord), control_word_ui);
+}
+
+MotorControllerState IMotionCube::getStates()
+{
+  MotorControllerState states;
+
+  // Common states
+  states.motorCurrent = this->getMotorCurrent();
+  states.controllerVoltage = this->getMotorControllerVoltage();
+  states.motorVoltage = this->getMotorVoltage();
+
+  states.absoluteEncoderValue = this->getAngleIUAbsolute();
+  states.incrementalEncoderValue = this->getAngleIUIncremental();
+  states.absoluteVelocity = this->getVelocityIUAbsolute();
+  states.incrementalVelocity = this->getVelocityIUIncremental();
+
+  // iMotionCube specific states
+  std::bitset<16> statusWordBits = this->getStatusWord();
+  states.statusWord = statusWordBits.to_string();
+  std::bitset<16> motionErrorBits = this->getMotionError();
+  states.motionError = motionErrorBits.to_string();
+  std::bitset<16> detailedErrorBits = this->getDetailedError();
+  states.detailedError = detailedErrorBits.to_string();
+  std::bitset<16> secondDetailedErrorBits = this->getSecondDetailedError();
+  states.secondDetailedError = secondDetailedErrorBits.to_string();
+
+  states.motionErrorDescription = error::parseError(this->getMotionError(), error::ErrorRegisters::MOTION_ERROR);
+  states.detailedErrorDescription = error::parseError(this->getDetailedError(), error::ErrorRegisters::DETAILED_ERROR);
+  states.secondDetailedErrorDescription =
+      error::parseError(this->getSecondDetailedError(), error::ErrorRegisters::SECOND_DETAILED_ERROR);
+
+  states.state = IMCState(this->getStatusWord());
+
+  return states;
 }
 
 void IMotionCube::goToTargetState(IMotionCubeTargetState target_state)
@@ -394,6 +443,11 @@ void IMotionCube::reset(SdoSlaveInterface& sdo)
   this->setControlWord(0);
   ROS_DEBUG("Slave: %d, Try to reset IMC", this->getSlaveIndex());
   sdo.write<uint16_t>(0x2080, 0, 1);
+}
+
+void IMotionCube::reset()
+{
+  return this->Slave::reset();
 }
 
 uint16_t IMotionCube::computeSWCheckSum(uint16_t& start_address, uint16_t& end_address)

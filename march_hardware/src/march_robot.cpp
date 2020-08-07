@@ -77,7 +77,7 @@ void MarchRobot::resetIMotionCubes()
 {
   for (auto& joint : jointList)
   {
-    joint.resetIMotionCube();
+    joint.resetMotorController();
   }
 }
 
@@ -93,7 +93,7 @@ int MarchRobot::getMaxSlaveIndex()
       maxSlaveIndex = temperatureSlaveIndex;
     }
 
-    int iMotionCubeSlaveIndex = joint.getIMotionCubeSlaveIndex();
+    int iMotionCubeSlaveIndex = joint.getMotorControllerSlaveIndex() > -1;
 
     if (iMotionCubeSlaveIndex > maxSlaveIndex)
     {
@@ -116,9 +116,9 @@ bool MarchRobot::hasValidSlaves()
       temperatureSlaveIndices.push_back(temperatureSlaveIndex);
     }
 
-    if (joint.hasIMotionCube())
+    if (joint.getMotorControllerSlaveIndex() > -1)
     {
-      int iMotionCubeSlaveIndex = joint.getIMotionCubeSlaveIndex();
+      int iMotionCubeSlaveIndex = joint.getMotorControllerSlaveIndex() > -1;
       iMotionCubeIndices.push_back(iMotionCubeSlaveIndex);
     }
   }

@@ -106,19 +106,19 @@ march::Joint HardwareBuilder::createJoint(const YAML::Node& joint_config, const 
     mode = march::ActuationMode(joint_config["actuationMode"].as<std::string>());
   }
 
-  march::MotorController controller;
-  if (joint_config["imotioncube"]) {
-      controller =
-                HardwareBuilder::createIMotionCube(joint_config["imotioncube"], mode, urdf_joint, pdo_interface,
-                                                   sdo_interface);
-    }
-  else if (joint_config["odrive"]) {
-      controller =
-              HardwareBuilder::createIMotionCube(joint_config["odrive"], mode, urdf_joint);
+  std::unique_ptr<march::MotorController> controller;
+  if (joint_config["imotioncube"])
+  {
+    controller =
+        HardwareBuilder::createIMotionCube(joint_config["imotioncube"], mode, urdf_joint, pdo_interface, sdo_interface);
   }
+  //  else if (joint_config["odrive"]) {
+  //      march::ODrive controller =
+  //              HardwareBuilder::createIMotionCube(joint_config["odrive"], mode, urdf_joint);
+  //  }
   if (!controller)
   {
-    ROS_WARN("Joint %s does not have a configuration for an IMotionCube", joint_name.c_str());
+    ROS_WARN("Joint %s does not have a configuration for an IMotionCube or Odrive", joint_name.c_str());
   }
 
   auto ges = HardwareBuilder::createTemperatureGES(joint_config["temperatureges"], pdo_interface, sdo_interface);

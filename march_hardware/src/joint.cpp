@@ -19,7 +19,10 @@ Joint::Joint(std::string name, int net_number) : name_(std::move(name)), net_num
 }
 
 Joint::Joint(std::string name, int net_number, bool allow_actuation, std::unique_ptr<MotorController> controller)
-  : name_(std::move(name)), net_number_(net_number), allow_actuation_(allow_actuation), controller_(std::move(controller))
+  : name_(std::move(name))
+  , net_number_(net_number)
+  , allow_actuation_(allow_actuation)
+  , controller_(std::move(controller))
 {
 }
 
@@ -38,7 +41,7 @@ bool Joint::initialize(int cycle_time)
   bool reset = false;
   if (this->hasMotorController())
   {
-    reset |= this->controller_->Slave::initSdo(cycle_time);
+    reset |= this->controller_->initSdo(cycle_time);
   }
   if (this->hasTemperatureGES())
   {
@@ -72,7 +75,7 @@ void Joint::resetMotorController()
   }
   else
   {
-    this->controller_->Slave::reset();
+    this->controller_->reset();
   }
 }
 
@@ -96,10 +99,11 @@ void Joint::readEncoders(const ros::Duration& elapsed_time)
 
   if (this->receivedDataUpdate())
   {
-    const double incremental_position_change = this->controller_->getAngleRadIncremental() - this->incremental_position_;
+    const double incremental_position_change =
+        this->controller_->getAngleRadIncremental() - this->incremental_position_;
 
     // Take the velocity and position from the encoder with the highest resolution.
-    if (this->controller_->getIncrementalRadPerBit() < this->controller_->getAbsoluteRadPerBit())
+    if (this->controller_->getIncrementalMorePrecise())
     {
       this->velocity_ = this->controller_->getVelocityRadIncremental();
       this->position_ += incremental_position_change;
@@ -173,46 +177,6 @@ int16_t Joint::getTorque()
   return this->controller_->getTorque();
 }
 
-int32_t Joint::getAngleIUAbsolute()
-{
-  if (!this->hasMotorController())
-  {
-    ROS_WARN("[%s] Has no motor controller", this->name_.c_str());
-    return -1;
-  }
-  return this->controller_->getAngleIUAbsolute();
-}
-
-int32_t Joint::getAngleIUIncremental()
-{
-  if (!this->hasMotorController())
-  {
-    ROS_WARN("[%s] Has no motor controller", this->name_.c_str());
-    return -1;
-  }
-  return this->controller_->getAngleIUIncremental();
-}
-
-double Joint::getVelocityIUAbsolute()
-{
-  if (!this->hasMotorController())
-  {
-    ROS_WARN("[%s] Has no motor controller", this->name_.c_str());
-    return -1;
-  }
-  return this->controller_->getVelocityIUAbsolute();
-}
-
-double Joint::getVelocityIUIncremental()
-{
-  if (!this->hasMotorController())
-  {
-    ROS_WARN("[%s] Has no motor controller", this->name_.c_str());
-    return -1;
-  }
-  return this->controller_->getVelocityIUIncremental();
-}
-
 float Joint::getTemperature()
 {
   if (!this->hasTemperatureGES())
@@ -223,37 +187,9 @@ float Joint::getTemperature()
   return this->temperature_ges_->getTemperature();
 }
 
-IMotionCubeState Joint::getIMotionCubeState()
+MotorControllerState Joint::getMotorControllerState()
 {
-  IMotionCubeState states;
-
-  std::bitset<16> statusWordBits = this->imc_->getStatusWord();
-  states.statusWord = statusWordBits.to_string();
-  std::bitset<16> motionErrorBits = this->imc_->getMotionError();
-  states.motionError = motionErrorBits.to_string();
-  std::bitset<16> detailedErrorBits = this->imc_->getDetailedError();
-  states.detailedError = detailedErrorBits.to_string();
-  std::bitset<16> secondDetailedErrorBits = this->imc_->getSecondDetailedError();
-  states.secondDetailedError = secondDetailedErrorBits.to_string();
-
-  states.state = IMCState(this->imc_->getStatusWord());
-
-  states.motionErrorDescription = error::parseError(this->imc_->getMotionError(), error::ErrorRegisters::MOTION_ERROR);
-  states.detailedErrorDescription =
-      error::parseError(this->imc_->getDetailedError(), error::ErrorRegisters::DETAILED_ERROR);
-  states.secondDetailedErrorDescription =
-      error::parseError(this->imc_->getSecondDetailedError(), error::ErrorRegisters::SECOND_DETAILED_ERROR);
-
-  states.motorCurrent = this->imc_->getMotorCurrent();
-  states.IMCVoltage = this->imc_->getIMCVoltage();
-  states.motorVoltage = this->imc_->getMotorVoltage();
-
-  states.absoluteEncoderValue = this->imc_->getAngleIUAbsolute();
-  states.incrementalEncoderValue = this->imc_->getAngleIUIncremental();
-  states.absoluteVelocity = this->imc_->getVelocityIUAbsolute();
-  states.incrementalVelocity = this->imc_->getVelocityIUIncremental();
-
-  return states;
+  return this->controller_->getStates();
 }
 
 void Joint::setAllowActuation(bool allow_actuation)
@@ -312,21 +248,22 @@ bool Joint::receivedDataUpdate()
   }
   // If imc voltage, motor current, and both encoders positions and velocities did not change,
   // we probably did not receive an update for this joint.
-  float new_imc_volt = this->imc_->getIMCVoltage();
-  float new_motor_volt = this->imc_->getMotorVoltage();
-  float new_motor_current = this->imc_->getMotorCurrent();
-  double new_absolute_position = this->imc_->getAngleRadAbsolute();
-  double new_incremental_position = this->imc_->getAngleRadIncremental();
-  double new_absolute_velocity = this->imc_->getVelocityRadAbsolute();
-  double new_incremental_velocity = this->imc_->getVelocityRadIncremental();
-  bool data_updated = (new_imc_volt != this->previous_imc_volt_ || new_motor_volt != this->previous_motor_volt_ ||
-                       new_motor_current != this->previous_motor_current_ ||
-                       new_absolute_position != this->previous_absolute_position_ ||
-                       new_incremental_position != this->previous_incremental_position_ ||
-                       new_absolute_velocity != this->previous_absolute_velocity_ ||
-                       new_incremental_velocity != this->previous_incremental_velocity_);
+  float new_controller_volt = this->controller_->getMotorControllerVoltage();
+  float new_motor_volt = this->controller_->getMotorVoltage();
+  float new_motor_current = this->controller_->getMotorCurrent();
+  double new_absolute_position = this->controller_->getAngleRadAbsolute();
+  double new_incremental_position = this->controller_->getAngleRadIncremental();
+  double new_absolute_velocity = this->controller_->getVelocityRadAbsolute();
+  double new_incremental_velocity = this->controller_->getVelocityRadIncremental();
+  bool data_updated =
+      (new_controller_volt != this->previous_controller_volt_ || new_motor_volt != this->previous_motor_volt_ ||
+       new_motor_current != this->previous_motor_current_ ||
+       new_absolute_position != this->previous_absolute_position_ ||
+       new_incremental_position != this->previous_incremental_position_ ||
+       new_absolute_velocity != this->previous_absolute_velocity_ ||
+       new_incremental_velocity != this->previous_incremental_velocity_);
 
-  this->previous_imc_volt_ = new_imc_volt;
+  this->previous_controller_volt_ = new_controller_volt;
   this->previous_motor_volt_ = new_motor_volt;
   this->previous_motor_current_ = new_motor_current;
   this->previous_absolute_position_ = new_absolute_position;
@@ -338,7 +275,7 @@ bool Joint::receivedDataUpdate()
 
 ActuationMode Joint::getActuationMode() const
 {
-  return this->imc_->getActuationMode();
+  return this->controller_->getActuationMode();
 }
 
 }  // namespace march

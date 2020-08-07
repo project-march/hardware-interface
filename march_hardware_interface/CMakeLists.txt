@@ -70,18 +70,18 @@ install(DIRECTORY config launch
 )
 
 ## Add gtest based cpp test target and link libraries
-if(CATKIN_ENABLE_TESTING)
-    catkin_add_gtest(${PROJECT_NAME}_test
-        test/pdb_state_interface_test.cpp
-        test/test_runner.cpp
-    )
-    target_link_libraries(${PROJECT_NAME}_test ${catkin_LIBRARIES})
-
-    if(ENABLE_COVERAGE_TESTING)
-        set(COVERAGE_EXCLUDES "*/${PROJECT_NAME}/test/*")
-        add_code_coverage(
-            NAME coverage_report
-            DEPENDENCIES ${PROJECT_NAME}_test
-        )
-    endif()
-endif()
+#if(CATKIN_ENABLE_TESTING)
+#    catkin_add_gtest(${PROJECT_NAME}_test
+#        test/pdb_state_interface_test.cpp
+#        test/test_runner.cpp
+#    )
+#    target_link_libraries(${PROJECT_NAME}_test ${catkin_LIBRARIES})
+#
+#    if(ENABLE_COVERAGE_TESTING)
+#        set(COVERAGE_EXCLUDES "*/${PROJECT_NAME}/test/*")
+#        add_code_coverage(
+#            NAME coverage_report
+#            DEPENDENCIES ${PROJECT_NAME}_test
+#        )
+#    endif()
+#endif()

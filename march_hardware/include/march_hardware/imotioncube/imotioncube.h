@@ -8,7 +8,7 @@
 #include "march_hardware/ethercat/sdo_interface.h"
 #include "march_hardware/ethercat/slave.h"
 #include "motor_controller.h"
-#include "imotioncube_state.h"
+#include "motor_controller_state.h"
 #include "imotioncube_target_state.h"
 #include "march_hardware/encoder/absolute_encoder.h"
 #include "march_hardware/encoder/incremental_encoder.h"
@@ -43,50 +43,54 @@ public:
   IMotionCube(const IMotionCube&) = delete;
   IMotionCube& operator=(const IMotionCube&) = delete;
 
-  virtual double getAngleRadAbsolute();
-  virtual double getAngleRadIncremental();
+  virtual double getAngleRadAbsolute() override;
+  virtual double getAngleRadIncremental() override;
   double getAbsoluteRadPerBit() const;
   double getIncrementalRadPerBit() const;
-  int16_t getTorque();
+  bool getIncrementalMorePrecise() const override;
+  int16_t getTorque() override;
   int32_t getAngleIUAbsolute();
   int32_t getAngleIUIncremental();
   double getVelocityIUAbsolute();
   double getVelocityIUIncremental();
-  virtual double getVelocityRadAbsolute();
-  virtual double getVelocityRadIncremental();
+  virtual double getVelocityRadAbsolute() override;
+  virtual double getVelocityRadIncremental() override;
 
   uint16_t getStatusWord();
   uint16_t getMotionError();
   uint16_t getDetailedError();
   uint16_t getSecondDetailedError();
 
-  ActuationMode getActuationMode() const;
+  ActuationMode getActuationMode() const override;
 
-  virtual float getMotorCurrent();
-  virtual float getIMCVoltage();
-  virtual float getMotorVoltage();
+  virtual float getMotorCurrent() override;
+  virtual float getMotorControllerVoltage() override;
+  virtual float getMotorVoltage() override;
 
+  MotorControllerState getStates() override;
   void setControlWord(uint16_t control_word);
 
-  virtual void actuateRad(double target_rad);
+  virtual void actuateRad(double target_rad) override;
   virtual void actuateTorque(int16_t target_torque);
 
   void goToTargetState(IMotionCubeTargetState target_state);
-  virtual void goToOperationEnabled();
+  virtual void goToOperationEnabled() override;
 
-  /** @brief Override comparison operator */
-  friend bool operator==(const IMotionCube& lhs, const IMotionCube& rhs)
-  {
-    return lhs.getSlaveIndex() == rhs.getSlaveIndex() && *lhs.absolute_encoder_ == *rhs.absolute_encoder_ &&
-           *lhs.incremental_encoder_ == *rhs.incremental_encoder_;
-  }
-  /** @brief Override stream operator for clean printing */
-  friend std::ostream& operator<<(std::ostream& os, const IMotionCube& imc)
-  {
-    return os << "slaveIndex: " << imc.getSlaveIndex() << ", "
-              << "incrementalEncoder: " << *imc.incremental_encoder_ << ", "
-              << "absoluteEncoder: " << *imc.absolute_encoder_;
-  }
+  uint16_t getSlaveIndex() const;
+
+  //  /** @brief Override comparison operator */
+  //  friend bool operator==(const IMotionCube& lhs, const IMotionCube& rhs)
+  //  {
+  //    return lhs.getSlaveIndex() == rhs.getSlaveIndex() && *lhs.absolute_encoder_ == *rhs.absolute_encoder_ &&
+  //           *lhs.incremental_encoder_ == *rhs.incremental_encoder_;
+  //  }
+  //  /** @brief Override stream operator for clean printing */
+  //  friend std::ostream& operator<<(std::ostream& os, const MotorController& imc)
+  //  {
+  //    return os << "slaveIndex: " << imc.getSlaveIndex() << ", "
+  //              << "incrementalEncoder: " << *imc.incremental_encoder_ << ", "
+  //              << "absoluteEncoder: " << *imc.absolute_encoder_;
+  //  }
 
   constexpr static double MAX_TARGET_DIFFERENCE = 0.393;
   // This value is slightly larger than the current limit of the
@@ -100,8 +104,10 @@ public:
 
 protected:
   bool initSdo(SdoSlaveInterface& sdo, int cycle_time) override;
+  bool initSdo(int cycle_time) override;
 
   void reset(SdoSlaveInterface& sdo) override;
+  void reset() override;
 
 private:
   void actuateIU(int32_t target_iu);

@@ -75,34 +75,34 @@ public:
 
   const urdf::Model& getUrdf() const;
 
-  /** @brief Override comparison operator */
-  friend bool operator==(const MarchRobot& lhs, const MarchRobot& rhs)
-  {
-    if (lhs.jointList.size() != rhs.jointList.size())
-    {
-      return false;
-    }
-    for (unsigned int i = 0; i < lhs.jointList.size(); i++)
-    {
-      const march::Joint& lhsJoint = lhs.jointList.at(i);
-      const march::Joint& rhsJoint = rhs.jointList.at(i);
-      if (lhsJoint != rhsJoint)
-      {
-        return false;
-      }
-    }
-    return true;
-  }
+  //  /** @brief Override comparison operator */
+  //  friend bool operator==(const MarchRobot& lhs, const MarchRobot& rhs)
+  //  {
+  //    if (lhs.jointList.size() != rhs.jointList.size())
+  //    {
+  //      return false;
+  //    }
+  //    for (unsigned int i = 0; i < lhs.jointList.size(); i++)
+  //    {
+  //      const march::Joint& lhsJoint = lhs.jointList.at(i);
+  //      const march::Joint& rhsJoint = rhs.jointList.at(i);
+  //      if (lhsJoint != rhsJoint)
+  //      {
+  //        return false;
+  //      }
+  //    }
+  //    return true;
+  //  }
 
-  /** @brief Override stream operator for clean printing */
-  friend ::std::ostream& operator<<(std::ostream& os, const MarchRobot& marchRobot)
-  {
-    for (unsigned int i = 0; i < marchRobot.jointList.size(); i++)
-    {
-      os << marchRobot.jointList.at(i) << "\n";
-    }
-    return os;
-  }
+  //  /** @brief Override stream operator for clean printing */
+  //  friend ::std::ostream& operator<<(std::ostream& os, const MarchRobot& marchRobot)
+  //  {
+  //    for (unsigned int i = 0; i < marchRobot.jointList.size(); i++)
+  //    {
+  //      os << marchRobot.jointList.at(i) << "\n";
+  //    }
+  //    return os;
+  //  }
 };
 }  // namespace march
 #endif  // MARCH_HARDWARE_MARCH_ROBOT_H

@@ -84,9 +84,9 @@ private:
   void updateHighVoltageEnable();
   void updatePowerDistributionBoard();
   void updateAfterLimitJointCommand();
-  void updateIMotionCubeState();
+  void updateMotorControllerState();
   void outsideLimitsCheck(size_t joint_index);
-  bool iMotionCubeStateCheck(size_t joint_index);
+  bool motorControllerStateCheck(size_t joint_index);
   static void getSoftJointLimitsError(const std::string& name, const urdf::JointConstSharedPtr& urdf_joint,
                                       joint_limits_interface::SoftJointLimits& error_soft_limits);
 
@@ -136,7 +136,7 @@ private:
 
   /* Real time safe publishers */
   RtPublisherPtr<march_shared_resources::AfterLimitJointCommand> after_limit_joint_command_pub_;
-  RtPublisherPtr<march_shared_resources::ImcState> imc_state_pub_;
+  RtPublisherPtr<march_shared_resources::ImcState> motor_controller_state_pub_;
 };
 
 #endif  // MARCH_HARDWARE_INTERFACE_MARCH_HARDWARE_INTERFACE_H
