@@ -153,13 +153,14 @@ TEST_F(JointTest, GetTemperatureWithoutTemperatureGes)
 
 TEST_F(JointTest, ResetController)
 {
-  EXPECT_CALL(*this->imc, reset(_)).Times(1);
+  EXPECT_CALL(*this->imc, reset()).Times(1);
   march::Joint joint("reset_controller", 0, true, std::move(this->imc));
   ASSERT_NO_THROW(joint.resetMotorController());
 }
+
 TEST_F(JointTest, ResetControllerWithoutController)
 {
-  EXPECT_CALL(*this->imc, reset(_)).Times(0);
+  EXPECT_CALL(*this->imc, reset()).Times(0);
   march::Joint joint("reset_controller", 0, true, nullptr, std::move(this->temperature_ges));
   ASSERT_NO_THROW(joint.resetMotorController());
 }

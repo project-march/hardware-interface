@@ -37,7 +37,7 @@ public:
               std::unique_ptr<IncrementalEncoder> incremental_encoder, std::string& sw_stream,
               ActuationMode actuation_mode);
 
-  ~IMotionCube() noexcept override = default;
+  virtual ~IMotionCube() noexcept override = default;
 
   /* Delete copy constructor/assignment since the unique_ptrs cannot be copied */
   IMotionCube(const IMotionCube&) = delete;
@@ -77,6 +77,7 @@ public:
   virtual void goToOperationEnabled() override;
 
   uint16_t getSlaveIndex() const;
+  virtual void reset() override;
 
   /** @brief Override comparison operator */
   friend bool operator==(const IMotionCube& lhs, const IMotionCube& rhs)
@@ -102,12 +103,12 @@ public:
   // 500 * 100us = 50 ms = watchdog timer
   static const uint16_t WATCHDOG_TIME = 500;
 
+
 protected:
   bool initSdo(SdoSlaveInterface& sdo, int cycle_time) override;
   bool initSdo(int cycle_time) override;
 
   void reset(SdoSlaveInterface& sdo) override;
-  void reset() override;
 
 private:
   void actuateIU(int32_t target_iu);

@@ -30,6 +30,8 @@ public:
 
   virtual bool initSdo(int cycle_time) = 0;
   virtual void reset() = 0;
+
+  virtual ~MotorController() noexcept = default;
 };
 
 }  // namespace march
