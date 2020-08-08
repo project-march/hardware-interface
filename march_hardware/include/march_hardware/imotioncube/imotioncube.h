@@ -67,16 +67,18 @@ public:
   virtual float getMotorControllerVoltage() override;
   virtual float getMotorVoltage() override;
 
+  bool checkState(std::ostringstream& error_msg, std::string joint_name) override;
   MotorControllerState getStates() override;
   void setControlWord(uint16_t control_word);
 
   virtual void actuateRad(double target_rad) override;
   virtual void actuateTorque(int16_t target_torque);
 
+  bool initialize(int cycle_time) override;
   void goToTargetState(IMotionCubeTargetState target_state);
   virtual void goToOperationEnabled() override;
 
-  uint16_t getSlaveIndex() const;
+  uint16_t getSlaveIndex() const override;
   virtual void reset() override;
 
   /** @brief Override comparison operator */
@@ -103,10 +105,8 @@ public:
   // 500 * 100us = 50 ms = watchdog timer
   static const uint16_t WATCHDOG_TIME = 500;
 
-
 protected:
   bool initSdo(SdoSlaveInterface& sdo, int cycle_time) override;
-  bool initSdo(int cycle_time) override;
 
   void reset(SdoSlaveInterface& sdo) override;
 

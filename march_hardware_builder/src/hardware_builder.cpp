@@ -118,7 +118,7 @@ march::Joint HardwareBuilder::createJoint(const YAML::Node& joint_config, const 
   //  }
   if (!controller)
   {
-    ROS_WARN("Joint %s does not have a configuration for an IMotionCube or Odrive", joint_name.c_str());
+    ROS_FATAL("Joint %s does not have a configuration for a motor controller", joint_name.c_str());
   }
 
   auto ges = HardwareBuilder::createTemperatureGES(joint_config["temperatureges"], pdo_interface, sdo_interface);

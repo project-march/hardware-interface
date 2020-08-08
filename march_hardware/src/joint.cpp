@@ -39,10 +39,7 @@ Joint::Joint(std::string name, int net_number, bool allow_actuation, std::unique
 bool Joint::initialize(int cycle_time)
 {
   bool reset = false;
-  if (this->hasMotorController())
-  {
-    reset |= this->controller_->initSdo(cycle_time);
-  }
+  reset |= this->controller_->initialize(cycle_time);
   if (this->hasTemperatureGES())
   {
     reset |= this->temperature_ges_->initSdo(cycle_time);
@@ -69,14 +66,7 @@ void Joint::prepareActuation()
 
 void Joint::resetMotorController()
 {
-  if (!this->hasMotorController())
-  {
-    ROS_WARN("[%s] Has no motor controller", this->name_.c_str());
-  }
-  else
-  {
-    this->controller_->reset();
-  }
+  this->controller_->reset();
 }
 
 void Joint::actuateRad(double target_position)
@@ -91,12 +81,6 @@ void Joint::actuateRad(double target_position)
 
 void Joint::readEncoders(const ros::Duration& elapsed_time)
 {
-  if (!this->hasMotorController())
-  {
-    ROS_WARN("[%s] Has no motor controller", this->name_.c_str());
-    return;
-  }
-
   if (this->receivedDataUpdate())
   {
     const double incremental_position_change =
@@ -169,11 +153,6 @@ void Joint::actuateTorque(int16_t target_torque)
 
 int16_t Joint::getTorque()
 {
-  if (!this->hasMotorController())
-  {
-    ROS_WARN("[%s] Has no motor controller", this->name_.c_str());
-    return -1;
-  }
   return this->controller_->getTorque();
 }
 
@@ -192,6 +171,11 @@ MotorControllerState Joint::getMotorControllerState()
   return this->controller_->getStates();
 }
 
+bool Joint::checkMotorControllerState(std::ostringstream& error_msg)
+{
+    return this->controller_->checkState(error_msg, this->name_);
+}
+
 void Joint::setAllowActuation(bool allow_actuation)
 {
   this->allow_actuation_ = allow_actuation;
@@ -208,11 +192,7 @@ int Joint::getTemperatureGESSlaveIndex() const
 
 int Joint::getMotorControllerSlaveIndex() const
 {
-  if (this->hasMotorController())
-  {
-    return this->controller_->getSlaveIndex();
-  }
-  return -1;
+  return this->controller_->getSlaveIndex();
 }
 
 int Joint::getNetNumber() const
@@ -242,10 +222,6 @@ bool Joint::canActuate() const
 
 bool Joint::receivedDataUpdate()
 {
-  if (!this->hasMotorController())
-  {
-    return false;
-  }
   // If imc voltage, motor current, and both encoders positions and velocities did not change,
   // we probably did not receive an update for this joint.
   float new_controller_volt = this->controller_->getMotorControllerVoltage();

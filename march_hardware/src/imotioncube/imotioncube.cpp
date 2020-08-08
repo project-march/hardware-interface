@@ -51,7 +51,7 @@ bool IMotionCube::initSdo(SdoSlaveInterface& sdo, int cycle_time)
   return this->writeInitialSettings(sdo, cycle_time);
 }
 
-bool IMotionCube::initSdo(int cycle_time)
+bool IMotionCube::initialize(int cycle_time)
 {
   return this->Slave::initSdo(cycle_time);
 }
@@ -332,6 +332,20 @@ void IMotionCube::setControlWord(uint16_t control_word)
 {
   bit16 control_word_ui = { .ui = control_word };
   this->write16(this->mosi_byte_offsets_.at(IMCObjectName::ControlWord), control_word_ui);
+}
+
+bool IMotionCube::checkState(std::ostringstream& error_msg, std::string joint_name)
+{
+    march::MotorControllerState imc_state = this->getStates();
+    if (imc_state.state == march::IMCState::FAULT)
+    {
+        error_msg << "IMotionCube of joint " << joint_name << " is in fault state " << imc_state.state.getString().c_str()
+                  << "\nMotion Error: " << imc_state.motionErrorDescription.c_str() << " (" << imc_state.motionError.c_str()
+                  << ")\nDetailed Error: " << imc_state.detailedErrorDescription.c_str() << " (" << imc_state.detailedError.c_str()
+                  << ")\nSecond Detailed Error: " << imc_state.secondDetailedErrorDescription.c_str() << " (" << imc_state.secondDetailedError.c_str() << ")";
+        return false;
+    }
+    return true;
 }
 
 MotorControllerState IMotionCube::getStates()

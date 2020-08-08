@@ -1,4 +1,6 @@
 // Copyright 2019 Project March.
+#ifndef MARCH_HARDWARE_IMOTIONCUBE_STATE_H
+#define MARCH_HARDWARE_IMOTIONCUBE_STATE_H
 
 #include <string>
 
@@ -97,6 +99,8 @@ public:
         return "Fault";
       case UNKNOWN:
         return "Not in a recognized IMC state";
+      default:
+        return "Not in a recognized IMC state";
     }
   }
 
@@ -104,12 +108,10 @@ public:
   {
     return this->value_ == v;
   }
-
   bool operator==(IMCState a) const
   {
     return this->value_ == a.value_;
   }
-
   bool operator!=(IMCState a) const
   {
     return this->value_ != a.value_;
@@ -119,3 +121,5 @@ private:
   Value value_;
 };
 }  // namespace march
+
+#endif  // MARCH_HARDWARE_IMOTIONCUBE_STATE_H

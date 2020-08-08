@@ -65,6 +65,7 @@ public:
   double getVelocityIUIncremental();
   float getTemperature();
   MotorControllerState getMotorControllerState();
+  virtual bool checkMotorControllerState(std::ostringstream& error_msg);
 
   std::string getName() const;
   int getTemperatureGESSlaveIndex() const;
@@ -96,34 +97,24 @@ public:
   {
     return !(lhs == rhs);
   }
-  //  /** @brief Override stream operator for clean printing */
-  //  friend ::std::ostream& operator<<(std::ostream& os, const Joint& joint)
-  //  {
-  //    os << "name: " << joint.name_ << ", "
-  //       << "ActuationMode: " << joint.getActuationMode().toString() << ", "
-  //       << "allowActuation: " << joint.allow_actuation_ << ", "
-  //       << "imotioncube: ";
-  //    if (joint.controller_)
-  //    {
-  //      os << *joint.controller_;
-  //    }
-  //    else
-  //    {
-  //      os << "none";
-  //    }
-  //
-  //    os << ", temperatureges: ";
-  //    if (joint.temperature_ges_)
-  //    {
-  //      os << *joint.temperature_ges_;
-  //    }
-  //    else
-  //    {
-  //      os << "none";
-  //    }
-  //
-  //    return os;
-  //  }
+  /** @brief Override stream operator for clean printing */
+  friend ::std::ostream& operator<<(std::ostream& os, const Joint& joint)
+  {
+    os << "name: " << joint.name_ << ", "
+       << "ActuationMode: " << joint.getActuationMode().toString() << ", "
+       << "allowActuation: " << joint.allow_actuation_ << ", "
+       << "imotioncube slave index: " << joint.getMotorControllerSlaveIndex() << ", temperatureges: ";
+    if (joint.temperature_ges_)
+    {
+      os << *joint.temperature_ges_;
+    }
+    else
+    {
+      os << "none";
+    }
+
+    return os;
+  }
 
 private:
   const std::string name_;

@@ -1,6 +1,6 @@
 // Copyright 2019 Project March.
-#ifndef MARCH_HARDWARE_IMOTIONCUBE_STATE_H
-#define MARCH_HARDWARE_IMOTIONCUBE_STATE_H
+#ifndef MARCH_HARDWARE_MOTOR_CONTROLLER_STATE_H
+#define MARCH_HARDWARE_MOTOR_CONTROLLER_STATE_H
 
 #include <string>
 #include "imotioncube_state.h"

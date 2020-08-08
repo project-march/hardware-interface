@@ -465,19 +465,11 @@ void MarchHardwareInterface::updateMotorControllerState()
 bool MarchHardwareInterface::motorControllerStateCheck(size_t joint_index)
 {
   march::Joint& joint = march_robot_->getJoint(joint_index);
-  march::MotorControllerState motor_controller_state = joint.getMotorControllerState();
-  if (motor_controller_state.state == march::IMCState::FAULT)
+  std::ostringstream error_msg;
+  if (!joint.checkMotorControllerState(error_msg))
   {
-    ROS_ERROR("IMotionCube of joint %s is in fault state %s"
-              "\nMotion Error: %s (%s)"
-              "\nDetailed Error: %s (%s)"
-              "\nSecond Detailed Error: %s (%s)",
-              joint.getName().c_str(), motor_controller_state.state.getString().c_str(),
-              motor_controller_state.motionErrorDescription.c_str(), motor_controller_state.motionError.c_str(),
-              motor_controller_state.detailedErrorDescription.c_str(), motor_controller_state.detailedError.c_str(),
-              motor_controller_state.secondDetailedErrorDescription.c_str(),
-              motor_controller_state.secondDetailedError.c_str());
-    return false;
+      ROS_ERROR(error_msg);
+      return false;
   }
   return true;
 }

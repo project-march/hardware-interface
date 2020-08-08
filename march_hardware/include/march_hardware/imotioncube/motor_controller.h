@@ -2,6 +2,7 @@
 
 #include "actuation_mode.h"
 #include "motor_controller_state.h"
+#include <string>
 
 namespace march
 {
@@ -28,8 +29,9 @@ public:
 
   virtual void goToOperationEnabled() = 0;
 
-  virtual bool initSdo(int cycle_time) = 0;
+  virtual bool initialize(int cycle_time) = 0;
   virtual void reset() = 0;
+  virtual bool checkState(std::ostringstream& error_msg, std::string joint_name) = 0;
 
   virtual ~MotorController() noexcept = default;
 };
