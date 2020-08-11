@@ -465,10 +465,10 @@ void MarchHardwareInterface::updateMotorControllerState()
 bool MarchHardwareInterface::motorControllerStateCheck(size_t joint_index)
 {
   march::Joint& joint = march_robot_->getJoint(joint_index);
-  std::ostringstream error_msg;
-  if (!joint.checkMotorControllerState(error_msg))
+  std::ostringstream error_stream;
+  if (!joint.checkMotorControllerState(error_stream))
   {
-      ROS_ERROR(error_msg);
+      throw std::runtime_error(error_stream.str());
       return false;
   }
   return true;

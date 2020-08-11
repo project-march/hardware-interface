@@ -65,7 +65,7 @@ public:
   double getVelocityIUIncremental();
   float getTemperature();
   MotorControllerState getMotorControllerState();
-  virtual bool checkMotorControllerState(std::ostringstream& error_msg);
+  virtual bool checkMotorControllerState(std::ostringstream& error_stream);
 
   std::string getName() const;
   int getTemperatureGESSlaveIndex() const;
