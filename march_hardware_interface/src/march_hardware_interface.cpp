@@ -468,8 +468,8 @@ bool MarchHardwareInterface::motorControllerStateCheck(size_t joint_index)
   std::ostringstream error_stream;
   if (!joint.checkMotorControllerState(error_stream))
   {
-      throw std::runtime_error(error_stream.str());
-      return false;
+    throw std::runtime_error(error_stream.str());
+    return false;
   }
   return true;
 }

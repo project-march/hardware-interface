@@ -173,7 +173,7 @@ MotorControllerStates Joint::getMotorControllerStates()
 
 bool Joint::checkMotorControllerState(std::ostringstream& error_stream)
 {
-    return this->controller_->checkState(error_stream, this->name_);
+  return this->controller_->checkState(error_stream, this->name_);
 }
 
 void Joint::setAllowActuation(bool allow_actuation)
