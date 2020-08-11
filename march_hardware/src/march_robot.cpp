@@ -118,7 +118,7 @@ bool MarchRobot::hasValidSlaves()
 
     if (joint.getMotorControllerSlaveIndex() > -1)
     {
-      int iMotionCubeSlaveIndex = joint.getMotorControllerSlaveIndex() > -1;
+      int iMotionCubeSlaveIndex = joint.getMotorControllerSlaveIndex();
       iMotionCubeIndices.push_back(iMotionCubeSlaveIndex);
     }
   }
