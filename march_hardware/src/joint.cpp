@@ -166,7 +166,7 @@ float Joint::getTemperature()
   return this->temperature_ges_->getTemperature();
 }
 
-MotorControllerState Joint::getMotorControllerState()
+MotorControllerStates Joint::getMotorControllerStates()
 {
   return this->controller_->getStates();
 }

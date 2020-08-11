@@ -336,7 +336,7 @@ void IMotionCube::setControlWord(uint16_t control_word)
 
 bool IMotionCube::checkState(std::ostringstream& error_stream, std::string joint_name)
 {
-    march::MotorControllerState imc_state = this->getStates();
+    march::MotorControllerStates imc_state = this->getStates();
     if (imc_state.state == march::IMCState::FAULT)
     {
         error_stream << "IMotionCube of joint " << joint_name << " is in fault state " << imc_state.state.getString().c_str()
@@ -348,9 +348,9 @@ bool IMotionCube::checkState(std::ostringstream& error_stream, std::string joint
     return true;
 }
 
-MotorControllerState IMotionCube::getStates()
+MotorControllerStates IMotionCube::getStates()
 {
-  MotorControllerState states;
+  MotorControllerStates states;
 
   // Common states
   states.motorCurrent = this->getMotorCurrent();

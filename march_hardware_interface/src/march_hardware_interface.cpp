@@ -220,7 +220,7 @@ void MarchHardwareInterface::read(const ros::Time& /* time */, const ros::Durati
     joint_effort_[i] = joint.getTorque();
   }
 
-  this->updateMotorControllerState();
+  this->updateMotorControllerStates();
 }
 
 void MarchHardwareInterface::write(const ros::Time& /* time */, const ros::Duration& elapsed_time)
@@ -429,7 +429,7 @@ void MarchHardwareInterface::updateAfterLimitJointCommand()
   after_limit_joint_command_pub_->unlockAndPublish();
 }
 
-void MarchHardwareInterface::updateMotorControllerState()
+void MarchHardwareInterface::updateMotorControllerStates()
 {
   if (!motor_controller_state_pub_->trylock())
   {
@@ -440,7 +440,7 @@ void MarchHardwareInterface::updateMotorControllerState()
   for (size_t i = 0; i < num_joints_; i++)
   {
     march::Joint& joint = march_robot_->getJoint(i);
-    march::MotorControllerState motor_controller_state = joint.getMotorControllerState();
+    march::MotorControllerStates motor_controller_state = joint.getMotorControllerStates();
     motor_controller_state_pub_->msg_.header.stamp = ros::Time::now();
     motor_controller_state_pub_->msg_.joint_names[i] = joint.getName();
     motor_controller_state_pub_->msg_.motor_current[i] = motor_controller_state.motorCurrent;

@@ -68,7 +68,7 @@ public:
   virtual float getMotorVoltage() override;
 
   bool checkState(std::ostringstream& error_msg, std::string joint_name) override;
-  MotorControllerState getStates() override;
+  MotorControllerStates getStates() override;
   void setControlWord(uint16_t control_word);
 
   virtual void actuateRad(double target_rad) override;

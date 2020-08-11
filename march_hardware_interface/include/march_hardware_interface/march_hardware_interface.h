@@ -84,7 +84,7 @@ private:
   void updateHighVoltageEnable();
   void updatePowerDistributionBoard();
   void updateAfterLimitJointCommand();
-  void updateMotorControllerState();
+  void updateMotorControllerStates();
   void outsideLimitsCheck(size_t joint_index);
   bool motorControllerStateCheck(size_t joint_index);
   static void getSoftJointLimitsError(const std::string& name, const urdf::JointConstSharedPtr& urdf_joint,

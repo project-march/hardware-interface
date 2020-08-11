@@ -7,10 +7,10 @@
 
 namespace march
 {
-struct MotorControllerState
+struct MotorControllerStates
 {
 public:
-  MotorControllerState() = default;
+  MotorControllerStates() = default;
 
   float motorCurrent;
   float controllerVoltage;

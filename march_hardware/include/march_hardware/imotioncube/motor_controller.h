@@ -14,7 +14,7 @@ public:
   virtual double getVelocityRadAbsolute() = 0;
   virtual double getVelocityRadIncremental() = 0;
   virtual int16_t getTorque() = 0;
-  virtual MotorControllerState getStates() = 0;
+  virtual MotorControllerStates getStates() = 0;
 
   virtual ActuationMode getActuationMode() const = 0;
   virtual uint16_t getSlaveIndex() const = 0;

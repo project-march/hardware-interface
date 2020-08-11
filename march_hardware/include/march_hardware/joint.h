@@ -64,7 +64,7 @@ public:
   double getVelocityIUAbsolute();
   double getVelocityIUIncremental();
   float getTemperature();
-  MotorControllerState getMotorControllerState();
+  MotorControllerStates getMotorControllerStates();
   virtual bool checkMotorControllerState(std::ostringstream& error_stream);
 
   std::string getName() const;
