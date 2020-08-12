@@ -174,6 +174,10 @@ void EthercatMaster::ethercatLoop()
 
     const auto end_time = std::chrono::high_resolution_clock::now();
     const auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - begin_time);
+    durations.push_back(duration.count());
+    total_durations.push_back(
+        std::chrono::duration_cast<std::chrono::microseconds>(begin_time - last_begin_time).count());
+    last_begin_time = begin_time;
 
     {
       std::lock_guard<std::mutex> lock(this->wait_on_pdo_condition_mutex_);
@@ -207,18 +211,18 @@ void EthercatMaster::ethercatLoop()
     {
       for (const size_t& d : durations)
       {
-        file1 << d << std::end1;
+        file1 << d << std::endl;
       }
-      file1.close()
+      file1.close();
     }
     std::ofstream file2("/home/march/ethercat_cycles.txt");
     if (file2.is_open())
     {
       for (const size_t& d : total_durations)
       {
-        file2 << d << std::end1;
+        file2 << d << std::endl;
       }
-      file2.close()
+      file2.close();
     }
 
     const auto delta_t = std::chrono::high_resolution_clock::now() - this->valid_slaves_timestamp_ms_;
