@@ -27,12 +27,6 @@ protected:
   std::unique_ptr<MockTemperatureGES> temperature_ges;
 };
 
-TEST_F(JointTest, InitializeWithoutMotorControllerAndGes)
-{
-  march::Joint joint("test", 0);
-  ASSERT_NO_THROW(joint.initialize(1));
-}
-
 TEST_F(JointTest, InitializeWithoutTemperatureGes)
 {
   const int expected_cycle = 3;
@@ -42,25 +36,10 @@ TEST_F(JointTest, InitializeWithoutTemperatureGes)
   ASSERT_NO_THROW(joint.initialize(expected_cycle));
 }
 
-TEST_F(JointTest, InitializeWithoutMotorController)
-{
-  const int expected_cycle = 3;
-  EXPECT_CALL(*this->temperature_ges, initSdo(_, Eq(expected_cycle))).Times(1);
-
-  march::Joint joint("test", 0, false, nullptr, std::move(this->temperature_ges));
-  ASSERT_NO_THROW(joint.initialize(expected_cycle));
-}
-
 TEST_F(JointTest, AllowActuation)
 {
   march::Joint joint("test", 0, true, std::move(this->imc));
   ASSERT_TRUE(joint.canActuate());
-}
-
-TEST_F(JointTest, DisallowActuationWithoutMotorController)
-{
-  march::Joint joint("test", 0, true, nullptr);
-  ASSERT_FALSE(joint.canActuate());
 }
 
 TEST_F(JointTest, DisableActuation)
@@ -155,13 +134,6 @@ TEST_F(JointTest, ResetController)
 {
   EXPECT_CALL(*this->imc, reset()).Times(1);
   march::Joint joint("reset_controller", 0, true, std::move(this->imc));
-  ASSERT_NO_THROW(joint.resetMotorController());
-}
-
-TEST_F(JointTest, ResetControllerWithoutController)
-{
-  EXPECT_CALL(*this->imc, reset()).Times(0);
-  march::Joint joint("reset_controller", 0, true, nullptr, std::move(this->temperature_ges));
   ASSERT_NO_THROW(joint.resetMotorController());
 }
 
