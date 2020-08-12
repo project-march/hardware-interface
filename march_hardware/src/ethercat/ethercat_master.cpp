@@ -4,6 +4,7 @@
 
 #include <chrono>
 #include <exception>
+#include <fstream>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -157,7 +158,12 @@ void EthercatMaster::ethercatLoop()
   size_t total_loops = 0;
   size_t not_achieved_count = 0;
   const size_t rate = 1000 / this->cycle_time_ms_;
+  auto last_begin_time = std::chrono::high_resolution_clock::now();
   const std::chrono::milliseconds cycle_time(this->cycle_time_ms_);
+  std::vector<size_t> durations;
+  std::vector<size_t> total_durations;
+  durations.reserve(15000);
+  total_durations.reserve(15000);
 
   while (this->is_operational_)
   {
@@ -195,6 +201,24 @@ void EthercatMaster::ethercatLoop()
       }
       total_loops = 0;
       not_achieved_count = 0;
+    }
+    std::ofstream file1("/home/march/ethercat_cycles.txt");
+    if (file1.is_open())
+    {
+      for (const size_t& d : durations)
+      {
+        file1 << d << std::end1;
+      }
+      file1.close()
+    }
+    std::ofstream file2("/home/march/ethercat_cycles.txt");
+    if (file2.is_open())
+    {
+      for (const size_t& d : total_durations)
+      {
+        file2 << d << std::end1;
+      }
+      file2.close()
     }
 
     const auto delta_t = std::chrono::high_resolution_clock::now() - this->valid_slaves_timestamp_ms_;
