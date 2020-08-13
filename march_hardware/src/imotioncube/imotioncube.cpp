@@ -1,5 +1,6 @@
 // Copyright 2018 Project March.
 #include "march_hardware/motor_controller/imotioncube/imotioncube.h"
+#include "march_hardware/motor_controller/imotioncube/imotioncube_states.h"
 #include "march_hardware/error/hardware_exception.h"
 #include "march_hardware/error/motion_error.h"
 #include "march_hardware/ethercat/pdo_types.h"
@@ -334,42 +335,9 @@ void IMotionCube::setControlWord(uint16_t control_word)
   this->write16(this->mosi_byte_offsets_.at(IMCObjectName::ControlWord), control_word_ui);
 }
 
-bool IMotionCube::checkState()
+MotorControllerStates & IMotionCube::getStates()
 {
-  return !(IMCState(this->getStatusWord()) == march::IMCState::FAULT);
-}
-
-std::string IMotionCube::getErrorStatus()
-{
-  std::ostringstream error_stream;
-
-  std::string state = IMCState(this->getStatusWord()).getString().c_str();
-
-  std::bitset<16> statusWordBits = this->getStatusWord();
-  std::string statusWord = statusWordBits.to_string();
-  std::bitset<16> motionErrorBits = this->getMotionError();
-  std::string motionError = motionErrorBits.to_string();
-  std::bitset<16> detailedErrorBits = this->getDetailedError();
-  std::string detailedError = detailedErrorBits.to_string();
-  std::bitset<16> secondDetailedErrorBits = this->getSecondDetailedError();
-  std::string secondDetailedError = secondDetailedErrorBits.to_string();
-
-  std::string motionErrorDescription = error::parseError(this->getMotionError(), error::ErrorRegisters::MOTION_ERROR);
-  std::string detailedErrorDescription =
-      error::parseError(this->getDetailedError(), error::ErrorRegisters::DETAILED_ERROR);
-  std::string secondDetailedErrorDescription =
-      error::parseError(this->getSecondDetailedError(), error::ErrorRegisters::SECOND_DETAILED_ERROR);
-
-  error_stream << "State: " << state << "\nMotion Error: " << motionErrorDescription.c_str() << " ("
-               << motionError.c_str() << ")\nDetailed Error: " << detailedErrorDescription.c_str() << " ("
-               << detailedError.c_str() << ")\nSecond Detailed Error: " << secondDetailedErrorDescription.c_str()
-               << " (" << secondDetailedError.c_str() << ")";
-  return error_stream.str();
-}
-
-MotorControllerStates IMotionCube::getStates()
-{
-  MotorControllerStates states;
+  static IMotionCubeStates states;
 
   // Common states
   states.motorCurrent = this->getMotorCurrent();
@@ -380,7 +348,22 @@ MotorControllerStates IMotionCube::getStates()
   states.incrementalEncoderValue = this->getAngleIUIncremental();
   states.absoluteVelocity = this->getVelocityIUAbsolute();
   states.incrementalVelocity = this->getVelocityIUIncremental();
-  states.errorStatus = this->getErrorStatus();
+
+  states.statusWord = this->getStatusWord();
+  std::bitset<16> motionErrorBits = this->getMotionError();
+  states.motionError = motionErrorBits.to_string();
+  std::bitset<16> detailedErrorBits = this->getDetailedError();
+  states.detailedError = detailedErrorBits.to_string();
+  std::bitset<16> secondDetailedErrorBits = this->getSecondDetailedError();
+  states.secondDetailedError = secondDetailedErrorBits.to_string();
+
+  states.state = IMCStateOfOperation(this->getStatusWord());
+
+  states.motionErrorDescription = error::parseError(this->getMotionError(), error::ErrorRegisters::MOTION_ERROR);
+  states.detailedErrorDescription =
+      error::parseError(this->getDetailedError(), error::ErrorRegisters::DETAILED_ERROR);
+  states.secondDetailedErrorDescription =
+      error::parseError(this->getSecondDetailedError(), error::ErrorRegisters::SECOND_DETAILED_ERROR);
 
   return states;
 }
@@ -394,7 +377,7 @@ void IMotionCube::goToTargetState(IMotionCubeTargetState target_state)
     ROS_INFO_DELAYED_THROTTLE(5, "\tWaiting for '%s': %s", target_state.getDescription().c_str(),
                               std::bitset<16>(this->getStatusWord()).to_string().c_str());
     if (target_state.getState() == IMotionCubeTargetState::OPERATION_ENABLED.getState() &&
-        IMCState(this->getStatusWord()) == IMCState::FAULT)
+        IMCStateOfOperation(this->getStatusWord()) == IMCStateOfOperation::FAULT)
     {
       ROS_FATAL("IMotionCube went to fault state while attempting to go to '%s'. Shutting down.",
                 target_state.getDescription().c_str());

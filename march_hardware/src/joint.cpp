@@ -166,19 +166,9 @@ float Joint::getTemperature()
   return this->temperature_ges_->getTemperature();
 }
 
-MotorControllerStates Joint::getMotorControllerStates()
+MotorControllerStates& Joint::getMotorControllerStates()
 {
   return this->controller_->getStates();
-}
-
-bool Joint::checkMotorControllerState()
-{
-  return this->controller_->checkState();
-}
-
-std::string Joint::getMotorControllerErrorStatus()
-{
-  return "Motor controller of joint " + this->name_ + " is in " + this->controller_->getErrorStatus();
 }
 
 void Joint::setAllowActuation(bool allow_actuation)

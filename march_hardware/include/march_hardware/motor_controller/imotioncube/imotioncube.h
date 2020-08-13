@@ -8,7 +8,7 @@
 #include "march_hardware/ethercat/sdo_interface.h"
 #include "march_hardware/ethercat/slave.h"
 #include "march_hardware/motor_controller/motor_controller.h"
-#include "march_hardware/motor_controller/motor_controller_state.h"
+#include "march_hardware/motor_controller/motor_controller_states.h"
 #include "imotioncube_target_state.h"
 #include "march_hardware/encoder/absolute_encoder.h"
 #include "march_hardware/encoder/incremental_encoder.h"
@@ -67,9 +67,7 @@ public:
   virtual float getMotorControllerVoltage() override;
   virtual float getMotorVoltage() override;
 
-  MotorControllerStates getStates() override;
-  bool checkState() override;
-  std::string getErrorStatus() override;
+  MotorControllerStates& getStates() override;
 
   void setControlWord(uint16_t control_word);
   virtual void actuateRad(double target_rad) override;

@@ -1,12 +1,12 @@
 // Copyright 2019 Project March.
-#ifndef MARCH_HARDWARE_IMOTIONCUBE_STATE_H
-#define MARCH_HARDWARE_IMOTIONCUBE_STATE_H
+#ifndef MARCH_HARDWARE_IMOTIONCUBE_STATE_OF_OPERATION_H
+#define MARCH_HARDWARE_IMOTIONCUBE_STATE_OF_OPERATION_H
 
 #include <string>
 
 namespace march
 {
-class IMCState
+class IMCStateOfOperation
 {
 public:
   enum Value
@@ -22,11 +22,11 @@ public:
     UNKNOWN,
   };
 
-  IMCState() : value_(UNKNOWN)
+  IMCStateOfOperation() : value_(UNKNOWN)
   {
   }
 
-  explicit IMCState(uint16_t status) : value_(UNKNOWN)
+  explicit IMCStateOfOperation(uint16_t status) : value_(UNKNOWN)
   {
     const uint16_t five_bit_mask = 0b0000000001001111;
     const uint16_t six_bit_mask = 0b0000000001101111;
@@ -45,35 +45,35 @@ public:
 
     if (five_bit_masked == not_ready_switch_on)
     {
-      this->value_ = IMCState::NOT_READY_TO_SWITCH_ON;
+      this->value_ = IMCStateOfOperation::NOT_READY_TO_SWITCH_ON;
     }
     else if (five_bit_masked == switch_on_disabled)
     {
-      this->value_ = IMCState::SWITCH_ON_DISABLED;
+      this->value_ = IMCStateOfOperation::SWITCH_ON_DISABLED;
     }
     else if (six_bit_masked == ready_to_switch_on)
     {
-      this->value_ = IMCState::READY_TO_SWITCH_ON;
+      this->value_ = IMCStateOfOperation::READY_TO_SWITCH_ON;
     }
     else if (six_bit_masked == switched_on)
     {
-      this->value_ = IMCState::SWITCHED_ON;
+      this->value_ = IMCStateOfOperation::SWITCHED_ON;
     }
     else if (six_bit_masked == operation_enabled)
     {
-      this->value_ = IMCState::OPERATION_ENABLED;
+      this->value_ = IMCStateOfOperation::OPERATION_ENABLED;
     }
     else if (six_bit_masked == quick_stop_active)
     {
-      this->value_ = IMCState::QUICK_STOP_ACTIVE;
+      this->value_ = IMCStateOfOperation::QUICK_STOP_ACTIVE;
     }
     else if (five_bit_masked == fault_reaction_active)
     {
-      this->value_ = IMCState::FAULT_REACTION_ACTIVE;
+      this->value_ = IMCStateOfOperation::FAULT_REACTION_ACTIVE;
     }
     else if (five_bit_masked == fault)
     {
-      this->value_ = IMCState::FAULT;
+      this->value_ = IMCStateOfOperation::FAULT;
     }
   }
 
@@ -108,11 +108,11 @@ public:
   {
     return this->value_ == v;
   }
-  bool operator==(IMCState a) const
+  bool operator==(IMCStateOfOperation a) const
   {
     return this->value_ == a.value_;
   }
-  bool operator!=(IMCState a) const
+  bool operator!=(IMCStateOfOperation a) const
   {
     return this->value_ != a.value_;
   }
@@ -122,4 +122,4 @@ private:
 };
 }  // namespace march
 
-#endif  // MARCH_HARDWARE_IMOTIONCUBE_STATE_H
+#endif  // MARCH_HARDWARE_IMOTIONCUBE_STATE_OF_OPERATION_H

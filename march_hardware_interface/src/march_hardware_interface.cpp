@@ -14,7 +14,8 @@
 #include <joint_limits_interface/joint_limits_urdf.h>
 #include <urdf/model.h>
 
-#include <march_hardware/imotioncube/actuation_mode.h>
+#include <march_hardware/motor_controller/actuation_mode.h>
+#include <march_hardware/motor_controller/motor_controller_states.h>
 #include <march_hardware/joint.h>
 
 using hardware_interface::JointHandle;
@@ -437,7 +438,7 @@ void MarchHardwareInterface::updateMotorControllerStates()
   for (size_t i = 0; i < num_joints_; i++)
   {
     march::Joint& joint = march_robot_->getJoint(i);
-    march::MotorControllerStates motor_controller_state = joint.getMotorControllerStates();
+    march::MotorControllerStates& motor_controller_state = joint.getMotorControllerStates();
     motor_controller_state_pub_->msg_.header.stamp = ros::Time::now();
     motor_controller_state_pub_->msg_.joint_names[i] = joint.getName();
     motor_controller_state_pub_->msg_.motor_current[i] = motor_controller_state.motorCurrent;
@@ -447,7 +448,7 @@ void MarchHardwareInterface::updateMotorControllerStates()
     motor_controller_state_pub_->msg_.incremental_encoder_value[i] = motor_controller_state.incrementalEncoderValue;
     motor_controller_state_pub_->msg_.absolute_velocity[i] = motor_controller_state.absoluteVelocity;
     motor_controller_state_pub_->msg_.incremental_velocity[i] = motor_controller_state.incrementalVelocity;
-    motor_controller_state_pub_->msg_.error_status[i] = motor_controller_state.errorStatus;
+    motor_controller_state_pub_->msg_.error_status[i] = motor_controller_state.getErrorStatus();
   }
 
   motor_controller_state_pub_->unlockAndPublish();
@@ -456,9 +457,12 @@ void MarchHardwareInterface::updateMotorControllerStates()
 bool MarchHardwareInterface::motorControllerStateCheck(size_t joint_index)
 {
   march::Joint& joint = march_robot_->getJoint(joint_index);
-  if (!joint.checkMotorControllerState())
+  march::MotorControllerStates& controller_states = joint.getMotorControllerStates();
+  if (!controller_states.checkState())
   {
-    throw std::runtime_error(joint.getMotorControllerErrorStatus());
+    std::string error_msg =
+        "Motor controller of joint " + joint.getName() + " is in " + controller_states.getErrorStatus();
+    throw std::runtime_error(error_msg);
     return false;
   }
   return true;

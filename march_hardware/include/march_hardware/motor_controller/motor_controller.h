@@ -1,7 +1,7 @@
 // Copyright 2019 Project March.
 
 #include "actuation_mode.h"
-#include "motor_controller_state.h"
+#include "motor_controller_states.h"
 #include <string>
 
 namespace march
@@ -46,17 +46,7 @@ public:
    * @return A MotorControllerState object containing all data read from the motor controller at every communication
    * cycle.
    */
-  virtual MotorControllerStates getStates() = 0;
-  /**
-   * Check whether the motor controller is in an error state
-   * @return false if the motor controller is in error state, otherwise true
-   */
-  virtual bool checkState() = 0;
-  /**
-   * Get a string describtion of the state and error states of the motor controller
-   * @return string describing the current state as well as the error state(s) of the motor controller
-   */
-  virtual std::string getErrorStatus() = 0;
+  virtual MotorControllerStates& getStates() = 0;
 
   virtual ~MotorController() noexcept = default;
 };
