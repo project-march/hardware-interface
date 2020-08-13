@@ -2,13 +2,13 @@
 
 #ifndef MARCH_HARDWARE_IMOTIONCUBE_H
 #define MARCH_HARDWARE_IMOTIONCUBE_H
-#include "actuation_mode.h"
+#include "march_hardware/motor_controller/actuation_mode.h"
 #include "march_hardware/ethercat/pdo_map.h"
 #include "march_hardware/ethercat/pdo_types.h"
 #include "march_hardware/ethercat/sdo_interface.h"
 #include "march_hardware/ethercat/slave.h"
-#include "motor_controller.h"
-#include "motor_controller_state.h"
+#include "march_hardware/motor_controller/motor_controller.h"
+#include "march_hardware/motor_controller/motor_controller_state.h"
 #include "imotioncube_target_state.h"
 #include "march_hardware/encoder/absolute_encoder.h"
 #include "march_hardware/encoder/incremental_encoder.h"
@@ -67,16 +67,17 @@ public:
   virtual float getMotorControllerVoltage() override;
   virtual float getMotorVoltage() override;
 
-  bool checkState(std::ostringstream& error_msg, std::string joint_name) override;
   MotorControllerStates getStates() override;
-  void setControlWord(uint16_t control_word);
+  bool checkState() override;
+  std::string getErrorStatus() override;
 
+  void setControlWord(uint16_t control_word);
   virtual void actuateRad(double target_rad) override;
-  virtual void actuateTorque(int16_t target_torque);
+  virtual void actuateTorque(int16_t target_torque) override;
 
   bool initialize(int cycle_time) override;
   void goToTargetState(IMotionCubeTargetState target_state);
-  virtual void goToOperationEnabled() override;
+  virtual void prepareActuation() override;
 
   uint16_t getSlaveIndex() const override;
   virtual void reset() override;

@@ -3,7 +3,7 @@
 #define MARCH_HARDWARE_MOTOR_CONTROLLER_STATE_H
 
 #include <string>
-#include "imotioncube_state.h"
+#include "imotioncube/imotioncube_state.h"
 
 namespace march
 {
@@ -19,15 +19,7 @@ public:
   int incrementalEncoderValue;
   double absoluteVelocity;
   double incrementalVelocity;
-
-  std::string statusWord;
-  std::string motionError;
-  std::string detailedError;
-  std::string secondDetailedError;
-  IMCState state;
-  std::string detailedErrorDescription;
-  std::string motionErrorDescription;
-  std::string secondDetailedErrorDescription;
+  std::string errorStatus;
 };
 
 }  // namespace march

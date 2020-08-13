@@ -110,7 +110,7 @@ TEST_F(JointTest, PrepareForActuationNotAllowed)
 
 TEST_F(JointTest, PrepareForActuationAllowed)
 {
-  EXPECT_CALL(*this->imc, goToOperationEnabled()).Times(1);
+  EXPECT_CALL(*this->imc, prepareActuation()).Times(1);
   march::Joint joint("actuate_true", 0, true, std::move(this->imc));
   ASSERT_NO_THROW(joint.prepareActuation());
 }
@@ -141,7 +141,7 @@ TEST_F(JointTest, TestPrepareActuation)
 {
   EXPECT_CALL(*this->imc, getAngleRadIncremental()).WillOnce(Return(5));
   EXPECT_CALL(*this->imc, getAngleRadAbsolute()).WillOnce(Return(3));
-  EXPECT_CALL(*this->imc, goToOperationEnabled()).Times(1);
+  EXPECT_CALL(*this->imc, prepareActuation()).Times(1);
   march::Joint joint("actuate_true", 0, true, std::move(this->imc));
   joint.prepareActuation();
   ASSERT_EQ(joint.getIncrementalPosition(), 5);

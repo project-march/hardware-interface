@@ -55,7 +55,7 @@ void Joint::prepareActuation()
                                    this->name_.c_str());
   }
   ROS_INFO("[%s] Preparing for actuation", this->name_.c_str());
-  this->controller_->goToOperationEnabled();
+  this->controller_->prepareActuation();
   ROS_INFO("[%s] Successfully prepared for actuation", this->name_.c_str());
 
   this->incremental_position_ = this->controller_->getAngleRadIncremental();
@@ -171,9 +171,14 @@ MotorControllerStates Joint::getMotorControllerStates()
   return this->controller_->getStates();
 }
 
-bool Joint::checkMotorControllerState(std::ostringstream& error_stream)
+bool Joint::checkMotorControllerState()
 {
-  return this->controller_->checkState(error_stream, this->name_);
+  return this->controller_->checkState();
+}
+
+std::string Joint::getMotorControllerErrorStatus()
+{
+  return "Motor controller of joint " + this->name_ + " is in " + this->controller_->getErrorStatus();
 }
 
 void Joint::setAllowActuation(bool allow_actuation)

@@ -1,5 +1,5 @@
 // Copyright 2018 Project March.
-#include "march_hardware/imotioncube/imotioncube.h"
+#include "march_hardware/motor_controller/imotioncube/imotioncube.h"
 #include "march_hardware/error/hardware_exception.h"
 #include "march_hardware/error/motion_error.h"
 #include "march_hardware/ethercat/pdo_types.h"
@@ -334,21 +334,37 @@ void IMotionCube::setControlWord(uint16_t control_word)
   this->write16(this->mosi_byte_offsets_.at(IMCObjectName::ControlWord), control_word_ui);
 }
 
-bool IMotionCube::checkState(std::ostringstream& error_stream, std::string joint_name)
+bool IMotionCube::checkState()
 {
-  march::MotorControllerStates imc_state = this->getStates();
-  if (imc_state.state == march::IMCState::FAULT)
-  {
-    error_stream << "IMotionCube of joint " << joint_name << " is in fault state "
-                 << imc_state.state.getString().c_str()
-                 << "\nMotion Error: " << imc_state.motionErrorDescription.c_str() << " ("
-                 << imc_state.motionError.c_str() << ")\nDetailed Error: " << imc_state.detailedErrorDescription.c_str()
-                 << " (" << imc_state.detailedError.c_str()
-                 << ")\nSecond Detailed Error: " << imc_state.secondDetailedErrorDescription.c_str() << " ("
-                 << imc_state.secondDetailedError.c_str() << ")";
-    return false;
-  }
-  return true;
+  return !(IMCState(this->getStatusWord()) == march::IMCState::FAULT);
+}
+
+std::string IMotionCube::getErrorStatus()
+{
+  std::ostringstream error_stream;
+
+  std::string state = IMCState(this->getStatusWord()).getString().c_str();
+
+  std::bitset<16> statusWordBits = this->getStatusWord();
+  std::string statusWord = statusWordBits.to_string();
+  std::bitset<16> motionErrorBits = this->getMotionError();
+  std::string motionError = motionErrorBits.to_string();
+  std::bitset<16> detailedErrorBits = this->getDetailedError();
+  std::string detailedError = detailedErrorBits.to_string();
+  std::bitset<16> secondDetailedErrorBits = this->getSecondDetailedError();
+  std::string secondDetailedError = secondDetailedErrorBits.to_string();
+
+  std::string motionErrorDescription = error::parseError(this->getMotionError(), error::ErrorRegisters::MOTION_ERROR);
+  std::string detailedErrorDescription =
+      error::parseError(this->getDetailedError(), error::ErrorRegisters::DETAILED_ERROR);
+  std::string secondDetailedErrorDescription =
+      error::parseError(this->getSecondDetailedError(), error::ErrorRegisters::SECOND_DETAILED_ERROR);
+
+  error_stream << "State: " << state << "\nMotion Error: " << motionErrorDescription.c_str() << " ("
+               << motionError.c_str() << ")\nDetailed Error: " << detailedErrorDescription.c_str() << " ("
+               << detailedError.c_str() << ")\nSecond Detailed Error: " << secondDetailedErrorDescription.c_str()
+               << " (" << secondDetailedError.c_str() << ")";
+  return error_stream.str();
 }
 
 MotorControllerStates IMotionCube::getStates()
@@ -364,23 +380,7 @@ MotorControllerStates IMotionCube::getStates()
   states.incrementalEncoderValue = this->getAngleIUIncremental();
   states.absoluteVelocity = this->getVelocityIUAbsolute();
   states.incrementalVelocity = this->getVelocityIUIncremental();
-
-  // iMotionCube specific states
-  std::bitset<16> statusWordBits = this->getStatusWord();
-  states.statusWord = statusWordBits.to_string();
-  std::bitset<16> motionErrorBits = this->getMotionError();
-  states.motionError = motionErrorBits.to_string();
-  std::bitset<16> detailedErrorBits = this->getDetailedError();
-  states.detailedError = detailedErrorBits.to_string();
-  std::bitset<16> secondDetailedErrorBits = this->getSecondDetailedError();
-  states.secondDetailedError = secondDetailedErrorBits.to_string();
-
-  states.motionErrorDescription = error::parseError(this->getMotionError(), error::ErrorRegisters::MOTION_ERROR);
-  states.detailedErrorDescription = error::parseError(this->getDetailedError(), error::ErrorRegisters::DETAILED_ERROR);
-  states.secondDetailedErrorDescription =
-      error::parseError(this->getSecondDetailedError(), error::ErrorRegisters::SECOND_DETAILED_ERROR);
-
-  states.state = IMCState(this->getStatusWord());
+  states.errorStatus = this->getErrorStatus();
 
   return states;
 }
@@ -412,7 +412,7 @@ void IMotionCube::goToTargetState(IMotionCubeTargetState target_state)
   ROS_DEBUG("\tReached '%s'!", target_state.getDescription().c_str());
 }
 
-void IMotionCube::goToOperationEnabled()
+void IMotionCube::prepareActuation()
 {
   if (this->actuation_mode_ == ActuationMode::unknown)
   {

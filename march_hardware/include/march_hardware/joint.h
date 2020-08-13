@@ -7,10 +7,10 @@
 #include <utility>
 #include <vector>
 
-#include <march_hardware/imotioncube/imotioncube.h>
+#include <march_hardware/motor_controller/imotioncube/imotioncube.h>
 #include <march_hardware/power/power_distribution_board.h>
 #include <march_hardware/temperature/temperature_ges.h>
-#include <march_hardware/imotioncube/motor_controller_state.h>
+#include <march_hardware/motor_controller/motor_controller_state.h>
 
 namespace march
 {
@@ -65,7 +65,8 @@ public:
   double getVelocityIUIncremental();
   float getTemperature();
   MotorControllerStates getMotorControllerStates();
-  virtual bool checkMotorControllerState(std::ostringstream& error_stream);
+  virtual bool checkMotorControllerState();
+  std::string getMotorControllerErrorStatus();
 
   std::string getName() const;
   int getTemperatureGESSlaveIndex() const;

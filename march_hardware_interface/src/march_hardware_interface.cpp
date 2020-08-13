@@ -25,8 +25,10 @@ using joint_limits_interface::JointLimits;
 using joint_limits_interface::PositionJointSoftLimitsHandle;
 using joint_limits_interface::SoftJointLimits;
 
-MarchHardwareInterface::MarchHardwareInterface(std::unique_ptr<march::MarchRobot> robot, bool reset_imc)
-  : march_robot_(std::move(robot)), num_joints_(this->march_robot_->size()), reset_imc_(reset_imc)
+MarchHardwareInterface::MarchHardwareInterface(std::unique_ptr<march::MarchRobot> robot, bool reset_motor_controllers)
+  : march_robot_(std::move(robot))
+  , num_joints_(this->march_robot_->size())
+  , reset_motor_controllers_(reset_motor_controllers)
 {
 }
 
@@ -34,8 +36,8 @@ bool MarchHardwareInterface::init(ros::NodeHandle& nh, ros::NodeHandle& /* robot
 {
   // Initialize realtime publisher for the motor controller states
   this->motor_controller_state_pub_ =
-      std::make_unique<realtime_tools::RealtimePublisher<march_shared_resources::ImcState>>(nh, "/march/imc_states/",
-                                                                                            4);
+      std::make_unique<realtime_tools::RealtimePublisher<march_shared_resources::MotorControllerState>>(
+          nh, "/march/motor_controller_states/", 4);
 
   this->after_limit_joint_command_pub_ =
       std::make_unique<realtime_tools::RealtimePublisher<march_shared_resources::AfterLimitJointCommand>>(
@@ -46,7 +48,7 @@ bool MarchHardwareInterface::init(ros::NodeHandle& nh, ros::NodeHandle& /* robot
   this->reserveMemory();
 
   // Start ethercat cycle in the hardware
-  this->march_robot_->startEtherCAT(this->reset_imc_);
+  this->march_robot_->startEtherCAT(this->reset_motor_controllers_);
 
   for (size_t i = 0; i < num_joints_; ++i)
   {
@@ -322,19 +324,14 @@ void MarchHardwareInterface::reserveMemory()
   after_limit_joint_command_pub_->msg_.effort_command.resize(num_joints_);
 
   motor_controller_state_pub_->msg_.joint_names.resize(num_joints_);
-  motor_controller_state_pub_->msg_.status_word.resize(num_joints_);
-  motor_controller_state_pub_->msg_.detailed_error.resize(num_joints_);
-  motor_controller_state_pub_->msg_.motion_error.resize(num_joints_);
-  motor_controller_state_pub_->msg_.state.resize(num_joints_);
-  motor_controller_state_pub_->msg_.detailed_error_description.resize(num_joints_);
-  motor_controller_state_pub_->msg_.motion_error_description.resize(num_joints_);
   motor_controller_state_pub_->msg_.motor_current.resize(num_joints_);
-  motor_controller_state_pub_->msg_.imc_voltage.resize(num_joints_);
+  motor_controller_state_pub_->msg_.controller_voltage.resize(num_joints_);
   motor_controller_state_pub_->msg_.motor_voltage.resize(num_joints_);
   motor_controller_state_pub_->msg_.absolute_encoder_value.resize(num_joints_);
   motor_controller_state_pub_->msg_.incremental_encoder_value.resize(num_joints_);
   motor_controller_state_pub_->msg_.absolute_velocity.resize(num_joints_);
   motor_controller_state_pub_->msg_.incremental_velocity.resize(num_joints_);
+  motor_controller_state_pub_->msg_.error_status.resize(num_joints_);
 }
 
 void MarchHardwareInterface::updatePowerDistributionBoard()
@@ -444,19 +441,13 @@ void MarchHardwareInterface::updateMotorControllerStates()
     motor_controller_state_pub_->msg_.header.stamp = ros::Time::now();
     motor_controller_state_pub_->msg_.joint_names[i] = joint.getName();
     motor_controller_state_pub_->msg_.motor_current[i] = motor_controller_state.motorCurrent;
-    motor_controller_state_pub_->msg_.imc_voltage[i] = motor_controller_state.controllerVoltage;
+    motor_controller_state_pub_->msg_.controller_voltage[i] = motor_controller_state.controllerVoltage;
     motor_controller_state_pub_->msg_.motor_voltage[i] = motor_controller_state.motorVoltage;
     motor_controller_state_pub_->msg_.absolute_encoder_value[i] = motor_controller_state.absoluteEncoderValue;
     motor_controller_state_pub_->msg_.incremental_encoder_value[i] = motor_controller_state.incrementalEncoderValue;
     motor_controller_state_pub_->msg_.absolute_velocity[i] = motor_controller_state.absoluteVelocity;
     motor_controller_state_pub_->msg_.incremental_velocity[i] = motor_controller_state.incrementalVelocity;
-
-    motor_controller_state_pub_->msg_.state[i] = motor_controller_state.state.getString();
-    motor_controller_state_pub_->msg_.status_word[i] = motor_controller_state.statusWord;
-    motor_controller_state_pub_->msg_.detailed_error[i] = motor_controller_state.detailedError;
-    motor_controller_state_pub_->msg_.motion_error[i] = motor_controller_state.motionError;
-    motor_controller_state_pub_->msg_.detailed_error_description[i] = motor_controller_state.detailedErrorDescription;
-    motor_controller_state_pub_->msg_.motion_error_description[i] = motor_controller_state.motionErrorDescription;
+    motor_controller_state_pub_->msg_.error_status[i] = motor_controller_state.errorStatus;
   }
 
   motor_controller_state_pub_->unlockAndPublish();
@@ -465,10 +456,9 @@ void MarchHardwareInterface::updateMotorControllerStates()
 bool MarchHardwareInterface::motorControllerStateCheck(size_t joint_index)
 {
   march::Joint& joint = march_robot_->getJoint(joint_index);
-  std::ostringstream error_stream;
-  if (!joint.checkMotorControllerState(error_stream))
+  if (!joint.checkMotorControllerState())
   {
-    throw std::runtime_error(error_stream.str());
+    throw std::runtime_error(joint.getMotorControllerErrorStatus());
     return false;
   }
   return true;
