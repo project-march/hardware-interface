@@ -335,7 +335,7 @@ void IMotionCube::setControlWord(uint16_t control_word)
   this->write16(this->mosi_byte_offsets_.at(IMCObjectName::ControlWord), control_word_ui);
 }
 
-MotorControllerStates & IMotionCube::getStates()
+MotorControllerStates& IMotionCube::getStates()
 {
   static IMotionCubeStates states;
 
@@ -360,8 +360,7 @@ MotorControllerStates & IMotionCube::getStates()
   states.state = IMCStateOfOperation(this->getStatusWord());
 
   states.motionErrorDescription = error::parseError(this->getMotionError(), error::ErrorRegisters::MOTION_ERROR);
-  states.detailedErrorDescription =
-      error::parseError(this->getDetailedError(), error::ErrorRegisters::DETAILED_ERROR);
+  states.detailedErrorDescription = error::parseError(this->getDetailedError(), error::ErrorRegisters::DETAILED_ERROR);
   states.secondDetailedErrorDescription =
       error::parseError(this->getSecondDetailedError(), error::ErrorRegisters::SECOND_DETAILED_ERROR);
 
