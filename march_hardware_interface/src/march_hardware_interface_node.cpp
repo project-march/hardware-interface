@@ -54,7 +54,7 @@ int main(int argc, char** argv)
   {
     try
     {
-      march.waitForPdo();
+      march.waitForUpdate();
 
       const ros::Time now = ros::Time::now();
       ros::Duration elapsed_time = now - last_update_time;

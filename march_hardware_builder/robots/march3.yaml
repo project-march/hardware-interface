@@ -1,6 +1,6 @@
 march3:
   ifName: enp3s0
-  ecatCycleTime: 4
+  cycleTime: 4
   joints:
     - right_hip:
         actuationMode: position

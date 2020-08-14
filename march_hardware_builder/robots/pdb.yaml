@@ -1,6 +1,6 @@
 pdb:
   ifName: enp2s0
-  ecatCycleTime: 4
+  cycleTime: 4
   powerDistributionBoard:
     slaveIndex: 1
     bootShutdownOffsets:

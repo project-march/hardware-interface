@@ -45,21 +45,21 @@ public:
 
   void resetIMotionCubes();
 
-  void startEtherCAT(bool reset_imc);
+  void startCommunication(bool reset_imc);
 
-  void stopEtherCAT();
+  void stopCommunication();
 
   int getMaxSlaveIndex();
 
   bool hasValidSlaves();
 
-  bool isEthercatOperational();
+  bool isCommunicationOperational();
 
-  std::exception_ptr getLastEthercatException() const noexcept;
+  std::exception_ptr getLastCommunicationException() const noexcept;
 
-  void waitForPdo();
+  void waitForUpdate();
 
-  int getEthercatCycleTime() const;
+  int getCycleTime() const;
 
   Joint& getJoint(::std::string jointName);
 

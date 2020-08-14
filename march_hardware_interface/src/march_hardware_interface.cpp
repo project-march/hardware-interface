@@ -48,8 +48,8 @@ bool MarchHardwareInterface::init(ros::NodeHandle& nh, ros::NodeHandle& /* robot
 
   this->reserveMemory();
 
-  // Start ethercat cycle in the hardware
-  this->march_robot_->startEtherCAT(this->reset_motor_controllers_);
+  // Start communication cycle in the hardware
+  this->march_robot_->startCommunication(this->reset_motor_controllers_);
 
   for (size_t i = 0; i < num_joints_; ++i)
   {
@@ -144,7 +144,7 @@ bool MarchHardwareInterface::init(ros::NodeHandle& nh, ros::NodeHandle& /* robot
                                                            &joint_temperature_variance_[i]);
     march_temperature_interface_.registerHandle(temperature_sensor_handle);
 
-    // Enable high voltage on the IMC
+    // Enable high voltage on the Motor controllers
     if (joint.canActuate())
     {
       joint.prepareActuation();
@@ -178,7 +178,7 @@ bool MarchHardwareInterface::init(ros::NodeHandle& nh, ros::NodeHandle& /* robot
 
 void MarchHardwareInterface::validate()
 {
-  const auto last_exception = this->march_robot_->getLastEthercatException();
+  const auto last_exception = this->march_robot_->getLastCommunicationException();
   if (last_exception)
   {
     std::rethrow_exception(last_exception);
@@ -195,14 +195,14 @@ void MarchHardwareInterface::validate()
   }
   if (fault_state)
   {
-    this->march_robot_->stopEtherCAT();
+    this->march_robot_->stopCommunication();
     throw std::runtime_error("One or more motor controllers are in fault state");
   }
 }
 
-void MarchHardwareInterface::waitForPdo()
+void MarchHardwareInterface::waitForUpdate()
 {
-  this->march_robot_->waitForPdo();
+  this->march_robot_->waitForUpdate();
 }
 
 void MarchHardwareInterface::read(const ros::Time& /* time */, const ros::Duration& elapsed_time)
@@ -211,7 +211,7 @@ void MarchHardwareInterface::read(const ros::Time& /* time */, const ros::Durati
   {
     march::Joint& joint = march_robot_->getJoint(i);
 
-    // Update position with he most accurate velocity
+    // Update position with the most accurate velocity
     joint.readEncoders(elapsed_time);
     joint_position_[i] = joint.getPosition();
     joint_velocity_[i] = joint.getVelocity();
@@ -290,9 +290,9 @@ void MarchHardwareInterface::write(const ros::Time& /* time */, const ros::Durat
   }
 }
 
-int MarchHardwareInterface::getEthercatCycleTime() const
+int MarchHardwareInterface::getCycleTime() const
 {
-  return this->march_robot_->getEthercatCycleTime();
+  return this->march_robot_->getCycleTime();
 }
 
 void MarchHardwareInterface::uploadJointNames(ros::NodeHandle& nh) const
