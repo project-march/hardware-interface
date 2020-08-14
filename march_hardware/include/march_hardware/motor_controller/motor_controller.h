@@ -1,5 +1,7 @@
 // Copyright 2019 Project March.
 
+#ifndef MARCH_HARDWARE_MOTOR_CONTROLLER_H
+#define MARCH_HARDWARE_MOTOR_CONTROLLER_H
 #include "actuation_mode.h"
 #include "motor_controller_states.h"
 #include <string>
@@ -52,3 +54,4 @@ public:
 };
 
 }  // namespace march
+#endif  // MARCH_HARDWARE_MOTOR_CONTROLLER_H

@@ -43,9 +43,9 @@ public:
   MarchRobot(MarchRobot&&) = delete;
   MarchRobot& operator=(MarchRobot&&) = delete;
 
-  void resetIMotionCubes();
+  void resetMotorControllers();
 
-  void startCommunication(bool reset_imc);
+  void startCommunication(bool reset_motor_controllers);
 
   void stopCommunication();
 

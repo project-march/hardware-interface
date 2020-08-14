@@ -126,7 +126,7 @@ if(CATKIN_ENABLE_TESTING)
         test/joint_test.cpp
         test/mocks/mock_absolute_encoder.h
         test/mocks/mock_encoder.h
-        test/mocks/mock_imotioncube.h
+        test/mocks/mock_motor_controller.h
         test/mocks/mock_incremental_encoder.h
         test/mocks/mock_joint.h
         test/mocks/mock_pdo_interface.h

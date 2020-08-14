@@ -232,7 +232,7 @@ PowerDistributionBoard* MarchRobot::getPowerDistributionBoard() const
 
 MarchRobot::~MarchRobot()
 {
-  stopEtherCAT();
+  stopCommunication();
 }
 
 const urdf::Model& MarchRobot::getUrdf() const
