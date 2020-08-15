@@ -1,6 +1,6 @@
 // Copyright 2018 Project March.
-#include "march_hardware/motor_controller/imotioncube/imotioncube.h"
-#include "march_hardware/motor_controller/imotioncube/imotioncube_states.h"
+#include "march_hardware/motor_controller/ingenia/ingenia.h"
+#include "march_hardware/motor_controller/ingenia/ingenia_states.h"
 #include "march_hardware/error/hardware_exception.h"
 #include "march_hardware/error/motion_error.h"
 #include "march_hardware/ethercat/pdo_types.h"
@@ -16,7 +16,7 @@
 
 namespace march
 {
-IMotionCube::IMotionCube(const Slave& slave, std::unique_ptr<AbsoluteEncoder> absolute_encoder,
+Ingenia::Ingenia(const Slave& slave, std::unique_ptr<AbsoluteEncoder> absolute_encoder,
                          std::unique_ptr<IncrementalEncoder> incremental_encoder, ActuationMode actuation_mode)
   : Slave(slave)
   , absolute_encoder_(std::move(absolute_encoder))
@@ -30,20 +30,20 @@ IMotionCube::IMotionCube(const Slave& slave, std::unique_ptr<AbsoluteEncoder> ab
   }
 }
 
-IMotionCube::IMotionCube(const Slave& slave, std::unique_ptr<AbsoluteEncoder> absolute_encoder,
+Ingenia::Ingenia(const Slave& slave, std::unique_ptr<AbsoluteEncoder> absolute_encoder,
                          std::unique_ptr<IncrementalEncoder> incremental_encoder, std::string& sw_stream,
                          ActuationMode actuation_mode)
-  : IMotionCube(slave, std::move(absolute_encoder), std::move(incremental_encoder), actuation_mode)
+  : Ingenia(slave, std::move(absolute_encoder), std::move(incremental_encoder), actuation_mode)
 {
   this->sw_string_ = std::move(sw_stream);
 }
 
-bool IMotionCube::initSdo(SdoSlaveInterface& sdo, int cycle_time)
+bool Ingenia::initSdo(SdoSlaveInterface& sdo, int cycle_time)
 {
   if (this->actuation_mode_ == ActuationMode::unknown)
   {
     throw error::HardwareException(error::ErrorType::INVALID_ACTUATION_MODE, "Cannot write initial settings to "
-                                                                             "IMotionCube "
+                                                                             "Ingenia "
                                                                              "as it has actuation mode of unknown");
   }
 
@@ -52,14 +52,14 @@ bool IMotionCube::initSdo(SdoSlaveInterface& sdo, int cycle_time)
   return this->writeInitialSettings(sdo, cycle_time);
 }
 
-bool IMotionCube::initialize(int cycle_time)
+bool Ingenia::initialize(int cycle_time)
 {
   return this->Slave::initSdo(cycle_time);
 }
 
 // Map Process Data Object (PDO) for by sending SDOs to the IMC
 // Master In, Slave Out
-void IMotionCube::mapMisoPDOs(SdoSlaveInterface& sdo)
+void Ingenia::mapMisoPDOs(SdoSlaveInterface& sdo)
 {
   PDOmap map_miso;
   map_miso.addObject(IMCObjectName::StatusWord);      // Compulsory!
@@ -78,7 +78,7 @@ void IMotionCube::mapMisoPDOs(SdoSlaveInterface& sdo)
 
 // Map Process Data Object (PDO) for by sending SDOs to the IMC
 // Master Out, Slave In
-void IMotionCube::mapMosiPDOs(SdoSlaveInterface& sdo)
+void Ingenia::mapMosiPDOs(SdoSlaveInterface& sdo)
 {
   PDOmap map_mosi;
   map_mosi.addObject(IMCObjectName::ControlWord);  // Compulsory!
@@ -88,7 +88,7 @@ void IMotionCube::mapMosiPDOs(SdoSlaveInterface& sdo)
 }
 
 // Set configuration parameters to the IMC
-bool IMotionCube::writeInitialSettings(SdoSlaveInterface& sdo, int cycle_time)
+bool Ingenia::writeInitialSettings(SdoSlaveInterface& sdo, int cycle_time)
 {
   bool checksum_verified = this->verifySetup(sdo);
 
@@ -149,7 +149,7 @@ bool IMotionCube::writeInitialSettings(SdoSlaveInterface& sdo, int cycle_time)
   return false;
 }
 
-void IMotionCube::actuateRad(double target_rad)
+void Ingenia::actuateRad(double target_rad)
 {
   if (this->actuation_mode_ != ActuationMode::position)
   {
@@ -167,7 +167,7 @@ void IMotionCube::actuateRad(double target_rad)
   this->actuateIU(this->absolute_encoder_->fromRad(target_rad));
 }
 
-void IMotionCube::actuateIU(int32_t target_iu)
+void Ingenia::actuateIU(int32_t target_iu)
 {
   if (!this->absolute_encoder_->isValidTargetIU(this->getAngleIUAbsolute(), target_iu))
   {
@@ -184,7 +184,7 @@ void IMotionCube::actuateIU(int32_t target_iu)
   this->write32(target_position_location, target_position);
 }
 
-void IMotionCube::actuateTorque(int16_t target_torque)
+void Ingenia::actuateTorque(int16_t target_torque)
 {
   if (this->actuation_mode_ != ActuationMode::torque)
   {
@@ -206,103 +206,103 @@ void IMotionCube::actuateTorque(int16_t target_torque)
   this->write16(target_torque_location, target_torque_struct);
 }
 
-uint16_t IMotionCube::getSlaveIndex() const
+uint16_t Ingenia::getSlaveIndex() const
 {
   return this->Slave::getSlaveIndex();
 }
 
-double IMotionCube::getAngleRadAbsolute()
+double Ingenia::getAngleRadAbsolute()
 {
-  if (!IMotionCubeTargetState::SWITCHED_ON.isReached(this->getStatusWord()) &&
-      !IMotionCubeTargetState::OPERATION_ENABLED.isReached(this->getStatusWord()))
+  if (!IngeniaTargetState::SWITCHED_ON.isReached(this->getStatusWord()) &&
+      !IngeniaTargetState::OPERATION_ENABLED.isReached(this->getStatusWord()))
   {
     ROS_WARN_THROTTLE(10, "Invalid use of encoders, you're not in the correct state.");
   }
   return this->absolute_encoder_->getAngleRad(*this, this->miso_byte_offsets_.at(IMCObjectName::ActualPosition));
 }
 
-double IMotionCube::getAngleRadIncremental()
+double Ingenia::getAngleRadIncremental()
 {
-  if (!IMotionCubeTargetState::SWITCHED_ON.isReached(this->getStatusWord()) &&
-      !IMotionCubeTargetState::OPERATION_ENABLED.isReached(this->getStatusWord()))
+  if (!IngeniaTargetState::SWITCHED_ON.isReached(this->getStatusWord()) &&
+      !IngeniaTargetState::OPERATION_ENABLED.isReached(this->getStatusWord()))
   {
     ROS_WARN_THROTTLE(10, "Invalid use of encoders, you're not in the correct state.");
   }
   return this->incremental_encoder_->getAngleRad(*this, this->miso_byte_offsets_.at(IMCObjectName::MotorPosition));
 }
 
-bool IMotionCube::getIncrementalMorePrecise() const
+bool Ingenia::getIncrementalMorePrecise() const
 {
   return this->incremental_encoder_->getRadPerBit() < this->absolute_encoder_->getRadPerBit();
 }
 
-double IMotionCube::getAbsoluteRadPerBit() const
+double Ingenia::getAbsoluteRadPerBit() const
 {
   return this->absolute_encoder_->getRadPerBit();
 }
 
-double IMotionCube::getIncrementalRadPerBit() const
+double Ingenia::getIncrementalRadPerBit() const
 {
   return this->incremental_encoder_->getRadPerBit();
 }
 
-int16_t IMotionCube::getTorque()
+int16_t Ingenia::getTorque()
 {
   bit16 return_byte = this->read16(this->miso_byte_offsets_.at(IMCObjectName::ActualTorque));
   return return_byte.i;
 }
 
-int32_t IMotionCube::getAngleIUAbsolute()
+int32_t Ingenia::getAngleIUAbsolute()
 {
   return this->absolute_encoder_->getAngleIU(*this, this->miso_byte_offsets_.at(IMCObjectName::ActualPosition));
 }
 
-int IMotionCube::getAngleIUIncremental()
+int Ingenia::getAngleIUIncremental()
 {
   return this->incremental_encoder_->getAngleIU(*this, this->miso_byte_offsets_.at(IMCObjectName::MotorPosition));
 }
 
-double IMotionCube::getVelocityIUAbsolute()
+double Ingenia::getVelocityIUAbsolute()
 {
   return this->absolute_encoder_->getVelocityIU(*this, this->miso_byte_offsets_.at(IMCObjectName::ActualVelocity));
 }
 
-double IMotionCube::getVelocityIUIncremental()
+double Ingenia::getVelocityIUIncremental()
 {
   return this->incremental_encoder_->getVelocityIU(*this, this->miso_byte_offsets_.at(IMCObjectName::MotorVelocity));
 }
 
-double IMotionCube::getVelocityRadAbsolute()
+double Ingenia::getVelocityRadAbsolute()
 {
   return this->absolute_encoder_->getVelocityRad(*this, this->miso_byte_offsets_.at(IMCObjectName::ActualVelocity));
 }
 
-double IMotionCube::getVelocityRadIncremental()
+double Ingenia::getVelocityRadIncremental()
 {
   return this->incremental_encoder_->getVelocityRad(*this, this->miso_byte_offsets_.at(IMCObjectName::MotorVelocity));
 }
 
-uint16_t IMotionCube::getStatusWord()
+uint16_t Ingenia::getStatusWord()
 {
   return this->read16(this->miso_byte_offsets_.at(IMCObjectName::StatusWord)).ui;
 }
 
-uint16_t IMotionCube::getMotionError()
+uint16_t Ingenia::getMotionError()
 {
   return this->read16(this->miso_byte_offsets_.at(IMCObjectName::MotionErrorRegister)).ui;
 }
 
-uint16_t IMotionCube::getDetailedError()
+uint16_t Ingenia::getDetailedError()
 {
   return this->read16(this->miso_byte_offsets_.at(IMCObjectName::DetailedErrorRegister)).ui;
 }
 
-uint16_t IMotionCube::getSecondDetailedError()
+uint16_t Ingenia::getSecondDetailedError()
 {
   return this->read16(this->miso_byte_offsets_.at(IMCObjectName::SecondDetailedErrorRegister)).ui;
 }
 
-float IMotionCube::getMotorCurrent()
+float Ingenia::getMotorCurrent()
 {
   const float PEAK_CURRENT = 40.0;            // Peak current of iMC drive
   const float IU_CONVERSION_CONST = 65520.0;  // Conversion parameter, see Technosoft CoE programming manual
@@ -312,7 +312,7 @@ float IMotionCube::getMotorCurrent()
          static_cast<float>(motor_current_iu);  // Conversion to Amp, see Technosoft CoE programming manual
 }
 
-float IMotionCube::getMotorControllerVoltage()
+float Ingenia::getMotorControllerVoltage()
 {
   // maximum measurable DC voltage found in EMS Setup/Drive info button
   const float V_DC_MAX_MEASURABLE = 102.3;
@@ -324,20 +324,20 @@ float IMotionCube::getMotorControllerVoltage()
          static_cast<float>(imc_voltage_iu);  // Conversion to Volt, see Technosoft CoE programming manual
 }
 
-float IMotionCube::getMotorVoltage()
+float Ingenia::getMotorVoltage()
 {
   return this->read16(this->miso_byte_offsets_.at(IMCObjectName::MotorVoltage)).ui;
 }
 
-void IMotionCube::setControlWord(uint16_t control_word)
+void Ingenia::setControlWord(uint16_t control_word)
 {
   bit16 control_word_ui = { .ui = control_word };
   this->write16(this->mosi_byte_offsets_.at(IMCObjectName::ControlWord), control_word_ui);
 }
 
-MotorControllerStates& IMotionCube::getStates()
+MotorControllerStates& Ingenia::getStates()
 {
-  static IMotionCubeStates states;
+  static IngeniaStates states;
 
   // Common states
   states.motorCurrent = this->getMotorCurrent();
@@ -367,7 +367,7 @@ MotorControllerStates& IMotionCube::getStates()
   return states;
 }
 
-void IMotionCube::goToTargetState(IMotionCubeTargetState target_state)
+void Ingenia::goToTargetState(IngeniaTargetState target_state)
 {
   ROS_DEBUG("\tTry to go to '%s'", target_state.getDescription().c_str());
   while (!target_state.isReached(this->getStatusWord()))
@@ -375,10 +375,10 @@ void IMotionCube::goToTargetState(IMotionCubeTargetState target_state)
     this->setControlWord(target_state.getControlWord());
     ROS_INFO_DELAYED_THROTTLE(5, "\tWaiting for '%s': %s", target_state.getDescription().c_str(),
                               std::bitset<16>(this->getStatusWord()).to_string().c_str());
-    if (target_state.getState() == IMotionCubeTargetState::OPERATION_ENABLED.getState() &&
+    if (target_state.getState() == IngeniaTargetState::OPERATION_ENABLED.getState() &&
         IMCStateOfOperation(this->getStatusWord()) == IMCStateOfOperation::FAULT)
     {
-      ROS_FATAL("IMotionCube went to fault state while attempting to go to '%s'. Shutting down.",
+      ROS_FATAL("Ingenia went to fault state while attempting to go to '%s'. Shutting down.",
                 target_state.getDescription().c_str());
       ROS_FATAL("Motion Error (MER): %s",
                 error::parseError(this->getMotionError(), error::ErrorRegisters::MOTION_ERROR).c_str());
@@ -394,7 +394,7 @@ void IMotionCube::goToTargetState(IMotionCubeTargetState target_state)
   ROS_DEBUG("\tReached '%s'!", target_state.getDescription().c_str());
 }
 
-void IMotionCube::prepareActuation()
+void Ingenia::prepareActuation()
 {
   if (this->actuation_mode_ == ActuationMode::unknown)
   {
@@ -403,9 +403,9 @@ void IMotionCube::prepareActuation()
   }
   this->setControlWord(128);
 
-  this->goToTargetState(IMotionCubeTargetState::SWITCH_ON_DISABLED);
-  this->goToTargetState(IMotionCubeTargetState::READY_TO_SWITCH_ON);
-  this->goToTargetState(IMotionCubeTargetState::SWITCHED_ON);
+  this->goToTargetState(IngeniaTargetState::SWITCH_ON_DISABLED);
+  this->goToTargetState(IngeniaTargetState::READY_TO_SWITCH_ON);
+  this->goToTargetState(IngeniaTargetState::SWITCHED_ON);
 
   const int32_t angle = this->getAngleIUAbsolute();
   //  If the encoder is functioning correctly and the joint is not outside hardlimits, move the joint to its current
@@ -413,7 +413,7 @@ void IMotionCube::prepareActuation()
   if (abs(angle) <= 2)
   {
     throw error::HardwareException(error::ErrorType::ENCODER_RESET,
-                                   "Encoder of IMotionCube with slave index %d has reset. Read angle %d IU",
+                                   "Encoder of Ingenia with slave index %d has reset. Read angle %d IU",
                                    this->getSlaveIndex(), angle);
   }
   else if (!this->absolute_encoder_->isWithinHardLimitsIU(angle))
@@ -434,22 +434,22 @@ void IMotionCube::prepareActuation()
     this->actuateTorque(0);
   }
 
-  this->goToTargetState(IMotionCubeTargetState::OPERATION_ENABLED);
+  this->goToTargetState(IngeniaTargetState::OPERATION_ENABLED);
 }
 
-void IMotionCube::reset(SdoSlaveInterface& sdo)
+void Ingenia::reset(SdoSlaveInterface& sdo)
 {
   this->setControlWord(0);
   ROS_DEBUG("Slave: %d, Try to reset IMC", this->getSlaveIndex());
   sdo.write<uint16_t>(0x2080, 0, 1);
 }
 
-void IMotionCube::reset()
+void Ingenia::reset()
 {
   return this->Slave::reset();
 }
 
-uint16_t IMotionCube::computeSWCheckSum(uint16_t& start_address, uint16_t& end_address)
+uint16_t Ingenia::computeSWCheckSum(uint16_t& start_address, uint16_t& end_address)
 {
   size_t pos = 0;
   size_t old_pos = 0;
@@ -476,7 +476,7 @@ uint16_t IMotionCube::computeSWCheckSum(uint16_t& start_address, uint16_t& end_a
                                  delimiter.c_str());
 }
 
-bool IMotionCube::verifySetup(SdoSlaveInterface& sdo)
+bool Ingenia::verifySetup(SdoSlaveInterface& sdo)
 {
   uint16_t start_address = 0;
   uint16_t end_address = 0;
@@ -498,7 +498,7 @@ bool IMotionCube::verifySetup(SdoSlaveInterface& sdo)
   return sw_value == imc_value;
 }
 
-void IMotionCube::downloadSetupToDrive(SdoSlaveInterface& sdo)
+void Ingenia::downloadSetupToDrive(SdoSlaveInterface& sdo)
 {
   int result = 0;
   int final_result = 0;
@@ -550,7 +550,7 @@ void IMotionCube::downloadSetupToDrive(SdoSlaveInterface& sdo)
   }
 }
 
-ActuationMode IMotionCube::getActuationMode() const
+ActuationMode Ingenia::getActuationMode() const
 {
   return this->actuation_mode_;
 }

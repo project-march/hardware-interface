@@ -1,7 +1,7 @@
 // Copyright 2019 Project March.
 
-#ifndef MARCH_HARDWARE_IMOTIONCUBE_H
-#define MARCH_HARDWARE_IMOTIONCUBE_H
+#ifndef MARCH_HARDWARE_INGENIA_H
+#define MARCH_HARDWARE_INGENIA_H
 #include "march_hardware/motor_controller/actuation_mode.h"
 #include "march_hardware/ethercat/pdo_map.h"
 #include "march_hardware/ethercat/pdo_types.h"
@@ -9,7 +9,7 @@
 #include "march_hardware/ethercat/slave.h"
 #include "march_hardware/motor_controller/motor_controller.h"
 #include "march_hardware/motor_controller/motor_controller_states.h"
-#include "imotioncube_target_state.h"
+#include "ingenia_target_state.h"
 #include "march_hardware/encoder/absolute_encoder.h"
 #include "march_hardware/encoder/incremental_encoder.h"
 
@@ -19,29 +19,29 @@
 
 namespace march
 {
-class IMotionCube : public MotorController, public Slave
+class Ingenia : public MotorController, public Slave
 {
 public:
   /**
-   * Constructs an IMotionCube with an incremental and absolute encoder.
+   * Constructs an Ingenia with an incremental and absolute encoder.
    *
-   * @param slave slave of the IMotionCube
+   * @param slave slave of the Ingenia
    * @param absolute_encoder pointer to absolute encoder, required so cannot be nullptr
    * @param incremental_encoder pointer to incremental encoder, required so cannot be nullptr
-   * @param actuation_mode actuation mode in which the IMotionCube must operate
+   * @param actuation_mode actuation mode in which the Ingenia must operate
    * @throws std::invalid_argument When an absolute or incremental encoder is nullptr.
    */
-  IMotionCube(const Slave& slave, std::unique_ptr<AbsoluteEncoder> absolute_encoder,
+  Ingenia(const Slave& slave, std::unique_ptr<AbsoluteEncoder> absolute_encoder,
               std::unique_ptr<IncrementalEncoder> incremental_encoder, ActuationMode actuation_mode);
-  IMotionCube(const Slave& slave, std::unique_ptr<AbsoluteEncoder> absolute_encoder,
+  Ingenia(const Slave& slave, std::unique_ptr<AbsoluteEncoder> absolute_encoder,
               std::unique_ptr<IncrementalEncoder> incremental_encoder, std::string& sw_stream,
               ActuationMode actuation_mode);
 
-  virtual ~IMotionCube() noexcept override = default;
+  virtual ~Ingenia() noexcept override = default;
 
   /* Delete copy constructor/assignment since the unique_ptrs cannot be copied */
-  IMotionCube(const IMotionCube&) = delete;
-  IMotionCube& operator=(const IMotionCube&) = delete;
+  Ingenia(const Ingenia&) = delete;
+  Ingenia& operator=(const Ingenia&) = delete;
 
   virtual double getAngleRadAbsolute() override;
   virtual double getAngleRadIncremental() override;
@@ -74,20 +74,20 @@ public:
   virtual void actuateTorque(int16_t target_torque) override;
 
   bool initialize(int cycle_time) override;
-  void goToTargetState(IMotionCubeTargetState target_state);
+  void goToTargetState(IngeniaTargetState target_state);
   virtual void prepareActuation() override;
 
   uint16_t getSlaveIndex() const override;
   virtual void reset() override;
 
   /** @brief Override comparison operator */
-  friend bool operator==(const IMotionCube& lhs, const IMotionCube& rhs)
+  friend bool operator==(const Ingenia& lhs, const Ingenia& rhs)
   {
     return lhs.getSlaveIndex() == rhs.getSlaveIndex() && *lhs.absolute_encoder_ == *rhs.absolute_encoder_ &&
            *lhs.incremental_encoder_ == *rhs.incremental_encoder_;
   }
   /** @brief Override stream operator for clean printing */
-  friend std::ostream& operator<<(std::ostream& os, const IMotionCube& imc)
+  friend std::ostream& operator<<(std::ostream& os, const Ingenia& imc)
   {
     return os << "slaveIndex: " << imc.getSlaveIndex() << ", "
               << "incrementalEncoder: " << *imc.incremental_encoder_ << ", "
@@ -145,7 +145,7 @@ private:
 
   // Use of smart pointers are necessary here to make dependency injection
   // possible and thus allow for mocking the encoders. A unique pointer is
-  // chosen since the IMotionCube should be the owner and the encoders
+  // chosen since the Ingenia should be the owner and the encoders
   // do not need to be passed around.
   std::unique_ptr<AbsoluteEncoder> absolute_encoder_;
   std::unique_ptr<IncrementalEncoder> incremental_encoder_;
@@ -157,4 +157,4 @@ private:
 };
 
 }  // namespace march
-#endif  // MARCH_HARDWARE_IMOTIONCUBE_H
+#endif  // MARCH_HARDWARE_Ingenia_H
