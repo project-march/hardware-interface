@@ -9,25 +9,43 @@
 
 namespace march
 {
-std::unordered_map<IMCObjectName, IMCObject> PDOmap::all_objects = {
-  { IMCObjectName::StatusWord, IMCObject(0x6041, 0, 16) },
-  { IMCObjectName::ActualPosition, IMCObject(0x6064, 0, 32) },
-  { IMCObjectName::ActualVelocity, IMCObject(0x6069, 0, 32) },
-  { IMCObjectName::MotionErrorRegister, IMCObject(0x2000, 0, 16) },
-  { IMCObjectName::DetailedErrorRegister, IMCObject(0x2002, 0, 16) },
-  { IMCObjectName::SecondDetailedErrorRegister, IMCObject(0x2009, 0, 16) },
-  { IMCObjectName::DCLinkVoltage, IMCObject(0x2055, 0, 16) },
-  { IMCObjectName::DriveTemperature, IMCObject(0x2058, 0, 16) },
-  { IMCObjectName::ActualTorque, IMCObject(0x6077, 0, 16) },
-  { IMCObjectName::CurrentLimit, IMCObject(0x207F, 0, 16) },
-  { IMCObjectName::MotorPosition, IMCObject(0x2088, 0, 32) },
-  { IMCObjectName::MotorVelocity, IMCObject(0x2087, 0, 32) },
-  { IMCObjectName::ControlWord, IMCObject(0x6040, 0, 16) },
-  { IMCObjectName::TargetPosition, IMCObject(0x607A, 0, 32) },
-  { IMCObjectName::TargetTorque, IMCObject(0x6071, 0, 16) },
-  { IMCObjectName::QuickStopDeceleration, IMCObject(0x6085, 0, 32) },
-  { IMCObjectName::QuickStopOption, IMCObject(0x605A, 0, 16) },
-  { IMCObjectName::MotorVoltage, IMCObject(0x2108, 3, 16) }
+std::unordered_map<ImcPdoObjectName, MotorControllerPdoObject> PDOmap::all_objects = {
+  { ImcPdoObjectName::StatusWord, IMCObject(0x6041, 0, 16) },
+  { ImcPdoObjectName::ActualPosition, IMCObject(0x6064, 0, 32) },
+  { ImcPdoObjectName::ActualVelocity, IMCObject(0x6069, 0, 32) },
+  { ImcPdoObjectName::MotionErrorRegister, IMCObject(0x2000, 0, 16) },
+  { ImcPdoObjectName::DetailedErrorRegister, IMCObject(0x2002, 0, 16) },
+  { ImcPdoObjectName::SecondDetailedErrorRegister, IMCObject(0x2009, 0, 16) },
+  { ImcPdoObjectName::DCLinkVoltage, IMCObject(0x2055, 0, 16) },
+  { ImcPdoObjectName::DriveTemperature, IMCObject(0x2058, 0, 16) },
+  { ImcPdoObjectName::ActualTorque, IMCObject(0x6077, 0, 16) },
+  { ImcPdoObjectName::CurrentLimit, IMCObject(0x207F, 0, 16) },
+  { ImcPdoObjectName::MotorPosition, IMCObject(0x2088, 0, 32) },
+  { ImcPdoObjectName::MotorVelocity, IMCObject(0x2087, 0, 32) },
+  { ImcPdoObjectName::ControlWord, IMCObject(0x6040, 0, 16) },
+  { ImcPdoObjectName::TargetPosition, IMCObject(0x607A, 0, 32) },
+  { ImcPdoObjectName::TargetTorque, IMCObject(0x6071, 0, 16) },
+  { ImcPdoObjectName::QuickStopDeceleration, IMCObject(0x6085, 0, 32) },
+  { ImcPdoObjectName::QuickStopOption, IMCObject(0x605A, 0, 16) },
+  { ImcPdoObjectName::MotorVoltage, IMCObject(0x2108, 3, 16) }
+};
+
+std::unordered_map<IngeniaPdoObjectName, MotorControllerPdoObject> PDOmap::all_objects = {
+  { IngeniaPdoObjectName::StatusWord, IMCObject(0x6041, 0, 16) },
+  { IngeniaPdoObjectName::ActualPosition, IMCObject(0x6064, 0, 32) },
+  { IngeniaPdoObjectName::ActualVelocity, IMCObject(0x6069, 0, 32) },
+  { IngeniaPdoObjectName::ErrorRegister, IMCObject(0x2000, 0, 16) },
+  { IngeniaPdoObjectName::PreDefinedErrorField, IMCObject(0x2002, 0, 16) },
+  { IngeniaPdoObjectName::LastError, IMCObject(0x2009, 0, 16) },
+  { IngeniaPdoObjectName::BusVoltage, IMCObject(0x2055, 0, 16) },
+  { IngeniaPdoObjectName::PowerStageTemperature, IMCObject(0x2058, 0, 16) },
+  { IngeniaPdoObjectName::TorqueActualValue, IMCObject(0x6077, 0, 16) },
+  { IngeniaPdoObjectName::MaxCurrent, IMCObject(0x207F, 0, 16) },
+  { IngeniaPdoObjectName::ControlWord, IMCObject(0x6040, 0, 16) },
+  { IngeniaPdoObjectName::PositionSetPoint, IMCObject(0x607A, 0, 32) },
+  { IngeniaPdoObjectName::TargetTorque, IMCObject(0x6071, 0, 16) },
+  { IngeniaPdoObjectName::QuickStopDeceleration, IMCObject(0x6085, 0, 32) },
+  { IngeniaPdoObjectName::QuickStopOption, IMCObject(0x605A, 0, 16) },
 };
 
 void PDOmap::addObject(IMCObjectName object_name)

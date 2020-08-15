@@ -13,7 +13,7 @@
 namespace march
 {
 /** Store IMC data as a struct to prevent data overlap.*/
-struct IMCObject
+struct MotorControllerPdoObject
 {
   uint16_t address;           // in IMC memory (see IMC manual)
   uint8_t sub_index;          // sub index corresponding to PDO register (see IMC manual)
@@ -40,7 +40,7 @@ enum class DataDirection
 };
 
 /** All the available IMC object names divided over the PDO maps. make sure to also add it to PDOmap constructor.*/
-enum class IMCObjectName
+enum class ImcPdoObjectName
 {
   StatusWord,
   ActualPosition,
@@ -62,6 +62,25 @@ enum class IMCObjectName
   MotorVoltage
 };
 
+enum class IngeniaPdoObjectName
+{
+  StatusWord,
+  ActualPosition,
+  ActualVelocity,
+  ErrorRegister,
+  PreDefinedErrorField,
+  LastError,
+  BusVoltage,
+  PowerStageTemperature,
+  TorqueActualValue,
+  MaxCurrent,
+  ControlWord,
+  PositionSetPoint,
+  TargetTorque,
+  QuickStopDeceleration,
+  QuickStopOption
+};
+
 class PDOmap
 {
 public:
@@ -71,23 +90,29 @@ public:
    * @param object_name enum of the object to be added.
    * @throws HardwareException when the object to be added is not defined or the registers overflow.
    */
-  void addObject(IMCObjectName object_name);
+  template <typename MotorControllerPdoObjectName>
+  void addObject(MotorControllerPdoObjectName object_name);
 
-  std::unordered_map<IMCObjectName, uint8_t> map(SdoSlaveInterface& sdo, DataDirection direction);
+  template <typename MotorControllerPdoObjectName>
+  std::unordered_map<MotorControllerPdoObjectName, uint8_t> map(SdoSlaveInterface& sdo, DataDirection direction);
 
-  static std::unordered_map<IMCObjectName, IMCObject> all_objects;
+  template <typename MotorControllerPdoObjectName> 
+  static std::unordered_map<MotorControllerPdoObjectName, MotorControllerPdoObject> all_objects;
 
 private:
   /** Used to sort the objects in the all_objects according to data length.
    * @return list of pairs <IMCObjectName, IMCObjects> according from object sizes */
-  std::vector<std::pair<IMCObjectName, IMCObject>> sortPDOObjects();
+  template <typename MotorControllerPdoObjectName>
+  std::vector<std::pair<MotorControllerPdoObject, MotorControllerPdoObject> sortPDOObjects();
 
   /** Configures the PDO in the IMC using the given base register address and sync manager address.
    * @return map of the IMC PDO object name in combination with the byte-offset in the PDO register */
-  std::unordered_map<IMCObjectName, uint8_t> configurePDO(SdoSlaveInterface& sdo, int base_register,
+  template <typename MotorControllerPdoObjectName>
+  std::unordered_map<MotorControllerPdoObjectName, uint8_t> configurePDO(SdoSlaveInterface& sdo, int base_register,
                                                           uint16_t base_sync_manager);
 
-  std::unordered_map<IMCObjectName, IMCObject> PDO_objects;
+  template <typename MotorControllerPdoObjectName>
+  std::unordered_map<MotorControllerPdoObjectName, MotorControllerPdoObject> PDO_objects;
   int total_used_bits = 0;
 
   const int bits_per_register = 64;           // Maximum amount of bits that can be constructed in one PDO message.
