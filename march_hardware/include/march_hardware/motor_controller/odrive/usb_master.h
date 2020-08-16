@@ -15,14 +15,12 @@ namespace march
 class UsbMaster
 {
 public:
-    UsbMaster() = default;
-    std::shared_ptr<OdriveEndpoint> getSerialConnection(const std::string& serial_number);
+  UsbMaster() = default;
+  std::shared_ptr<OdriveEndpoint> getSerialConnection(const std::string& serial_number);
 
 private:
-    std::vector<std::shared_ptr<OdriveEndpoint>> odrive_endpoints;
-
-
+  std::vector<std::shared_ptr<OdriveEndpoint>> odrive_endpoints;
 };
 
 }  // namespace march
-#endif //MARCH_HARDWARE_USB_MASTER_H
+#endif  // MARCH_HARDWARE_USB_MASTER_H

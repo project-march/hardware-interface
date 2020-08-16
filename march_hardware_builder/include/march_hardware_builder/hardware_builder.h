@@ -94,7 +94,7 @@ public:
   static const std::vector<std::string> INCREMENTAL_ENCODER_REQUIRED_KEYS;
   static const std::vector<std::string> ABSOLUTE_ENCODER_REQUIRED_KEYS;
   static const std::vector<std::string> IMOTIONCUBE_REQUIRED_KEYS;
-    static const std::vector<std::string> ODRIVE_REQUIRED_KEYS;
+  static const std::vector<std::string> ODRIVE_REQUIRED_KEYS;
   static const std::vector<std::string> TEMPERATUREGES_REQUIRED_KEYS;
   static const std::vector<std::string> POWER_DISTRIBUTION_BOARD_REQUIRED_KEYS;
   static const std::vector<std::string> JOINT_REQUIRED_KEYS;

@@ -72,10 +72,9 @@ TEST_F(JointBuilderTest, ValidNotActuated)
   this->joint->safety->soft_lower_limit = 0.1;
   this->joint->safety->soft_upper_limit = 1.9;
 
-
   auto usb_master = march::UsbMaster();
-  march::Joint created =
-      HardwareBuilder::createJoint(config, "test_joint_hip", this->joint, this->pdo_interface, this->sdo_interface, usb_master);
+  march::Joint created = HardwareBuilder::createJoint(config, "test_joint_hip", this->joint, this->pdo_interface,
+                                                      this->sdo_interface, usb_master);
 
   auto absolute_encoder = std::make_unique<march::AbsoluteEncoder>(
       16, 22134, 43436, this->joint->limits->lower, this->joint->limits->upper, this->joint->safety->soft_lower_limit,
@@ -103,7 +102,6 @@ TEST_F(JointBuilderTest, NoActuate)
 
 TEST_F(JointBuilderTest, NoIMotionCube)
 {
-
   auto usb_master = march::UsbMaster();
   YAML::Node config = this->loadTestYaml("/joint_no_imotioncube.yaml");
   march::Joint joint = HardwareBuilder::createJoint(config, "test_joint_no_imotioncube", this->joint,
@@ -134,10 +132,9 @@ TEST_F(JointBuilderTest, ValidActuationMode)
   this->joint->safety->soft_lower_limit = 0.1;
   this->joint->safety->soft_upper_limit = 1.9;
 
-
   auto usb_master = march::UsbMaster();
-  march::Joint created =
-      HardwareBuilder::createJoint(config, "test_joint_hip", this->joint, this->pdo_interface, this->sdo_interface, usb_master);
+  march::Joint created = HardwareBuilder::createJoint(config, "test_joint_hip", this->joint, this->pdo_interface,
+                                                      this->sdo_interface, usb_master);
 
   march::Joint expected("test_joint_hip", -1, false,
                         std::make_unique<march::IMotionCube>(
@@ -155,16 +152,16 @@ TEST_F(JointBuilderTest, EmptyJoint)
   YAML::Node config;
 
   auto usb_master = march::UsbMaster();
-  ASSERT_THROW(
-      HardwareBuilder::createJoint(config, "test_joint_empty", this->joint, this->pdo_interface, this->sdo_interface, usb_master),
-      MissingKeyException);
+  ASSERT_THROW(HardwareBuilder::createJoint(config, "test_joint_empty", this->joint, this->pdo_interface,
+                                            this->sdo_interface, usb_master),
+               MissingKeyException);
 }
 
 TEST_F(JointBuilderTest, NoUrdfJoint)
 {
-
   auto usb_master = march::UsbMaster();
   YAML::Node config = this->loadTestYaml("/joint_correct.yaml");
-  ASSERT_THROW(HardwareBuilder::createJoint(config, "test", nullptr, this->pdo_interface, this->sdo_interface, usb_master),
-               march::error::HardwareException);
+  ASSERT_THROW(
+      HardwareBuilder::createJoint(config, "test", nullptr, this->pdo_interface, this->sdo_interface, usb_master),
+      march::error::HardwareException);
 }
