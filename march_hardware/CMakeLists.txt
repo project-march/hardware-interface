@@ -20,6 +20,20 @@ catkin_package(
     ${PROJECT_NAME}-extras.cmake
 )
 
+
+find_package(PkgConfig REQUIRED)
+
+pkg_check_modules(JSONCPP jsoncpp)
+pkg_check_modules(LIBUSB1 libusb-1.0)
+
+catkin_package(
+        INCLUDE_DIRS include
+        CATKIN_DEPENDS message_runtime roscpp roslib
+)
+
+link_libraries(${JSONCPP_LIBRARIES} ${LIBUSB1_LIBRARIES})
+include_directories(include SYSTEM ${catkin_INCLUDE_DIRS})
+
 include(cmake/${PROJECT_NAME}-extras.cmake)
 
 include_directories(
@@ -62,6 +76,11 @@ add_library(${PROJECT_NAME}
     include/${PROJECT_NAME}/motor_controller/motor_controller_states.h
     include/${PROJECT_NAME}/joint.h
     include/${PROJECT_NAME}/march_robot.h
+    include/${PROJECT_NAME}/motor_controller/odrive/odrive.h
+    include/${PROJECT_NAME}/motor_controller/odrive/odrive_endpoint.h
+    include/${PROJECT_NAME}/motor_controller/odrive/odrive_enums.h
+    include/${PROJECT_NAME}/motor_controller/odrive/odrive_motor.h
+    include/${PROJECT_NAME}/motor_controller/odrive/usb_master.h
     include/${PROJECT_NAME}/power/boot_shutdown_offsets.h
     include/${PROJECT_NAME}/power/high_voltage.h
     include/${PROJECT_NAME}/power/low_voltage.h
@@ -83,6 +102,10 @@ add_library(${PROJECT_NAME}
     src/imotioncube/imotioncube_target_state.cpp
     src/joint.cpp
     src/march_robot.cpp
+    src/odrive/odrive.cpp
+    src/odrive/odrive_endpoint.cpp
+    src/odrive/odrive_motor.cpp
+    src/odrive/usb_master.cpp
     src/power/high_voltage.cpp
     src/power/low_voltage.cpp
     src/power/power_distribution_board.cpp
@@ -90,6 +113,13 @@ add_library(${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} pthread)
+
+target_link_libraries(${PROJECT_NAME}
+        ${catkin_LIBRARIES}
+        ${LIBUSB1_LIBRARIES}
+        ${JSONCPP_LIBRARIES}
+        yaml-cpp
+        )
 
 add_executable(slave_count_check check/slave_count.cpp)
 target_link_libraries(slave_count_check ${PROJECT_NAME})
@@ -108,7 +138,7 @@ install(TARGETS slave_count_check
     RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
-install(DIRECTORY launch
+install(DIRECTORY launch config
     DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
