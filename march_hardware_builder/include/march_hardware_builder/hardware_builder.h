@@ -21,6 +21,9 @@
 #include <march_hardware/power/power_distribution_board.h>
 #include <march_hardware/temperature/temperature_ges.h>
 
+#include <odrive_interface/usb_master.h>
+#include <odrive_interface/odrive_motor.h>
+
 /**
  * @brief Creates a MarchRobot from a robot yaml and URDF.
  */
@@ -68,7 +71,7 @@ public:
 
   static march::Joint createJoint(const YAML::Node& joint_config, const std::string& joint_name,
                                   const urdf::JointConstSharedPtr& urdf_joint, march::PdoInterfacePtr pdo_interface,
-                                  march::SdoInterfacePtr sdo_interface);
+                                  march::SdoInterfacePtr sdo_interface, UsbMaster usb_master);
   static std::unique_ptr<march::AbsoluteEncoder> createAbsoluteEncoder(const YAML::Node& absolute_encoder_config,
                                                                        const urdf::JointConstSharedPtr& urdf_joint);
   static std::unique_ptr<march::IncrementalEncoder>
@@ -83,6 +86,11 @@ public:
   static std::unique_ptr<march::PowerDistributionBoard>
   createPowerDistributionBoard(const YAML::Node& power_distribution_board_config, march::PdoInterfacePtr pdo_interface,
                                march::SdoInterfacePtr sdo_interface);
+
+  static std::unique_ptr<march::OdriveMotor> createOdrive(const YAML::Node& imc_config, march::ActuationMode mode,
+                                                          const urdf::JointConstSharedPtr& urdf_joint,
+                                                          march::PdoInterfacePtr pdo_interface,
+                                                          march::SdoInterfacePtr sdo_interface);
 
   static const std::vector<std::string> INCREMENTAL_ENCODER_REQUIRED_KEYS;
   static const std::vector<std::string> ABSOLUTE_ENCODER_REQUIRED_KEYS;
@@ -105,7 +113,7 @@ private:
    * @return list of created joints
    */
   std::vector<march::Joint> createJoints(const YAML::Node& joints_config, march::PdoInterfacePtr pdo_interface,
-                                         march::SdoInterfacePtr sdo_interface) const;
+                                         march::SdoInterfacePtr sdo_interface, UsbMaster usb_master) const;
 
   YAML::Node robot_config_;
   urdf::Model urdf_;
@@ -120,6 +128,6 @@ std::string convertSWFileToString(std::ifstream& sw_file);
 /**
  * Returns the highest slave index of motor controllers and GESs in joints
  */
-int getMaxSlaveIndex(std::vector<march::Joint> jointList);
+int getMaxSlaveIndex(std::vector<march::Joint>& jointList);
 
 #endif  // MARCH_HARDWARE_BUILDER_HARDWARE_BUILDER_H

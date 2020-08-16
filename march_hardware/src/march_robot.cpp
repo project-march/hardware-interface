@@ -15,10 +15,7 @@
 namespace march
 {
 MarchRobot::MarchRobot(::std::vector<Joint> jointList, urdf::Model urdf, std::unique_ptr<EthercatMaster> ethercatMaster)
-  : jointList(std::move(jointList))
-  , urdf_(std::move(urdf))
-  , ethercatMaster(std::move(ethercatMaster))
-  , pdb_(nullptr)
+  : jointList(std::move(jointList)), urdf_(std::move(urdf)), ethercatMaster(std::move(ethercatMaster)), pdb_(nullptr)
 {
 }
 
@@ -81,9 +78,10 @@ void MarchRobot::stopCommunication()
     return;
   }
 
-    if (ethercatMaster != nullptr) {
-        ethercatMaster->stop();
-    }
+  if (ethercatMaster != nullptr)
+  {
+    ethercatMaster->stop();
+  }
 }
 
 void MarchRobot::resetMotorControllers()
@@ -145,7 +143,7 @@ bool MarchRobot::hasValidSlaves()
 
 bool MarchRobot::isEthercatOperational()
 {
-    return ethercatMaster != nullptr && ethercatMaster->isOperational();
+  return ethercatMaster != nullptr && ethercatMaster->isOperational();
 }
 
 bool MarchRobot::isCommunicationOperational()
@@ -155,25 +153,28 @@ bool MarchRobot::isCommunicationOperational()
 
 std::exception_ptr MarchRobot::getLastCommunicationException() const noexcept
 {
-    if (ethercatMaster != nullptr) {
-        return this->ethercatMaster->getLastException();
-    }
-    return nullptr;
+  if (ethercatMaster != nullptr)
+  {
+    return this->ethercatMaster->getLastException();
+  }
+  return nullptr;
 }
 
 void MarchRobot::waitForUpdate()
 {
-    if (ethercatMaster != nullptr) {
-        this->ethercatMaster->waitForPdo();
-    }
+  if (ethercatMaster != nullptr)
+  {
+    this->ethercatMaster->waitForPdo();
+  }
 }
 
 int MarchRobot::getCycleTime() const
 {
-    if (ethercatMaster != nullptr) {
-        return this->ethercatMaster->getCycleTime();
-    }
-    return 0;
+  if (ethercatMaster != nullptr)
+  {
+    return this->ethercatMaster->getCycleTime();
+  }
+  return 0;
 }
 
 Joint& MarchRobot::getJoint(::std::string jointName)

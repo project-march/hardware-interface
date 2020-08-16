@@ -68,7 +68,9 @@ std::unique_ptr<march::MarchRobot> HardwareBuilder::createMarchRobot()
   auto pdo_interface = march::PdoInterfaceImpl::create();
   auto sdo_interface = march::SdoInterfaceImpl::create();
 
-  std::vector<march::Joint> joints = this->createJoints(config["joints"], pdo_interface, sdo_interface);
+  auto usb_master = UsbMaster();
+
+  std::vector<march::Joint> joints = this->createJoints(config["joints"], pdo_interface, sdo_interface, usb_master);
 
   ROS_INFO_STREAM("Robot config:\n" << config);
   YAML::Node pdb_config = config["powerDistributionBoard"];
@@ -77,7 +79,8 @@ std::unique_ptr<march::MarchRobot> HardwareBuilder::createMarchRobot()
   if (config["ifName"])
   {
     const auto if_name = config["ifName"].as<std::string>();
-    auto ethercat_master = std::make_unique<march::EthercatMaster>(if_name, getMaxSlaveIndex(joints), cycle_time, slave_timeout);
+    auto ethercat_master =
+        std::make_unique<march::EthercatMaster>(if_name, getMaxSlaveIndex(joints), cycle_time, slave_timeout);
 
     return std::make_unique<march::MarchRobot>(std::move(joints), this->urdf_, std::move(pdb),
                                                std::move(ethercat_master));
@@ -90,7 +93,8 @@ std::unique_ptr<march::MarchRobot> HardwareBuilder::createMarchRobot()
 
 march::Joint HardwareBuilder::createJoint(const YAML::Node& joint_config, const std::string& joint_name,
                                           const urdf::JointConstSharedPtr& urdf_joint,
-                                          march::PdoInterfacePtr pdo_interface, march::SdoInterfacePtr sdo_interface)
+                                          march::PdoInterfacePtr pdo_interface, march::SdoInterfacePtr sdo_interface,
+                                          UsbMaster usb_master)
 {
   ROS_DEBUG("Starting creation of joint %s", joint_name.c_str());
   if (!urdf_joint)
@@ -124,11 +128,11 @@ march::Joint HardwareBuilder::createJoint(const YAML::Node& joint_config, const 
     controller =
         HardwareBuilder::createIMotionCube(joint_config["imotioncube"], mode, urdf_joint, pdo_interface, sdo_interface);
   }
-//  if (joint_config["odrive"])
-//  {
-//    controller =
-//        HardwareBuilder::createODrive(joint_config["odrive"], mode, urdf_joint);
-//  }
+  //  if (joint_config["odrive"])
+  //  {
+  //    controller =
+  //        HardwareBuilder::createOdrive(joint_config["odrive"], mode, urdf_joint, usb_master);
+  //  }
   if (!controller)
   {
     ROS_FATAL("Joint %s does not have a configuration for a motor controller", joint_name.c_str());
@@ -298,7 +302,8 @@ void HardwareBuilder::initUrdf()
 
 std::vector<march::Joint> HardwareBuilder::createJoints(const YAML::Node& joints_config,
                                                         march::PdoInterfacePtr pdo_interface,
-                                                        march::SdoInterfacePtr sdo_interface) const
+                                                        march::SdoInterfacePtr sdo_interface,
+                                                        UsbMaster usb_master) const
 {
   std::vector<march::Joint> joints;
   for (const YAML::Node& joint_config : joints_config)
@@ -309,8 +314,8 @@ std::vector<march::Joint> HardwareBuilder::createJoints(const YAML::Node& joints
     {
       ROS_WARN("Joint %s is fixed in the URDF, but defined in the robot yaml", joint_name.c_str());
     }
-    joints.push_back(
-        HardwareBuilder::createJoint(joint_config[joint_name], joint_name, urdf_joint, pdo_interface, sdo_interface));
+    joints.push_back(HardwareBuilder::createJoint(joint_config[joint_name], joint_name, urdf_joint, pdo_interface,
+                                                  sdo_interface, usb_master));
   }
 
   for (const auto& urdf_joint : this->urdf_.joints_)
@@ -338,24 +343,24 @@ std::string convertSWFileToString(std::ifstream& sw_file)
 /**
  * Returns the highest slave index of motor controllers and GESs in joints
  */
-int getMaxSlaveIndex(std::vector<march::Joint> jointList)
+int getMaxSlaveIndex(std::vector<march::Joint>& jointList)
 {
-    int maxSlaveIndex = -1;
+  int maxSlaveIndex = -1;
 
-    for (march::Joint& joint : jointList)
+  for (march::Joint& joint : jointList)
+  {
+    int temperatureSlaveIndex = joint.getTemperatureGESSlaveIndex();
+    if (temperatureSlaveIndex > maxSlaveIndex)
     {
-        int temperatureSlaveIndex = joint.getTemperatureGESSlaveIndex();
-        if (temperatureSlaveIndex > maxSlaveIndex)
-        {
-            maxSlaveIndex = temperatureSlaveIndex;
-        }
-
-        int motorControllerSlaveIndex = joint.getMotorControllerSlaveIndex() > -1;
-
-        if (motorControllerSlaveIndex > maxSlaveIndex)
-        {
-            maxSlaveIndex = motorControllerSlaveIndex;
-        }
+      maxSlaveIndex = temperatureSlaveIndex;
     }
-    return maxSlaveIndex;
+
+    int motorControllerSlaveIndex = joint.getMotorControllerSlaveIndex() > -1;
+
+    if (motorControllerSlaveIndex > maxSlaveIndex)
+    {
+      maxSlaveIndex = motorControllerSlaveIndex;
+    }
+  }
+  return maxSlaveIndex;
 }
