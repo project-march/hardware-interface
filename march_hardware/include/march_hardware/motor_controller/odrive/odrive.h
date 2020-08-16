@@ -32,7 +32,7 @@ typedef struct odrive_json_object
   std::string access;
 } odrive_json_object;
 
-class Odrive
+class Odrive : public MotorController
 {
 public:
   /**

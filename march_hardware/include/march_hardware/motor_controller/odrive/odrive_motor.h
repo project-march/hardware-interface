@@ -27,13 +27,13 @@ public:
 
   float getMotorControllerVoltage();
   float getMotorCurrent();
-  float getTorque();
+  double getTorque();
 
-  float getAngleRadAbsolute();
-  float getVelocityRadAbsolute();
+  double getAngleRadAbsolute();
+  double getVelocityRadAbsolute();
 
-  float getAngleRadIncremental();
-  float getVelocityRadIncremental();
+  double getAngleRadIncremental();
+  double getVelocityRadIncremental();
 
 private:
   std::string create_command(std::string command_name);

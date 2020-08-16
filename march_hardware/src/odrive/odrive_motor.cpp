@@ -67,24 +67,24 @@ float OdriveMotor::getMotorCurrent()
 
   return motor_current;
 }
-float OdriveMotor::getTorque()
+double OdriveMotor::getTorque()
 {
-  float motor_current = this->getMotorCurrent();
-  float motor_torque = CURRENT_TO_TORQUE_CONVERSION * motor_current / MOTOR_KV;
+  double motor_current = this->getMotorCurrent();
+  double motor_torque = CURRENT_TO_TORQUE_CONVERSION * motor_current / MOTOR_KV;
 
   return motor_torque;
 }
 
-float OdriveMotor::getAngleRadAbsolute()
+double OdriveMotor::getAngleRadAbsolute()
 {
   return 0;
 }
-float OdriveMotor::getVelocityRadAbsolute()
+double OdriveMotor::getVelocityRadAbsolute()
 {
   return 0;
 }
 
-float OdriveMotor::getAngleRadIncremental()
+double OdriveMotor::getAngleRadIncremental()
 {
   float iu_position;
   std::string command_name_ = this->create_command(O_PM_ENCODER_POSITION_UI);
@@ -94,10 +94,10 @@ float OdriveMotor::getAngleRadIncremental()
     return ODRIVE_ERROR;
   }
 
-  float angle_rad = iu_position * PI_2 / std::pow(2, 12);
+  double angle_rad = iu_position * PI_2 / std::pow(2, 12);
   return angle_rad;
 }
-float OdriveMotor::getVelocityRadIncremental()
+double OdriveMotor::getVelocityRadIncremental()
 {
   float iu_velocity;
   std::string command_name_ = this->create_command(O_PM_ENCODER_VELOCITY_UI);
@@ -107,7 +107,7 @@ float OdriveMotor::getVelocityRadIncremental()
     return ODRIVE_ERROR;
   }
 
-  float angle_rad = iu_velocity * PI_2 / std::pow(2, 12);
+  double angle_rad = iu_velocity * PI_2 / std::pow(2, 12);
   return angle_rad;
 }
 
