@@ -15,7 +15,7 @@ public:
   virtual double getAngleRadIncremental() = 0;
   virtual double getVelocityRadAbsolute() = 0;
   virtual double getVelocityRadIncremental() = 0;
-  virtual int16_t getTorque() = 0;
+  virtual double getTorque() = 0;
 
   virtual ActuationMode getActuationMode() const = 0;
 

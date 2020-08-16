@@ -48,7 +48,7 @@ public:
   double getAbsoluteRadPerBit() const;
   double getIncrementalRadPerBit() const;
   bool getIncrementalMorePrecise() const override;
-  int16_t getTorque() override;
+  double getTorque() override;
   int32_t getAngleIUAbsolute();
   int32_t getAngleIUIncremental();
   double getVelocityIUAbsolute();

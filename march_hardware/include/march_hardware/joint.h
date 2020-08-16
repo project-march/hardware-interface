@@ -58,7 +58,7 @@ public:
   double getVoltageVelocity() const;
   double getIncrementalPosition() const;
   double getAbsolutePosition() const;
-  int16_t getTorque();
+  double getTorque();
   int32_t getAngleIUAbsolute();
   int32_t getAngleIUIncremental();
   double getVelocityIUAbsolute();

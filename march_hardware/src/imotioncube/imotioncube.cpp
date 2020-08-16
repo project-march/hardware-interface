@@ -246,7 +246,7 @@ double IMotionCube::getIncrementalRadPerBit() const
   return this->incremental_encoder_->getRadPerBit();
 }
 
-int16_t IMotionCube::getTorque()
+double IMotionCube::getTorque()
 {
   bit16 return_byte = this->read16(this->miso_byte_offsets_.at(IMCObjectName::ActualTorque));
   return return_byte.i;

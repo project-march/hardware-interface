@@ -30,7 +30,7 @@ public:
   MOCK_METHOD0(getMotorControllerVoltage, float());
   MOCK_METHOD0(getMotorVoltage, float());
   MOCK_METHOD0(getMotorCurrent, float());
-  MOCK_METHOD0(getTorque, int16_t());
+  MOCK_METHOD0(getTorque, double());
 
   MOCK_METHOD1(actuateRad, void(double));
   MOCK_METHOD1(actuateTorque, void(int16_t));

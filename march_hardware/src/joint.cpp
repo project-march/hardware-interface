@@ -151,7 +151,7 @@ void Joint::actuateTorque(int16_t target_torque)
   this->controller_->actuateTorque(target_torque);
 }
 
-int16_t Joint::getTorque()
+double Joint::getTorque()
 {
   return this->controller_->getTorque();
 }
