@@ -14,21 +14,29 @@
 
 namespace march
 {
-MarchRobot::MarchRobot(::std::vector<Joint> jointList, urdf::Model urdf, ::std::string ifName, int cycleTime,
-                       int slaveTimeout)
+MarchRobot::MarchRobot(::std::vector<Joint> jointList, urdf::Model urdf, std::unique_ptr<EthercatMaster> ethercatMaster)
   : jointList(std::move(jointList))
   , urdf_(std::move(urdf))
-  , ethercatMaster(ifName, this->getMaxSlaveIndex(), cycleTime, slaveTimeout)
+  , ethercatMaster(std::move(ethercatMaster))
   , pdb_(nullptr)
 {
 }
 
 MarchRobot::MarchRobot(::std::vector<Joint> jointList, urdf::Model urdf,
-                       std::unique_ptr<PowerDistributionBoard> powerDistributionBoard, ::std::string ifName,
-                       int cycleTime, int slaveTimeout)
+                       std::unique_ptr<PowerDistributionBoard> powerDistributionBoard,
+                       std::unique_ptr<EthercatMaster> ethercatMaster)
   : jointList(std::move(jointList))
   , urdf_(std::move(urdf))
-  , ethercatMaster(ifName, this->getMaxSlaveIndex(), cycleTime, slaveTimeout)
+  , ethercatMaster(std::move(ethercatMaster))
+  , pdb_(std::move(powerDistributionBoard))
+{
+}
+
+MarchRobot::MarchRobot(::std::vector<Joint> jointList, urdf::Model urdf,
+                       std::unique_ptr<PowerDistributionBoard> powerDistributionBoard)
+  : jointList(std::move(jointList))
+  , urdf_(std::move(urdf))
+  , ethercatMaster(nullptr)
   , pdb_(std::move(powerDistributionBoard))
 {
 }
@@ -48,17 +56,20 @@ void MarchRobot::startCommunication(bool reset_motor_controllers)
     return;
   }
 
-  bool sw_reset = ethercatMaster.start(this->jointList);
-
-  if (reset_motor_controllers || sw_reset)
+  if (ethercatMaster != nullptr)
   {
-    ROS_DEBUG("Resetting all MotorControllers due to either: reset arg: %d or downloading of .sw fie: %d",
-              reset_motor_controllers, sw_reset);
-    resetMotorControllers();
+    bool sw_reset = ethercatMaster->start(this->jointList);
 
-    ROS_INFO("Restarting the EtherCAT Master");
-    ethercatMaster.stop();
-    sw_reset = ethercatMaster.start(this->jointList);
+    if (reset_motor_controllers || sw_reset)
+    {
+      ROS_DEBUG("Resetting all MotorControllers due to either: reset arg: %d or downloading of .sw fie: %d",
+                reset_motor_controllers, sw_reset);
+      resetMotorControllers();
+
+      ROS_INFO("Restarting the EtherCAT Master");
+      ethercatMaster->stop();
+      sw_reset = ethercatMaster->start(this->jointList);
+    }
   }
 }
 
@@ -70,7 +81,9 @@ void MarchRobot::stopCommunication()
     return;
   }
 
-  ethercatMaster.stop();
+    if (ethercatMaster != nullptr) {
+        ethercatMaster->stop();
+    }
 }
 
 void MarchRobot::resetMotorControllers()
@@ -79,28 +92,6 @@ void MarchRobot::resetMotorControllers()
   {
     joint.resetMotorController();
   }
-}
-
-int MarchRobot::getMaxSlaveIndex()
-{
-  int maxSlaveIndex = -1;
-
-  for (Joint& joint : jointList)
-  {
-    int temperatureSlaveIndex = joint.getTemperatureGESSlaveIndex();
-    if (temperatureSlaveIndex > maxSlaveIndex)
-    {
-      maxSlaveIndex = temperatureSlaveIndex;
-    }
-
-    int motorControllerSlaveIndex = joint.getMotorControllerSlaveIndex() > -1;
-
-    if (motorControllerSlaveIndex > maxSlaveIndex)
-    {
-      maxSlaveIndex = motorControllerSlaveIndex;
-    }
-  }
-  return maxSlaveIndex;
 }
 
 bool MarchRobot::hasValidSlaves()
@@ -152,24 +143,37 @@ bool MarchRobot::hasValidSlaves()
   return isUnique;
 }
 
+bool MarchRobot::isEthercatOperational()
+{
+    return ethercatMaster != nullptr && ethercatMaster->isOperational();
+}
+
 bool MarchRobot::isCommunicationOperational()
 {
-  return ethercatMaster.isOperational();
+  return this->isEthercatOperational();
 }
 
 std::exception_ptr MarchRobot::getLastCommunicationException() const noexcept
 {
-  return this->ethercatMaster.getLastException();
+    if (ethercatMaster != nullptr) {
+        return this->ethercatMaster->getLastException();
+    }
+    return nullptr;
 }
 
 void MarchRobot::waitForUpdate()
 {
-  this->ethercatMaster.waitForPdo();
+    if (ethercatMaster != nullptr) {
+        this->ethercatMaster->waitForPdo();
+    }
 }
 
 int MarchRobot::getCycleTime() const
 {
-  return this->ethercatMaster.getCycleTime();
+    if (ethercatMaster != nullptr) {
+        return this->ethercatMaster->getCycleTime();
+    }
+    return 0;
 }
 
 Joint& MarchRobot::getJoint(::std::string jointName)

@@ -1,0 +1,18 @@
+testsetup:
+  ifName: enp2s0
+  cycleTime: 4
+  slaveTimeout: 50
+  joints:
+    - rotational_joint:
+        actuationMode: torque
+        allowActuation: true
+        odrive:
+          serial_number: 0x2084387E304E
+          axis: "axis0"
+            absoluteEncoder:
+              resolution: 17
+              minPositionIU: 97242
+              maxPositionIU: 119617
+            incrementalEncoder:
+              resolution: 12
+              transmission: 101

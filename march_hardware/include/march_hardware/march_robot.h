@@ -20,18 +20,20 @@ class MarchRobot
 private:
   ::std::vector<Joint> jointList;
   urdf::Model urdf_;
-  EthercatMaster ethercatMaster;
+  std::unique_ptr<EthercatMaster> ethercatMaster;
   std::unique_ptr<PowerDistributionBoard> pdb_;
 
 public:
   using iterator = std::vector<Joint>::iterator;
 
-  MarchRobot(::std::vector<Joint> jointList, urdf::Model urdf, ::std::string ifName, int ecatCycleTime,
-             int ecatSlaveTimeout);
+  MarchRobot(::std::vector<Joint> jointList, urdf::Model urdf, std::unique_ptr<EthercatMaster> ethercatMaster);
 
   MarchRobot(::std::vector<Joint> jointList, urdf::Model urdf,
-             std::unique_ptr<PowerDistributionBoard> powerDistributionBoard, ::std::string ifName, int ecatCycleTime,
-             int ecatSlaveTimeout);
+             std::unique_ptr<PowerDistributionBoard> powerDistributionBoard,
+             std::unique_ptr<EthercatMaster> ethercatMaster);
+
+  MarchRobot(::std::vector<Joint> jointList, urdf::Model urdf,
+             std::unique_ptr<PowerDistributionBoard> powerDistributionBoard);
 
   ~MarchRobot();
 
@@ -49,9 +51,9 @@ public:
 
   void stopCommunication();
 
-  int getMaxSlaveIndex();
-
   bool hasValidSlaves();
+
+  bool isEthercatOperational();
 
   bool isCommunicationOperational();
 
