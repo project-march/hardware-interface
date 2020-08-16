@@ -20,18 +20,20 @@ class MarchRobot
 private:
   ::std::vector<Joint> jointList;
   urdf::Model urdf_;
-  EthercatMaster ethercatMaster;
+  std::unique_ptr<EthercatMaster> ethercatMaster;
   std::unique_ptr<PowerDistributionBoard> pdb_;
 
 public:
   using iterator = std::vector<Joint>::iterator;
 
-  MarchRobot(::std::vector<Joint> jointList, urdf::Model urdf, ::std::string ifName, int ecatCycleTime,
-             int ecatSlaveTimeout);
+  MarchRobot(::std::vector<Joint> jointList, urdf::Model urdf, std::unique_ptr<EthercatMaster> ethercatMaster);
 
   MarchRobot(::std::vector<Joint> jointList, urdf::Model urdf,
-             std::unique_ptr<PowerDistributionBoard> powerDistributionBoard, ::std::string ifName, int ecatCycleTime,
-             int ecatSlaveTimeout);
+             std::unique_ptr<PowerDistributionBoard> powerDistributionBoard,
+             std::unique_ptr<EthercatMaster> ethercatMaster);
+
+  MarchRobot(::std::vector<Joint> jointList, urdf::Model urdf,
+             std::unique_ptr<PowerDistributionBoard> powerDistributionBoard);
 
   ~MarchRobot();
 
@@ -45,21 +47,21 @@ public:
 
   void resetMotorControllers();
 
-  void startEtherCAT(bool reset_motor_controllers);
+  void startCommunication(bool reset_motor_controllers);
 
-  void stopEtherCAT();
-
-  int getMaxSlaveIndex();
+  void stopCommunication();
 
   bool hasValidSlaves();
 
   bool isEthercatOperational();
 
-  std::exception_ptr getLastEthercatException() const noexcept;
+  bool isCommunicationOperational();
 
-  void waitForPdo();
+  std::exception_ptr getLastCommunicationException() const noexcept;
 
-  int getEthercatCycleTime() const;
+  void waitForUpdate();
+
+  int getCycleTime() const;
 
   Joint& getJoint(::std::string jointName);
 

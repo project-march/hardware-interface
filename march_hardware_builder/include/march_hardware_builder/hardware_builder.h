@@ -117,4 +117,9 @@ private:
  */
 std::string convertSWFileToString(std::ifstream& sw_file);
 
+/**
+ * Returns the highest slave index of motor controllers and GESs in joints
+ */
+int getMaxSlaveIndex(std::vector<march::Joint> jointList);
+
 #endif  // MARCH_HARDWARE_BUILDER_HARDWARE_BUILDER_H

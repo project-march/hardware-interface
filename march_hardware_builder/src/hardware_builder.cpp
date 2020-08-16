@@ -14,6 +14,7 @@
 #include <march_hardware/error/error_type.h>
 #include <march_hardware/ethercat/pdo_interface.h>
 #include <march_hardware/ethercat/sdo_interface.h>
+#include "march_hardware/ethercat/ethercat_master.h"
 #include <march_hardware/error/hardware_exception.h>
 
 // clang-format off
@@ -55,25 +56,36 @@ HardwareBuilder::HardwareBuilder(const std::string& yaml_path, urdf::Model urdf)
 std::unique_ptr<march::MarchRobot> HardwareBuilder::createMarchRobot()
 {
   this->initUrdf();
-  auto pdo_interface = march::PdoInterfaceImpl::create();
-  auto sdo_interface = march::SdoInterfaceImpl::create();
 
   const auto robot_name = this->robot_config_.begin()->first.as<std::string>();
   ROS_DEBUG_STREAM("Starting creation of robot " << robot_name);
 
   // Remove top level robot name key
   YAML::Node config = this->robot_config_[robot_name];
-  const auto if_name = config["ifName"].as<std::string>();
-  const auto cycle_time = config["ecatCycleTime"].as<int>();
-  const auto slave_timeout = config["ecatSlaveTimeout"].as<int>();
+  const auto cycle_time = config["cycleTime"].as<int>();
+  const auto slave_timeout = config["slaveTimeout"].as<int>();
+
+  auto pdo_interface = march::PdoInterfaceImpl::create();
+  auto sdo_interface = march::SdoInterfaceImpl::create();
 
   std::vector<march::Joint> joints = this->createJoints(config["joints"], pdo_interface, sdo_interface);
 
   ROS_INFO_STREAM("Robot config:\n" << config);
   YAML::Node pdb_config = config["powerDistributionBoard"];
   auto pdb = HardwareBuilder::createPowerDistributionBoard(pdb_config, pdo_interface, sdo_interface);
-  return std::make_unique<march::MarchRobot>(std::move(joints), this->urdf_, std::move(pdb), if_name, cycle_time,
-                                             slave_timeout);
+
+  if (config["ifName"])
+  {
+    const auto if_name = config["ifName"].as<std::string>();
+    auto ethercat_master = std::make_unique<march::EthercatMaster>(if_name, getMaxSlaveIndex(joints), cycle_time, slave_timeout);
+
+    return std::make_unique<march::MarchRobot>(std::move(joints), this->urdf_, std::move(pdb),
+                                               std::move(ethercat_master));
+  }
+  else
+  {
+    return std::make_unique<march::MarchRobot>(std::move(joints), this->urdf_, std::move(pdb));
+  }
 }
 
 march::Joint HardwareBuilder::createJoint(const YAML::Node& joint_config, const std::string& joint_name,
@@ -111,6 +123,11 @@ march::Joint HardwareBuilder::createJoint(const YAML::Node& joint_config, const 
   {
     controller =
         HardwareBuilder::createIMotionCube(joint_config["imotioncube"], mode, urdf_joint, pdo_interface, sdo_interface);
+  }
+  if (joint_config["odrive"])
+  {
+    controller =
+        HardwareBuilder::createODrive(joint_config["odrive"], mode, urdf_joint);
   }
   if (!controller)
   {
@@ -316,4 +333,29 @@ std::vector<march::Joint> HardwareBuilder::createJoints(const YAML::Node& joints
 std::string convertSWFileToString(std::ifstream& sw_file)
 {
   return std::string(std::istreambuf_iterator<char>(sw_file), std::istreambuf_iterator<char>());
+}
+
+/**
+ * Returns the highest slave index of motor controllers and GESs in joints
+ */
+int getMaxSlaveIndex(std::vector<march::Joint> jointList)
+{
+    int maxSlaveIndex = -1;
+
+    for (march::Joint& joint : jointList)
+    {
+        int temperatureSlaveIndex = joint.getTemperatureGESSlaveIndex();
+        if (temperatureSlaveIndex > maxSlaveIndex)
+        {
+            maxSlaveIndex = temperatureSlaveIndex;
+        }
+
+        int motorControllerSlaveIndex = joint.getMotorControllerSlaveIndex() > -1;
+
+        if (motorControllerSlaveIndex > maxSlaveIndex)
+        {
+            maxSlaveIndex = motorControllerSlaveIndex;
+        }
+    }
+    return maxSlaveIndex;
 }
