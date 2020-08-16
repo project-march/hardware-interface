@@ -27,6 +27,10 @@ const std::vector<std::string> HardwareBuilder::IMOTIONCUBE_REQUIRED_KEYS =
     {
         "slaveIndex", "incrementalEncoder", "absoluteEncoder"
     };
+const std::vector<std::string> HardwareBuilder::ODRIVE_REQUIRED_KEYS =
+        {
+                "serial_number", "axis", "incrementalEncoder", "absoluteEncoder"
+        };
 const std::vector<std::string> HardwareBuilder::TEMPERATUREGES_REQUIRED_KEYS = { "slaveIndex", "byteOffset" };
 const std::vector<std::string> HardwareBuilder::POWER_DISTRIBUTION_BOARD_REQUIRED_KEYS =
     {
@@ -68,7 +72,7 @@ std::unique_ptr<march::MarchRobot> HardwareBuilder::createMarchRobot()
   auto pdo_interface = march::PdoInterfaceImpl::create();
   auto sdo_interface = march::SdoInterfaceImpl::create();
 
-  auto usb_master = UsbMaster();
+  auto usb_master = march::UsbMaster();
 
   std::vector<march::Joint> joints = this->createJoints(config["joints"], pdo_interface, sdo_interface, usb_master);
 
@@ -94,7 +98,7 @@ std::unique_ptr<march::MarchRobot> HardwareBuilder::createMarchRobot()
 march::Joint HardwareBuilder::createJoint(const YAML::Node& joint_config, const std::string& joint_name,
                                           const urdf::JointConstSharedPtr& urdf_joint,
                                           march::PdoInterfacePtr pdo_interface, march::SdoInterfacePtr sdo_interface,
-                                          UsbMaster usb_master)
+                                          march::UsbMaster usb_master)
 {
   ROS_DEBUG("Starting creation of joint %s", joint_name.c_str());
   if (!urdf_joint)
@@ -128,11 +132,10 @@ march::Joint HardwareBuilder::createJoint(const YAML::Node& joint_config, const 
     controller =
         HardwareBuilder::createIMotionCube(joint_config["imotioncube"], mode, urdf_joint, pdo_interface, sdo_interface);
   }
-  //  if (joint_config["odrive"])
-  //  {
-  //    controller =
-  //        HardwareBuilder::createOdrive(joint_config["odrive"], mode, urdf_joint, usb_master);
-  //  }
+    if (joint_config["odrive"])
+    {
+      HardwareBuilder::createOdrive(joint_config["odrive"], mode, urdf_joint, usb_master);
+    }
   if (!controller)
   {
     ROS_FATAL("Joint %s does not have a configuration for a motor controller", joint_name.c_str());
@@ -144,6 +147,26 @@ march::Joint HardwareBuilder::createJoint(const YAML::Node& joint_config, const 
     ROS_WARN("Joint %s does not have a configuration for a TemperatureGes", joint_name.c_str());
   }
   return { joint_name, net_number, allow_actuation, std::move(controller), std::move(ges) };
+}
+
+std::unique_ptr<march::OdriveMotor> HardwareBuilder::createOdrive(const YAML::Node& odrive_config, march::ActuationMode mode,
+                                                        const urdf::JointConstSharedPtr& urdf_joint,
+                                                        march::UsbMaster usb_master)
+{
+    if (!odrive_config || !urdf_joint)
+    {
+        return nullptr;
+    }
+
+    HardwareBuilder::validateRequiredKeysExist(odrive_config, HardwareBuilder::IMOTIONCUBE_REQUIRED_KEYS, "odrive");
+
+    YAML::Node incremental_encoder_config = odrive_config["incrementalEncoder"];
+    YAML::Node absolute_encoder_config = odrive_config["absoluteEncoder"];
+    std::string axis = odrive_config["axis"].as<std::string>();
+    std::string serial_number = odrive_config["serial_number"].as<std::string>();
+    auto odrive_endpoint = usb_master.getSerialConnection(serial_number);
+
+    return std::make_unique<march::OdriveMotor>(axis, odrive_endpoint, mode);
 }
 
 std::unique_ptr<march::IMotionCube> HardwareBuilder::createIMotionCube(const YAML::Node& imc_config,
@@ -303,7 +326,7 @@ void HardwareBuilder::initUrdf()
 std::vector<march::Joint> HardwareBuilder::createJoints(const YAML::Node& joints_config,
                                                         march::PdoInterfacePtr pdo_interface,
                                                         march::SdoInterfacePtr sdo_interface,
-                                                        UsbMaster usb_master) const
+                                                        march::UsbMaster usb_master) const
 {
   std::vector<march::Joint> joints;
   for (const YAML::Node& joint_config : joints_config)

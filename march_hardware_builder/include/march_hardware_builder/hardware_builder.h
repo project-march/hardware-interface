@@ -21,8 +21,8 @@
 #include <march_hardware/power/power_distribution_board.h>
 #include <march_hardware/temperature/temperature_ges.h>
 
-#include <odrive_interface/usb_master.h>
-#include <odrive_interface/odrive_motor.h>
+#include <march_hardware/motor_controller/odrive/usb_master.h>
+#include <march_hardware/motor_controller/odrive/odrive_motor.h>
 
 /**
  * @brief Creates a MarchRobot from a robot yaml and URDF.
@@ -71,7 +71,7 @@ public:
 
   static march::Joint createJoint(const YAML::Node& joint_config, const std::string& joint_name,
                                   const urdf::JointConstSharedPtr& urdf_joint, march::PdoInterfacePtr pdo_interface,
-                                  march::SdoInterfacePtr sdo_interface, UsbMaster usb_master);
+                                  march::SdoInterfacePtr sdo_interface, march::UsbMaster usb_master);
   static std::unique_ptr<march::AbsoluteEncoder> createAbsoluteEncoder(const YAML::Node& absolute_encoder_config,
                                                                        const urdf::JointConstSharedPtr& urdf_joint);
   static std::unique_ptr<march::IncrementalEncoder>
@@ -89,12 +89,12 @@ public:
 
   static std::unique_ptr<march::OdriveMotor> createOdrive(const YAML::Node& imc_config, march::ActuationMode mode,
                                                           const urdf::JointConstSharedPtr& urdf_joint,
-                                                          march::PdoInterfacePtr pdo_interface,
-                                                          march::SdoInterfacePtr sdo_interface);
+                                                          march::UsbMaster usb_master);
 
   static const std::vector<std::string> INCREMENTAL_ENCODER_REQUIRED_KEYS;
   static const std::vector<std::string> ABSOLUTE_ENCODER_REQUIRED_KEYS;
   static const std::vector<std::string> IMOTIONCUBE_REQUIRED_KEYS;
+    static const std::vector<std::string> ODRIVE_REQUIRED_KEYS;
   static const std::vector<std::string> TEMPERATUREGES_REQUIRED_KEYS;
   static const std::vector<std::string> POWER_DISTRIBUTION_BOARD_REQUIRED_KEYS;
   static const std::vector<std::string> JOINT_REQUIRED_KEYS;
@@ -113,7 +113,7 @@ private:
    * @return list of created joints
    */
   std::vector<march::Joint> createJoints(const YAML::Node& joints_config, march::PdoInterfacePtr pdo_interface,
-                                         march::SdoInterfacePtr sdo_interface, UsbMaster usb_master) const;
+                                         march::SdoInterfacePtr sdo_interface, march::UsbMaster usb_master) const;
 
   YAML::Node robot_config_;
   urdf::Model urdf_;
