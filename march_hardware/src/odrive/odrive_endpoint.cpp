@@ -253,8 +253,9 @@ int OdriveEndpoint::endpointRequest(int endpoint_id, commBuffer& received_payloa
   return LIBUSB_SUCCESS;
 }
 
-std::string OdriveEndpoint::getSerialNumber() {
-    return this->odrive_serial_number;
+std::string OdriveEndpoint::getSerialNumber()
+{
+  return this->odrive_serial_number;
 }
 
 void OdriveEndpoint::appendShortToCommBuffer(commBuffer& buf, short value)
@@ -319,20 +320,24 @@ commBuffer OdriveEndpoint::createODrivePacket(short seq_no, int endpoint_id, sho
 }
 
 template int OdriveEndpoint::getData(int, bool&);
-template int OdriveEndpoint::getData(int, short&);
-template int OdriveEndpoint::getData(int, int&);
 template int OdriveEndpoint::getData(int, float&);
 template int OdriveEndpoint::getData(int, uint8_t&);
 template int OdriveEndpoint::getData(int, uint16_t&);
 template int OdriveEndpoint::getData(int, uint32_t&);
 template int OdriveEndpoint::getData(int, uint64_t&);
+template int OdriveEndpoint::getData(int, int8_t&);
+template int OdriveEndpoint::getData(int, int16_t&);
+template int OdriveEndpoint::getData(int, int32_t&);
+template int OdriveEndpoint::getData(int, int64_t&);
 
 template int OdriveEndpoint::setData(int, const bool&);
-template int OdriveEndpoint::setData(int, const short&);
-template int OdriveEndpoint::setData(int, const int&);
 template int OdriveEndpoint::setData(int, const float&);
 template int OdriveEndpoint::setData(int, const uint8_t&);
 template int OdriveEndpoint::setData(int, const uint16_t&);
 template int OdriveEndpoint::setData(int, const uint32_t&);
 template int OdriveEndpoint::setData(int, const uint64_t&);
+template int OdriveEndpoint::setData(int, const int8_t&);
+template int OdriveEndpoint::setData(int, const int16_t&);
+template int OdriveEndpoint::setData(int, const int32_t&);
+template int OdriveEndpoint::setData(int, const int64_t&);
 }  // namespace march

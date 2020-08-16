@@ -132,10 +132,10 @@ march::Joint HardwareBuilder::createJoint(const YAML::Node& joint_config, const 
     controller =
         HardwareBuilder::createIMotionCube(joint_config["imotioncube"], mode, urdf_joint, pdo_interface, sdo_interface);
   }
-    if (joint_config["odrive"])
-    {
-      HardwareBuilder::createOdrive(joint_config["odrive"], mode, urdf_joint, usb_master);
-    }
+  if (joint_config["odrive"])
+  {
+    HardwareBuilder::createOdrive(joint_config["odrive"], mode, urdf_joint, usb_master);
+  }
   if (!controller)
   {
     ROS_FATAL("Joint %s does not have a configuration for a motor controller", joint_name.c_str());
@@ -149,24 +149,25 @@ march::Joint HardwareBuilder::createJoint(const YAML::Node& joint_config, const 
   return { joint_name, net_number, allow_actuation, std::move(controller), std::move(ges) };
 }
 
-std::unique_ptr<march::OdriveMotor> HardwareBuilder::createOdrive(const YAML::Node& odrive_config, march::ActuationMode mode,
-                                                        const urdf::JointConstSharedPtr& urdf_joint,
-                                                        march::UsbMaster usb_master)
+std::unique_ptr<march::OdriveMotor> HardwareBuilder::createOdrive(const YAML::Node& odrive_config,
+                                                                  march::ActuationMode mode,
+                                                                  const urdf::JointConstSharedPtr& urdf_joint,
+                                                                  march::UsbMaster usb_master)
 {
-    if (!odrive_config || !urdf_joint)
-    {
-        return nullptr;
-    }
+  if (!odrive_config || !urdf_joint)
+  {
+    return nullptr;
+  }
 
-    HardwareBuilder::validateRequiredKeysExist(odrive_config, HardwareBuilder::IMOTIONCUBE_REQUIRED_KEYS, "odrive");
+  HardwareBuilder::validateRequiredKeysExist(odrive_config, HardwareBuilder::IMOTIONCUBE_REQUIRED_KEYS, "odrive");
 
-    YAML::Node incremental_encoder_config = odrive_config["incrementalEncoder"];
-    YAML::Node absolute_encoder_config = odrive_config["absoluteEncoder"];
-    std::string axis = odrive_config["axis"].as<std::string>();
-    std::string serial_number = odrive_config["serial_number"].as<std::string>();
-    auto odrive_endpoint = usb_master.getSerialConnection(serial_number);
+  YAML::Node incremental_encoder_config = odrive_config["incrementalEncoder"];
+  YAML::Node absolute_encoder_config = odrive_config["absoluteEncoder"];
+  std::string axis = odrive_config["axis"].as<std::string>();
+  std::string serial_number = odrive_config["serial_number"].as<std::string>();
+  auto odrive_endpoint = usb_master.getSerialConnection(serial_number);
 
-    return std::make_unique<march::OdriveMotor>(axis, odrive_endpoint, mode);
+  return std::make_unique<march::OdriveMotor>(axis, odrive_endpoint, mode);
 }
 
 std::unique_ptr<march::IMotionCube> HardwareBuilder::createIMotionCube(const YAML::Node& imc_config,

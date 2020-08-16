@@ -1,10 +1,5 @@
 #include "march_hardware/motor_controller/odrive/odrive.h"
 
-#include <utility>
-
-#define ODRIVE_OK 0;
-#define ODRIVE_ERROR 1;
-
 namespace march
 {
 Odrive::Odrive(const std::string& axis_number, std::shared_ptr<OdriveEndpoint> odrive_endpoint, bool import_json)
@@ -162,11 +157,11 @@ int Odrive::validateType(const odrive_json_object& json_object, TT& value)
       return ODRIVE_ERROR;
     }
   }
-  else if (json_object.type == "int32")
+  else if (json_object.type == "int8")
   {
-    if (sizeof(value) != sizeof(int))
+    if (sizeof(value) != sizeof(short))
     {
-      ROS_ERROR("Error value for %s is not int", json_object.name.c_str());
+      ROS_ERROR("Error value for %s is not short", json_object.name.c_str());
       return ODRIVE_ERROR;
     }
   }
@@ -178,6 +173,15 @@ int Odrive::validateType(const odrive_json_object& json_object, TT& value)
       return ODRIVE_ERROR;
     }
   }
+  else if (json_object.type == "int32")
+  {
+    if (sizeof(value) != sizeof(int))
+    {
+      ROS_ERROR("Error value for %s is not int", json_object.name.c_str());
+      return ODRIVE_ERROR;
+    }
+  }
+
   else if (json_object.type == "bool")
   {
     if (sizeof(value) != sizeof(bool))
@@ -264,6 +268,21 @@ int Odrive::json_string_read(const Json::Value& json_parameter_object)
     uint32_t casted_value = value.asUInt();
     return this->read(parameter_name, casted_value);
   }
+  else if (type_name == "int8")
+  {
+    int8_t casted_value = value.asUInt();
+    return this->read(parameter_name, casted_value);
+  }
+  else if (type_name == "int16")
+  {
+    int16_t casted_value = value.asUInt();
+    return this->read(parameter_name, casted_value);
+  }
+  else if (type_name == "int32")
+  {
+    int32_t casted_value = value.asUInt();
+    return this->read(parameter_name, casted_value);
+  }
   else if (type_name == "float")
   {
     float casted_value = value.asFloat();
@@ -300,6 +319,21 @@ int Odrive::json_string_write(const Json::Value& json_parameter_object)
   else if (type_name == "uint32")
   {
     uint32_t casted_value = value.asUInt();
+    return this->write(parameter_name, casted_value);
+  }
+  else if (type_name == "int8")
+  {
+    int8_t casted_value = value.asUInt();
+    return this->write(parameter_name, casted_value);
+  }
+  else if (type_name == "int16")
+  {
+    int16_t casted_value = value.asUInt();
+    return this->write(parameter_name, casted_value);
+  }
+  else if (type_name == "int32")
+  {
+    int32_t casted_value = value.asUInt();
     return this->write(parameter_name, casted_value);
   }
   else if (type_name == "float")
@@ -359,31 +393,36 @@ int Odrive::setConfigurations(const std::string& configuration_json_path)
   return ODRIVE_OK;
 }
 
+template int Odrive::validateType(const odrive_json_object& json_object, int8_t&);
+template int Odrive::validateType(const odrive_json_object& json_object, int16_t&);
+template int Odrive::validateType(const odrive_json_object& json_object, int32_t&);
+template int Odrive::validateType(const odrive_json_object& json_object, int64_t&);
 template int Odrive::validateType(const odrive_json_object& json_object, uint8_t&);
 template int Odrive::validateType(const odrive_json_object& json_object, uint16_t&);
 template int Odrive::validateType(const odrive_json_object& json_object, uint32_t&);
 template int Odrive::validateType(const odrive_json_object& json_object, uint64_t&);
-template int Odrive::validateType(const odrive_json_object& json_object, int&);
-template int Odrive::validateType(const odrive_json_object& json_object, short&);
 template int Odrive::validateType(const odrive_json_object& json_object, float&);
 template int Odrive::validateType(const odrive_json_object& json_object, bool&);
 
+template int Odrive::read(const std::string& parameter_name, int8_t&);
+template int Odrive::read(const std::string& parameter_name, int16_t&);
+template int Odrive::read(const std::string& parameter_name, int32_t&);
+template int Odrive::read(const std::string& parameter_name, int64_t&);
 template int Odrive::read(const std::string& parameter_name, uint8_t&);
 template int Odrive::read(const std::string& parameter_name, uint16_t&);
 template int Odrive::read(const std::string& parameter_name, uint32_t&);
 template int Odrive::read(const std::string& parameter_name, uint64_t&);
-template int Odrive::read(const std::string& parameter_name, int&);
-template int Odrive::read(const std::string& parameter_name, short&);
 template int Odrive::read(const std::string& parameter_name, float&);
 template int Odrive::read(const std::string& parameter_name, bool&);
 
+template int Odrive::write(const std::string& parameter_name, int8_t&);
+template int Odrive::write(const std::string& parameter_name, int16_t&);
+template int Odrive::write(const std::string& parameter_name, int32_t&);
+template int Odrive::write(const std::string& parameter_name, int64_t&);
 template int Odrive::write(const std::string& parameter_name, uint8_t&);
 template int Odrive::write(const std::string& parameter_name, uint16_t&);
 template int Odrive::write(const std::string& parameter_name, uint32_t&);
 template int Odrive::write(const std::string& parameter_name, uint64_t&);
-template int Odrive::write(const std::string& parameter_name, int&);
-template int Odrive::write(const std::string& parameter_name, short&);
 template int Odrive::write(const std::string& parameter_name, float&);
 template int Odrive::write(const std::string& parameter_name, bool&);
 }  // namespace march
-

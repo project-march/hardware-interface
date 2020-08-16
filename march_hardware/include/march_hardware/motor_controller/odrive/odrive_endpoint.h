@@ -127,12 +127,11 @@ public:
   int endpointRequest(int endpoint_id, commBuffer& received_payload, int& received_length, const commBuffer& payload,
                       bool ack, int length, bool read = false, int address = 0);
 
-    /**
-     * Getter for the serial number
-     * @return the serial number of the odrive connection
-     */
-    std::string getSerialNumber();
-
+  /**
+   * Getter for the serial number
+   * @return the serial number of the odrive connection
+   */
+  std::string getSerialNumber();
 
 private:
   /**
