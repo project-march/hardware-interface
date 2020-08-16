@@ -51,23 +51,23 @@ install(TARGETS ${PROJECT_NAME}
 )
 
 ## Add gtest based cpp test target and link libraries
-#if(CATKIN_ENABLE_TESTING)
-#    catkin_add_gtest(${PROJECT_NAME}_test
-#        test/absolute_encoder_builder_test.cpp
-#        test/allowed_robot_test.cpp
-#        test/imc_builder_test.cpp
-#        test/incremental_encoder_builder_test.cpp
-#        test/joint_builder_test.cpp
-#        test/pdb_builder_test.cpp
-#        test/test_runner.cpp
-#    )
-#    target_link_libraries(${PROJECT_NAME}_test ${catkin_LIBRARIES} ${PROJECT_NAME})
-#
-#    if(ENABLE_COVERAGE_TESTING)
-#        set(COVERAGE_EXCLUDES "*/${PROJECT_NAME}/test/*")
-#        add_code_coverage(
-#            NAME coverage_report
-#            DEPENDENCIES ${PROJECT_NAME}_test
-#        )
-#    endif()
-#endif()
+if(CATKIN_ENABLE_TESTING)
+    catkin_add_gtest(${PROJECT_NAME}_test
+        test/absolute_encoder_builder_test.cpp
+        test/allowed_robot_test.cpp
+        test/imc_builder_test.cpp
+        test/incremental_encoder_builder_test.cpp
+        test/joint_builder_test.cpp
+        test/pdb_builder_test.cpp
+        test/test_runner.cpp
+    )
+    target_link_libraries(${PROJECT_NAME}_test ${catkin_LIBRARIES} ${PROJECT_NAME})
+
+    if(ENABLE_COVERAGE_TESTING)
+        set(COVERAGE_EXCLUDES "*/${PROJECT_NAME}/test/*")
+        add_code_coverage(
+            NAME coverage_report
+            DEPENDENCIES ${PROJECT_NAME}_test
+        )
+    endif()
+endif()
