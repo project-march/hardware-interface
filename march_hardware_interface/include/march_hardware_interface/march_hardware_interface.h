@@ -90,8 +90,8 @@ private:
   static void getSoftJointLimitsError(const std::string& name, const urdf::JointConstSharedPtr& urdf_joint,
                                       joint_limits_interface::SoftJointLimits& error_soft_limits);
 
-  /* Limit of the change in effort command over one cycle, can be overridden by safety controller */
-  static constexpr double MAX_EFFORT_CHANGE = 5000;
+  /* Limit of the change (ampere) in effort command over one cycle, can be overridden by safety controller */
+  static constexpr double MAX_EFFORT_CHANGE = 6;
 
   /* March hardware */
   std::unique_ptr<march::MarchRobot> march_robot_;

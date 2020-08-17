@@ -36,7 +36,7 @@ public:
   virtual bool getIncrementalMorePrecise() const = 0;
 
   virtual void actuateRad(double target_rad) = 0;
-  virtual void actuateTorque(int16_t target_torque) = 0;
+  virtual void actuateTorque(double target_torque_ampere) = 0;
 
   virtual void prepareActuation() = 0;
   virtual bool initialize(int cycle_time) = 0;
