@@ -134,7 +134,7 @@ march::Joint HardwareBuilder::createJoint(const YAML::Node& joint_config, const 
   }
   if (joint_config["odrive"])
   {
-      controller = HardwareBuilder::createOdrive(joint_config["odrive"], mode, urdf_joint, usb_master);
+    controller = HardwareBuilder::createOdrive(joint_config["odrive"], mode, urdf_joint, usb_master);
   }
   if (!controller)
   {
@@ -159,7 +159,7 @@ std::unique_ptr<march::OdriveMotor> HardwareBuilder::createOdrive(const YAML::No
     return nullptr;
   }
 
-  HardwareBuilder::validateRequiredKeysExist(odrive_config, HardwareBuilder::IMOTIONCUBE_REQUIRED_KEYS, "odrive");
+  HardwareBuilder::validateRequiredKeysExist(odrive_config, HardwareBuilder::ODRIVE_REQUIRED_KEYS, "odrive");
 
   YAML::Node incremental_encoder_config = odrive_config["incrementalEncoder"];
   YAML::Node absolute_encoder_config = odrive_config["absoluteEncoder"];
