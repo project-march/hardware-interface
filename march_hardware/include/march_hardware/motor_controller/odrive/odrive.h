@@ -41,6 +41,11 @@ public:
   Odrive(const std::string& axis_number, std::shared_ptr<OdriveEndpoint> odrive_endpoint, bool import_json = true);
 
   /**
+   * Import the odrive json structure from the odrive
+   */
+  int importOdriveJson();
+
+  /**
    * Check if given value type matched value type of odrive variable
    */
   template <typename TT>
@@ -71,8 +76,6 @@ public:
   std::string axis_number;
 
 private:
-  int importOdriveJson();
-
   int json_string_read(const Json::Value& json_parameter_object);
 
   int json_string_write(const Json::Value& json_parameter_object);

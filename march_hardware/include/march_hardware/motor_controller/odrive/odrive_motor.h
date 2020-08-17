@@ -22,6 +22,8 @@ public:
 
   bool initialize(int cycle_time) override;
   void prepareActuation() override;
+  bool waitForIdleState(float timout = 15.0);
+
   void reset() override;
 
   void actuateRad(double target_rad) override;
@@ -34,6 +36,11 @@ public:
   float getMotorVoltage() override;
   double getTorque() override;
 
+  uint16_t getAxisError();
+  uint16_t getAxisMotorError();
+  uint8_t getAxisEncoderError();
+  uint8_t getAxisControllerError();
+
   double getAngleRadAbsolute() override;
   double getVelocityRadAbsolute() override;
 
@@ -41,11 +48,11 @@ public:
   double getVelocityRadIncremental() override;
 
   bool getIncrementalMorePrecise() const override;
-  ActuationMode getActuationMode() const
+  ActuationMode getActuationMode() const override
   {
     return this->mode_;
   }
-  int getSlaveIndex() const
+  int getSlaveIndex() const override
   {
     return -1;
   }
@@ -53,7 +60,7 @@ public:
 private:
   std::string create_command(std::string command_name);
   int setState(uint8_t state);
-  int getState();
+  uint8_t getState();
 
   int getAngleCountsAbsolute();
   int getAngleCountsIncremental();
