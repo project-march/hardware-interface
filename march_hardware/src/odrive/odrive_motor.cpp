@@ -25,10 +25,10 @@ void OdriveMotor::prepareActuation()
 }
 
 // to be implemented
-    void OdriveMotor::reset()
-    {
-        return;
-    }
+void OdriveMotor::reset()
+{
+  return;
+}
 
 void OdriveMotor::actuateRad(double target_rad)
 {
@@ -38,32 +38,31 @@ void OdriveMotor::actuateRad(double target_rad)
 
 void OdriveMotor::actuateTorque(double target_torque_ampere)
 {
-    float target_torque_ampere_float = (float) target_torque_ampere;
-    std::string command_name_ = this->create_command(O_PM_DESIRED_MOTOR_CURRENT);
-    if (this->write(command_name_, target_torque_ampere_float) == 1)
-    {
-        ROS_ERROR("Could net set target torque; %f to the axis", target_torque_ampere);
-    }
+  float target_torque_ampere_float = (float)target_torque_ampere;
+  std::string command_name_ = this->create_command(O_PM_DESIRED_MOTOR_CURRENT);
+  if (this->write(command_name_, target_torque_ampere_float) == 1)
+  {
+    ROS_ERROR("Could net set target torque; %f to the axis", target_torque_ampere);
+  }
 }
 
 MotorControllerStates& OdriveMotor::getStates()
 {
-    static OdriveStates states;
+  static OdriveStates states;
 
-    // Common states
-    states.motorCurrent = this->getMotorCurrent();
-    states.controllerVoltage = this->getMotorControllerVoltage();
-    states.motorVoltage = this->getMotorVoltage();
+  // Common states
+  states.motorCurrent = this->getMotorCurrent();
+  states.controllerVoltage = this->getMotorControllerVoltage();
+  states.motorVoltage = this->getMotorVoltage();
 
-    states.absoluteEncoderValue = this->getAngleCountsAbsolute();
-    states.incrementalEncoderValue = this->getAngleCountsIncremental();
-    states.absoluteVelocity = this->getVelocityRadAbsolute();
-    states.incrementalVelocity = this->getVelocityRadIncremental();
+  states.absoluteEncoderValue = this->getAngleCountsAbsolute();
+  states.incrementalEncoderValue = this->getAngleCountsIncremental();
+  states.absoluteVelocity = this->getVelocityRadAbsolute();
+  states.incrementalVelocity = this->getVelocityRadIncremental();
 
-    states.state = States(this->getState());
+  states.state = States(this->getState());
 
-    return states;
-
+  return states;
 }
 
 float OdriveMotor::getMotorControllerVoltage()
@@ -114,13 +113,13 @@ double OdriveMotor::getTorque()
 
 int OdriveMotor::getAngleCountsAbsolute()
 {
-    return 0;
+  return 0;
 }
 
 double OdriveMotor::getAngleRadAbsolute()
 {
-    double angle_rad = this->getAngleCountsAbsolute() * PI_2 / std::pow(2, 17);
-    return angle_rad;
+  double angle_rad = this->getAngleCountsAbsolute() * PI_2 / std::pow(2, 17);
+  return angle_rad;
 }
 
 double OdriveMotor::getVelocityRadAbsolute()
@@ -135,14 +134,14 @@ bool OdriveMotor::getIncrementalMorePrecise() const
 
 int OdriveMotor::getAngleCountsIncremental()
 {
-    float iu_position;
-    std::string command_name_ = this->create_command(O_PM_ENCODER_POSITION_UI);
-    if (this->read(command_name_, iu_position) == 1)
-    {
-        ROS_ERROR("Could not retrieve incremental position of the encoder");
-        return ODRIVE_ERROR;
-    }
-    return iu_position;
+  float iu_position;
+  std::string command_name_ = this->create_command(O_PM_ENCODER_POSITION_UI);
+  if (this->read(command_name_, iu_position) == 1)
+  {
+    ROS_ERROR("Could not retrieve incremental position of the encoder");
+    return ODRIVE_ERROR;
+  }
+  return iu_position;
 }
 
 double OdriveMotor::getAngleRadIncremental()

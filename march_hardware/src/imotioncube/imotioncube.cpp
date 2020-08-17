@@ -186,11 +186,11 @@ void IMotionCube::actuateIU(int32_t target_iu)
 
 void IMotionCube::actuateTorque(double target_torque_ampere)
 {
-    if (target_torque_ampere >= IPEAK)
-    {
-        throw error::HardwareException(error::ErrorType::TARGET_TORQUE_EXCEEDS_MAX_TORQUE,
-                                       "Target torque of %dA exceeds max torque of %dA", target_torque_ampere, IPEAK);
-    }
+  if (target_torque_ampere >= IPEAK)
+  {
+    throw error::HardwareException(error::ErrorType::TARGET_TORQUE_EXCEEDS_MAX_TORQUE,
+                                   "Target torque of %dA exceeds max torque of %dA", target_torque_ampere, IPEAK);
+  }
   int16_t target_torque = ampereToTorqueIU(target_torque_ampere);
 
   if (this->actuation_mode_ != ActuationMode::torque)
@@ -558,7 +558,7 @@ ActuationMode IMotionCube::getActuationMode() const
 
 int16_t IMotionCube::ampereToTorqueIU(double ampere)
 {
-    // See CoE manual page 222
-    return AMPERE_TO_IU_FACTOR * ampere / (2 * IPEAK);
+  // See CoE manual page 222
+  return AMPERE_TO_IU_FACTOR * ampere / (2 * IPEAK);
 }
 }  // namespace march

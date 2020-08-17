@@ -23,7 +23,7 @@ public:
   virtual std::string getErrorStatus()
   {
     std::ostringstream error_stream;
-//    std::string state = IMCStateOfOperation(this->statusWord).getString().c_str();
+    //    std::string state = IMCStateOfOperation(this->statusWord).getString().c_str();
 
     error_stream << "State: " << state;
     return error_stream.str();
