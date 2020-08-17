@@ -179,15 +179,18 @@ int MarchRobot::getCycleTime() const
 
 Joint& MarchRobot::getJoint(::std::string jointName)
 {
-  if (!this->isCommunicationOperational())
-  {
-    ROS_WARN("Trying to access joints while ethercat is not operational. This "
-             "may lead to incorrect sensor data.");
-  }
   for (auto& joint : jointList)
   {
     if (joint.getName() == jointName)
     {
+      if (joint.getMotorControllerSlaveIndex() != -1)
+      {
+        if (!this->isCommunicationOperational())
+        {
+          ROS_WARN("Trying to access joints while ethercat is not operational. This "
+                   "may lead to incorrect sensor data.");
+        }
+      }
       return joint;
     }
   }
@@ -197,12 +200,18 @@ Joint& MarchRobot::getJoint(::std::string jointName)
 
 Joint& MarchRobot::getJoint(size_t index)
 {
-  if (!this->isCommunicationOperational())
+  Joint& joint = this->jointList.at(index);
+
+  if (joint.getMotorControllerSlaveIndex() != -1)
   {
-    ROS_WARN("Trying to access joints while ethercat is not operational. This "
-             "may lead to incorrect sensor data.");
+    if (!this->isCommunicationOperational())
+    {
+      ROS_WARN("Trying to access joints while ethercat is not operational. This "
+               "may lead to incorrect sensor data.");
+    }
   }
-  return this->jointList.at(index);
+
+  return joint;
 }
 
 size_t MarchRobot::size() const
@@ -212,12 +221,18 @@ size_t MarchRobot::size() const
 
 MarchRobot::iterator MarchRobot::begin()
 {
-  if (!this->isCommunicationOperational())
+  auto joint = this->jointList.begin();
+
+  if (joint[0].getMotorControllerSlaveIndex() != -1)
   {
-    ROS_WARN("Trying to access joints while ethercat is not operational. This "
-             "may lead to incorrect sensor data.");
+    if (!this->isCommunicationOperational())
+    {
+      ROS_WARN("Trying to access joints while ethercat is not operational. This "
+               "may lead to incorrect sensor data.");
+    }
   }
-  return this->jointList.begin();
+  
+  return joint;
 }
 
 MarchRobot::iterator MarchRobot::end()
