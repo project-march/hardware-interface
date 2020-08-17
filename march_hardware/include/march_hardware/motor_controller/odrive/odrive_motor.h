@@ -18,7 +18,9 @@ namespace march
 class OdriveMotor : public Odrive
 {
 public:
-  OdriveMotor(const std::string& axisNumber, std::shared_ptr<OdriveEndpoint> odriveEndpoint, ActuationMode mode);
+  OdriveMotor(const std::string& axisNumber, std::shared_ptr<OdriveEndpoint> odriveEndpoint, ActuationMode mode,
+              std::string json_config_file_path);
+  ~OdriveMotor();
 
   bool initialize(int cycle_time) override;
   void prepareActuation() override;
@@ -66,6 +68,7 @@ private:
   int getAngleCountsIncremental();
 
   ActuationMode mode_;
+  std::string json_config_file_path_;
 };
 
 }  // namespace march
