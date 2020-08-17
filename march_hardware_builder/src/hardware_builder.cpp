@@ -132,10 +132,10 @@ march::Joint HardwareBuilder::createJoint(const YAML::Node& joint_config, const 
     controller =
         HardwareBuilder::createIMotionCube(joint_config["imotioncube"], mode, urdf_joint, pdo_interface, sdo_interface);
   }
-    if (joint_config["odrive"])
-    {
-      HardwareBuilder::createOdrive(joint_config["odrive"], mode, urdf_joint, usb_master);
-    }
+  if (joint_config["odrive"])
+  {
+      controller = HardwareBuilder::createOdrive(joint_config["odrive"], mode, urdf_joint, usb_master);
+  }
   if (!controller)
   {
     ROS_FATAL("Joint %s does not have a configuration for a motor controller", joint_name.c_str());
