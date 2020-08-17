@@ -33,7 +33,7 @@ public:
   MOCK_METHOD0(getTorque, double());
 
   MOCK_METHOD1(actuateRad, void(double));
-  MOCK_METHOD1(actuateTorque, void(int16_t));
+  MOCK_METHOD1(actuateTorque, void(double));
 
   MOCK_METHOD1(initialize, bool(int cycle_time));
   MOCK_METHOD0(reset, void());

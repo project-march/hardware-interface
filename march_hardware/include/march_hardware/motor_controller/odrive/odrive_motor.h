@@ -25,7 +25,7 @@ public:
   void reset() override;
 
   void actuateRad(double target_rad) override;
-  void actuateTorque(int16_t target_torque) override;
+  void actuateTorque(double target_torque_ampere) override;
 
   MotorControllerStates& getStates() override;
 

@@ -184,19 +184,20 @@ void IMotionCube::actuateIU(int32_t target_iu)
   this->write32(target_position_location, target_position);
 }
 
-void IMotionCube::actuateTorque(int16_t target_torque)
+void IMotionCube::actuateTorque(double target_torque_ampere)
 {
+    if (target_torque_ampere >= IPEAK)
+    {
+        throw error::HardwareException(error::ErrorType::TARGET_TORQUE_EXCEEDS_MAX_TORQUE,
+                                       "Target torque of %dA exceeds max torque of %dA", target_torque_ampere, IPEAK);
+    }
+  int16_t target_torque = ampereToTorqueIU(target_torque_ampere);
+
   if (this->actuation_mode_ != ActuationMode::torque)
   {
     throw error::HardwareException(error::ErrorType::INVALID_ACTUATION_MODE,
                                    "trying to actuate torque, while actuation mode is %s",
                                    this->actuation_mode_.toString().c_str());
-  }
-
-  if (target_torque >= MAX_TARGET_TORQUE)
-  {
-    throw error::HardwareException(error::ErrorType::TARGET_TORQUE_EXCEEDS_MAX_TORQUE,
-                                   "Target torque of %d exceeds max torque of %d", target_torque, MAX_TARGET_TORQUE);
   }
 
   bit16 target_torque_struct = { .i = target_torque };
@@ -553,5 +554,11 @@ void IMotionCube::downloadSetupToDrive(SdoSlaveInterface& sdo)
 ActuationMode IMotionCube::getActuationMode() const
 {
   return this->actuation_mode_;
+}
+
+int16_t IMotionCube::ampereToTorqueIU(double ampere)
+{
+    // See CoE manual page 222
+    return AMPERE_TO_IU_FACTOR * ampere / (2 * IPEAK);
 }
 }  // namespace march
