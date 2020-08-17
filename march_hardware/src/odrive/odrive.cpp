@@ -296,7 +296,7 @@ int Odrive::json_string_read(const Json::Value& json_parameter_object)
   else
   {
     ROS_ERROR("Error converting string for reading, invalid type %s", parameter_name.c_str());
-    return ODRIVE_ERROR;
+    return ODRIVE_ERROR
   }
 }
 
@@ -349,7 +349,7 @@ int Odrive::json_string_write(const Json::Value& json_parameter_object)
   else
   {
     ROS_ERROR("Error converting string for writing, invalid type %s", parameter_name.c_str());
-    return ODRIVE_ERROR;
+    return ODRIVE_ERROR
   }
 }
 
@@ -374,23 +374,21 @@ int Odrive::setConfigurations(const std::string& configuration_json_path)
   if (!res)
   {
     ROS_INFO("Error parsing odrive configuration, error");
-    return ODRIVE_ERROR;
+    return ODRIVE_ERROR
   }
 
   for (auto& parameter : this->odrive_configuration_json_)
   {
-    ROS_INFO("Setting %s to %s", parameter["name"].asString().c_str(), parameter["value"].asString().c_str());
+    ROS_DEBUG("Setting %s to %s", parameter["name"].asString().c_str(), parameter["value"].asString().c_str());
     int result = this->json_string_write(parameter);
 
     if (result != LIBUSB_SUCCESS)
     {
-      ROS_INFO("Setting %s to %s failed", parameter["name"].asString().c_str(), parameter["value"].asString().c_str());
+      ROS_WARN("Setting %s to %s failed", parameter["name"].asString().c_str(), parameter["value"].asString().c_str());
       continue;
     }
-
-    ROS_INFO("Setting succeeded %s", parameter["name"].asString().c_str());
   }
-  return ODRIVE_OK;
+  return ODRIVE_OK
 }
 
 template int Odrive::validateType(const odrive_json_object& json_object, int8_t&);

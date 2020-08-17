@@ -10,6 +10,11 @@
         "value":4096
     },
     {
+        "name":"axis0.encoder.config.use_index",
+        "type":"bool",
+        "value":1
+    },
+    {
         "name":"config.brake_resistance",
         "type":"float",
         "value":0.0

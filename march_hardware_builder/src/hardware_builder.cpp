@@ -165,9 +165,11 @@ std::unique_ptr<march::OdriveMotor> HardwareBuilder::createOdrive(const YAML::No
   YAML::Node absolute_encoder_config = odrive_config["absoluteEncoder"];
   std::string axis = odrive_config["axis"].as<std::string>();
   std::string serial_number = odrive_config["serial_number"].as<std::string>();
+  std::string json_configuration_path = ros::package::getPath("march_hardware").append("/config/march_odrive.json");
+
   auto odrive_endpoint = usb_master.getSerialConnection(serial_number);
 
-  return std::make_unique<march::OdriveMotor>(axis, odrive_endpoint, mode);
+  return std::make_unique<march::OdriveMotor>(axis, odrive_endpoint, mode, json_configuration_path);
 }
 
 std::unique_ptr<march::IMotionCube> HardwareBuilder::createIMotionCube(const YAML::Node& imc_config,
