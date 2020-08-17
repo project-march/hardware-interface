@@ -6,7 +6,7 @@
     },
     {
         "name":"axis0.encoder.config.cpr",
-        "type":"uint32",
+        "type":"int32",
         "value":4096
     },
     {
@@ -21,7 +21,7 @@
     },
     {
         "name":"axis0.motor.config.pole_pairs",
-        "type":"uint32",
+        "type":"int32",
         "value":21
     },
     {
@@ -57,7 +57,7 @@
     {
         "name":"axis0.motor.config.direction",
         "type":"int32",
-        "value":1
+        "value":0
     },
     {
         "name":"axis0.sensorless_estimator.config.pm_flux_linkage",
