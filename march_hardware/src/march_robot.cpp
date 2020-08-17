@@ -231,7 +231,7 @@ MarchRobot::iterator MarchRobot::begin()
                "may lead to incorrect sensor data.");
     }
   }
-  
+
   return joint;
 }
 
