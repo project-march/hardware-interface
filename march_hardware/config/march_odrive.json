@@ -32,7 +32,7 @@
     {
         "name":"axis0.controller.config.vel_limit",
         "type":"float",
-        "value":5000.0
+        "value":50000.0
     },
     {
         "name":"axis0.motor.config.motor_type",
@@ -56,7 +56,7 @@
     },
     {
         "name":"axis0.motor.config.direction",
-        "type":"uint8",
+        "type":"int32",
         "value":1
     },
     {
