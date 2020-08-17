@@ -50,7 +50,7 @@ public:
   void prepareActuation();
 
   void actuateRad(double target_position);
-  void actuateTorque(int16_t target_torque);
+  void actuateTorque(double target_torque);
   void readEncoders(const ros::Duration& elapsed_time);
 
   double getPosition() const;

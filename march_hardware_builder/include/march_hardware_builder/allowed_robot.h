@@ -67,7 +67,7 @@ public:
     }
     else if (this->value == AllowedRobot::test_joint_rotational)
     {
-      return base_path.append("/robots/test_joint_rotational.yaml");
+      return base_path.append("/robots/odrive_test_joint_rotational.yaml");
     }
     else if (this->value == AllowedRobot::odrive_test_joint_rotational)
     {

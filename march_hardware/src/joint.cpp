@@ -141,7 +141,7 @@ double Joint::getAbsolutePosition() const
   return this->absolute_position_;
 }
 
-void Joint::actuateTorque(int16_t target_torque)
+void Joint::actuateTorque(double target_torque)
 {
   if (!this->canActuate())
   {
