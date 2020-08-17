@@ -33,7 +33,6 @@ void OdriveMotor::prepareActuation()
     ROS_FATAL("Calibration sequence was not finished successfully");
     return;
   }
-
 }
 
 bool OdriveMotor::waitForIdleState(float timeout)
