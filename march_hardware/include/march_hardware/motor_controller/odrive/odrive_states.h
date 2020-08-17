@@ -14,36 +14,18 @@ public:
   OdriveStates() = default;
 
   States state;
-  uint16_t axisError;
-  uint16_t axisMotorError;
-  uint16_t axisEncoderError;
-  uint16_t axisControllerError;
 
-  std::string axisErrorDescription;
-  std::string axisMotorErrorDescription;
-  std::string axisEncoderErrorDescription;
-  std::string axisControllerErrorDescription;
-
-  bool checkState() override
+  virtual bool checkState()
   {
-    if (this->axisError == ERROR_NONE)
-    {
-      return true;
-    }
-    return false;
+    return true;
   }
 
-  std::string getErrorStatus() override
+  virtual std::string getErrorStatus()
   {
     std::ostringstream error_stream;
+    //    std::string state = IMCStateOfOperation(this->statusWord).getString().c_str();
 
-    error_stream << "State: " << this->state << "\nAxis Error: " << this->axisError << " ("
-                 << this->axisErrorDescription << ")"
-                 << "\nMotor Error: " << this->axisMotorError << " (" << this->axisMotorErrorDescription << ")"
-                 << "\nEncoder Error: " << this->axisEncoderError << " (" << this->axisEncoderErrorDescription << ")"
-                 << "\nController Error: " << this->axisControllerError << " (" << this->axisControllerErrorDescription
-                 << ")";
-
+    error_stream << "State: " << state;
     return error_stream.str();
   }
 };

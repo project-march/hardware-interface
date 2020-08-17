@@ -18,49 +18,16 @@ bool OdriveMotor::initialize(int cycle_time)
 
 void OdriveMotor::prepareActuation()
 {
-  this->importOdriveJson();
-
   if (this->setState(States::AXIS_STATE_FULL_CALIBRATION_SEQUENCE) == 1)
   {
     ROS_FATAL("Calibration sequence was not finished successfully");
-    return;
   }
-
-  this->waitForIdleState();
-
-  if (this->setState(States::AXIS_STATE_CLOSED_LOOP_CONTROL) == 1)
-  {
-    ROS_FATAL("Calibration sequence was not finished successfully");
-    return;
-  }
-}
-
-bool OdriveMotor::waitForIdleState(float timeout)
-{
-  float current_time = 0;
-  while (this->getState() != States::AXIS_STATE_IDLE)
-  {
-    ros::Duration(0.5).sleep();
-    current_time += 0.5;
-
-    if (current_time == timeout)
-    {
-      ROS_FATAL("Odrive axis did not return to idle state, current state is %i", this->getState());
-      return false;
-    }
-  }
-  return true;
 }
 
 // to be implemented
 void OdriveMotor::reset()
 {
-  uint16_t axis_error = 0;
-  std::string command_name_ = this->create_command(O_PM_AXIS_ERROR);
-  if (this->write(command_name_, axis_error) == 1)
-  {
-    ROS_ERROR("Could not reset axis");
-  }
+  return;
 }
 
 void OdriveMotor::actuateRad(double target_rad)
@@ -69,10 +36,14 @@ void OdriveMotor::actuateRad(double target_rad)
   return;
 }
 
-void OdriveMotor::actuateTorque(int16_t target_torque)
+void OdriveMotor::actuateTorque(double target_torque_ampere)
 {
-  ROS_INFO("Actuating torque %d", target_torque);
-  return;
+  float target_torque_ampere_float = (float)target_torque_ampere;
+  std::string command_name_ = this->create_command(O_PM_DESIRED_MOTOR_CURRENT);
+  if (this->write(command_name_, target_torque_ampere_float) == 1)
+  {
+    ROS_ERROR("Could net set target torque; %f to the axis", target_torque_ampere);
+  }
 }
 
 MotorControllerStates& OdriveMotor::getStates()
@@ -89,66 +60,9 @@ MotorControllerStates& OdriveMotor::getStates()
   states.absoluteVelocity = this->getVelocityRadAbsolute();
   states.incrementalVelocity = this->getVelocityRadIncremental();
 
-  states.axisError = this->getAxisError();
-  states.axisMotorError = this->getAxisMotorError();
-  states.axisEncoderError = this->getAxisEncoderError();
-  states.axisControllerError = this->getAxisControllerError();
-
   states.state = States(this->getState());
 
   return states;
-}
-
-uint16_t OdriveMotor::getAxisError()
-{
-  uint16_t axis_error;
-  std::string command_name_ = this->create_command(O_PM_AXIS_ERROR);
-  if (this->read(command_name_, axis_error) == 1)
-  {
-    ROS_ERROR("Could not retrieve axis error");
-    return ODRIVE_ERROR;
-  }
-
-  return axis_error;
-}
-
-uint16_t OdriveMotor::getAxisMotorError()
-{
-  uint16_t axis_motor_error;
-  std::string command_name_ = this->create_command(O_PM_AXIS_MOTOR_ERROR);
-  if (this->read(command_name_, axis_motor_error) == 1)
-  {
-    ROS_ERROR("Could not retrieve axis motor error");
-    return ODRIVE_ERROR;
-  }
-
-  return axis_motor_error;
-}
-
-uint8_t OdriveMotor::getAxisEncoderError()
-{
-  uint8_t axis_encoder_error;
-  std::string command_name_ = this->create_command(O_PM_AXIS_ENCODER_ERROR);
-  if (this->read(command_name_, axis_encoder_error) == 1)
-  {
-    ROS_ERROR("Could not retrieve axis encoder error");
-    return ODRIVE_ERROR;
-  }
-
-  return axis_encoder_error;
-}
-
-uint8_t OdriveMotor::getAxisControllerError()
-{
-  uint8_t axis_controller_error;
-  std::string command_name_ = this->create_command(O_PM_AXIS_CONTROLLER_ERROR);
-  if (this->read(command_name_, axis_controller_error) == 1)
-  {
-    ROS_ERROR("Could not retrieve axis controller error");
-    return ODRIVE_ERROR;
-  }
-
-  return axis_controller_error;
 }
 
 float OdriveMotor::getMotorControllerVoltage()
@@ -270,9 +184,9 @@ int OdriveMotor::setState(uint8_t state)
   return ODRIVE_OK
 }
 
-uint8_t OdriveMotor::getState()
+int OdriveMotor::getState()
 {
-  uint8_t axis_state;
+  int axis_state;
   std::string command_name_ = this->create_command(O_PM_CURRENT_STATE);
   if (this->read(command_name_, axis_state) == 1)
   {
