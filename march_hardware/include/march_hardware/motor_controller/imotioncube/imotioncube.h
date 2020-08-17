@@ -71,7 +71,7 @@ public:
 
   void setControlWord(uint16_t control_word);
   virtual void actuateRad(double target_rad) override;
-  virtual void actuateTorque(double target_torque) override;
+  virtual void actuateTorque(double target_torque_ampere) override;
 
   bool initialize(int cycle_time) override;
   void goToTargetState(IMotionCubeTargetState target_state);

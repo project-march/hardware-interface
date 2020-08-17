@@ -64,14 +64,14 @@ public:
   void write(const ros::Time& time, const ros::Duration& elapsed_time) override;
 
   /**
-   * Returns the ethercat cycle time in milliseconds.
+   * Returns the communication cycle time in milliseconds.
    */
-  int getEthercatCycleTime() const;
+  int getCycleTime() const;
 
   /**
-   * Wait for received PDO.
+   * Wait for received communication update.
    */
-  void waitForPdo();
+  void waitForUpdate();
 
 private:
   void uploadJointNames(ros::NodeHandle& nh) const;

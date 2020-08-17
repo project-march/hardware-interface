@@ -36,10 +36,14 @@ void OdriveMotor::actuateRad(double target_rad)
   return;
 }
 
-void OdriveMotor::actuateTorque(int16_t target_torque)
+void OdriveMotor::actuateTorque(double target_torque_ampere)
 {
-    ROS_INFO("Actuating torque %d", target_torque);
-  return;
+    float target_torque_ampere_float = (float) target_torque_ampere;
+    std::string command_name_ = this->create_command(O_PM_DESIRED_MOTOR_CURRENT);
+    if (this->write(command_name_, target_torque_ampere_float) == 1)
+    {
+        ROS_ERROR("Could net set target torque; %f to the axis", target_torque_ampere);
+    }
 }
 
 MotorControllerStates& OdriveMotor::getStates()
