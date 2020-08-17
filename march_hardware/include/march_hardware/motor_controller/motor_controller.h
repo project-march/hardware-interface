@@ -23,7 +23,7 @@ public:
    * Getter for the slave index.
    * @return slave index if the motor controller is an ethercat slave, else -1
    */
-  virtual uint16_t getSlaveIndex() const = 0;
+  virtual int getSlaveIndex() const = 0;
 
   virtual float getMotorCurrent() = 0;
   virtual float getMotorControllerVoltage() = 0;

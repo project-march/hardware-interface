@@ -18,7 +18,7 @@ public:
   MOCK_METHOD0(prepareActuation, void());
   MOCK_CONST_METHOD0(getActuationMode, march::ActuationMode());
 
-  MOCK_CONST_METHOD0(getSlaveIndex, uint16_t());
+  MOCK_CONST_METHOD0(getSlaveIndex, int());
   MOCK_CONST_METHOD0(getIncrementalMorePrecise, bool());
   MOCK_METHOD0(getStates, march::MotorControllerStates&());
 

@@ -8,6 +8,8 @@
 #define O_PM_ENCODER_VELOCITY_UI ".encoder.vel_estimate"
 #define O_PM_ODRIVE_INPUT_VOLTAGE "vbus_voltage"
 #define O_PM_ACTUAL_MOTOR_CURRENT ".motor.current_control.Iq_measured"
+#define O_PM_ACTUAL_MOTOR_VOLTAGE_D ".motor.current_control.v_current_control_integral_d"
+#define O_PM_ACTUAL_MOTOR_VOLTAGE_Q ".motor.current_control.v_current_control_integral_q"
 
 // axis states
 enum States : int

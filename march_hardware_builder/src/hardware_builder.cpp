@@ -134,7 +134,7 @@ march::Joint HardwareBuilder::createJoint(const YAML::Node& joint_config, const 
   }
   if (joint_config["odrive"])
   {
-    HardwareBuilder::createOdrive(joint_config["odrive"], mode, urdf_joint, usb_master);
+      controller = HardwareBuilder::createOdrive(joint_config["odrive"], mode, urdf_joint, usb_master);
   }
   if (!controller)
   {

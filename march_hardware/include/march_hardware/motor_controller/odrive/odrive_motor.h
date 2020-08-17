@@ -20,24 +20,45 @@ class OdriveMotor : public Odrive
 public:
   OdriveMotor(const std::string& axisNumber, std::shared_ptr<OdriveEndpoint> odriveEndpoint, ActuationMode mode);
 
-  int initialize();
+  bool initialize(int cycle_time) override;
+  void prepareActuation() override;
+  void reset() override;
 
-  int setState(uint8_t state);
-  int getState();
+  void actuateRad(double target_rad) override;
+  void actuateTorque(int16_t target_torque) override;
 
-  float getMotorControllerVoltage();
-  float getMotorCurrent();
-  double getTorque();
+  MotorControllerStates& getStates() override;
 
-  double getAngleRadAbsolute();
-  double getVelocityRadAbsolute();
+  float getMotorControllerVoltage() override;
+  float getMotorCurrent() override;
+  float getMotorVoltage() override;
+  double getTorque() override;
 
-  double getAngleRadIncremental();
-  double getVelocityRadIncremental();
+  double getAngleRadAbsolute() override;
+  double getVelocityRadAbsolute() override;
+
+  double getAngleRadIncremental() override;
+  double getVelocityRadIncremental() override;
+
+  bool getIncrementalMorePrecise() const override;
+  ActuationMode getActuationMode() const
+  {
+    return this->mode_;
+  }
+  int getSlaveIndex() const
+  {
+    return -1;
+  }
 
 private:
   std::string create_command(std::string command_name);
-  ActuationMode mode;
+  int setState(uint8_t state);
+  int getState();
+
+  int getAngleCountsAbsolute();
+  int getAngleCountsIncremental();
+
+  ActuationMode mode_;
 };
 
 }  // namespace march

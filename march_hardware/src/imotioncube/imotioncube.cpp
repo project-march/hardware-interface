@@ -206,7 +206,7 @@ void IMotionCube::actuateTorque(int16_t target_torque)
   this->write16(target_torque_location, target_torque_struct);
 }
 
-uint16_t IMotionCube::getSlaveIndex() const
+int IMotionCube::getSlaveIndex() const
 {
   return this->Slave::getSlaveIndex();
 }

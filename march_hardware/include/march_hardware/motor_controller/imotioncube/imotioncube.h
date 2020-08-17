@@ -77,7 +77,7 @@ public:
   void goToTargetState(IMotionCubeTargetState target_state);
   virtual void prepareActuation() override;
 
-  uint16_t getSlaveIndex() const override;
+  int getSlaveIndex() const override;
   virtual void reset() override;
 
   /** @brief Override comparison operator */
