@@ -18,11 +18,13 @@ public:
     odrive_test_joint_rotational,
     test_joint_linear,
     pdb,
+    two_odrive_joints,
   };
 
   AllowedRobot() = default;
   explicit AllowedRobot(const std::string& robot_name)
   {
+      ROS_WARN("Used robot %s", robot_name);
     if (robot_name == "march4")
     {
       this->value = march4;
@@ -38,6 +40,10 @@ public:
     else if (robot_name == "odrive_test_joint_rotational")
     {
       this->value = odrive_test_joint_rotational;
+    }
+    else if (robot_name == "two_odrive_joints")
+    {
+        this->value = two_odrive_joints;
     }
     else if (robot_name == "test_joint_linear")
     {
@@ -68,6 +74,10 @@ public:
     else if (this->value == AllowedRobot::test_joint_rotational)
     {
       return base_path.append("/robots/odrive_test_joint_rotational.yaml");
+    }
+    else if (this->value == AllowedRobot::two_odrive_joints)
+    {
+        return base_path.append("/robots/two_odrive_joints.yaml");
     }
     else if (this->value == AllowedRobot::odrive_test_joint_rotational)
     {
