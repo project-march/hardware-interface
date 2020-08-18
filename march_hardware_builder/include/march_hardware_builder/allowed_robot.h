@@ -24,7 +24,6 @@ public:
   AllowedRobot() = default;
   explicit AllowedRobot(const std::string& robot_name)
   {
-      ROS_WARN("Used robot %s", robot_name);
     if (robot_name == "march4")
     {
       this->value = march4;

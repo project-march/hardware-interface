@@ -109,7 +109,6 @@ void OdriveMotor::actuateRad(double target_rad)
 void OdriveMotor::actuateTorque(double target_torque_ampere)
 {
   float target_torque_ampere_float = (float)target_torque_ampere;
-  ROS_INFO("target torque: %f", target_torque_ampere_float);
 
   std::string command_name_ = this->create_command(O_PM_DESIRED_MOTOR_CURRENT);
   if (this->write(command_name_, target_torque_ampere_float) == 1)
@@ -211,11 +210,9 @@ float OdriveMotor::getMotorCurrent()
   std::string command_name_ = this->create_command(O_PM_ACTUAL_MOTOR_CURRENT);
   if (this->read(command_name_, motor_current) == 1)
   {
-    ROS_ERROR("Could not retrieve motor courrent");
+    ROS_ERROR("Could not retrieve motor current");
     return ODRIVE_ERROR;
   }
-
-    ROS_INFO("actual torque: %f", motor_current);
 
   return motor_current;
 }
@@ -235,10 +232,7 @@ float OdriveMotor::getMotorVoltage()
 
 double OdriveMotor::getTorque()
 {
-  double motor_current = this->getMotorCurrent();
-  double motor_torque = CURRENT_TO_TORQUE_CONVERSION * motor_current / MOTOR_KV;
-
-  return motor_torque;
+  return this->getMotorCurrent();
 }
 
 int OdriveMotor::getAngleCountsAbsolute()
@@ -268,7 +262,7 @@ int OdriveMotor::getAngleCountsIncremental()
   if (this->read(command_name_, iu_position) == 1)
   {
     ROS_ERROR("Could not retrieve incremental position of the encoder");
-    return ODRIVE_ERROR;
+    return ODRIVE_ERROR
   }
   return iu_position;
 }
@@ -286,7 +280,7 @@ double OdriveMotor::getVelocityRadIncremental()
   if (this->read(command_name_, iu_velocity) == 1)
   {
     ROS_ERROR("Could not retrieve incremental velocity of the encoder");
-    return ODRIVE_ERROR;
+    return ODRIVE_ERROR
   }
 
   double angle_rad = iu_velocity * PI_2 / (std::pow(2, 12) * 101);
