@@ -49,6 +49,7 @@ void OdriveMotor::prepareActuation()
     ROS_FATAL("Setting closed loop control was not finished successfully");
     return;
   }
+  this->readValues();
 }
 
 bool OdriveMotor::waitForIdleState(float timeout)
@@ -227,13 +228,14 @@ int OdriveMotor::getAngleCountsIncremental()
 
 double OdriveMotor::getAngleRadIncremental()
 {
-  double angle_rad = this->getAngleCountsIncremental() * PI_2 / (std::pow(2, 12) * 101);
+  double angle_rad = this->getAngleCountsIncremental() * PI_2 / (std::pow(2, 12) * 101 * -1);
   return angle_rad;
 }
 
 double OdriveMotor::getVelocityRadIncremental()
 {
-  return this->velocity_rad_incremental;
+  double velocity_rad_incremental_double = this->velocity_rad_incremental * -1;
+  return velocity_rad_incremental_double;
 }
 
 int OdriveMotor::setState(uint8_t state)
