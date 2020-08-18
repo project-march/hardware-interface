@@ -323,17 +323,17 @@ int Odrive::json_string_write(const Json::Value& json_parameter_object)
   }
   else if (type_name == "int8")
   {
-    int8_t casted_value = value.asUInt();
+    int8_t casted_value = value.asInt();
     return this->write(parameter_name, casted_value);
   }
   else if (type_name == "int16")
   {
-    int16_t casted_value = value.asUInt();
+    int16_t casted_value = value.asInt();
     return this->write(parameter_name, casted_value);
   }
   else if (type_name == "int32")
   {
-    int32_t casted_value = value.asUInt();
+    int32_t casted_value = value.asInt();
     return this->write(parameter_name, casted_value);
   }
   else if (type_name == "float")

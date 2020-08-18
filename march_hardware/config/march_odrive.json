@@ -35,6 +35,12 @@
         "value":50000.0
     },
     {
+        "name":"axis0.motor.config.current_control_bandwidth",
+        "type":"float",
+        "value":100.0
+    },
+
+    {
         "name":"axis0.motor.config.motor_type",
         "type":"uint8",
         "value":0
@@ -53,11 +59,6 @@
         "name":"axis0.controller.config.control_mode",
         "type":"uint8",
         "value":1
-    },
-    {
-        "name":"axis0.motor.config.direction",
-        "type":"int32",
-        "value":0
     },
     {
         "name":"axis0.sensorless_estimator.config.pm_flux_linkage",
