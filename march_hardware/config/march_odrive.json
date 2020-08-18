@@ -2,7 +2,7 @@
     {
         "name":"axis0.motor.config.current_lim",
         "type":"float",
-        "value":10.0
+        "value":30.0
     },
     {
         "name":"axis0.encoder.config.cpr",
@@ -32,7 +32,7 @@
     {
         "name":"axis0.controller.config.vel_limit",
         "type":"float",
-        "value":50000.0
+        "value":200000.0
     },
     {
         "name":"axis0.motor.config.current_control_bandwidth",
