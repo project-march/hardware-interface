@@ -391,6 +391,141 @@ int Odrive::setConfigurations(const std::string& configuration_json_path)
   return ODRIVE_OK
 }
 
+uint16_t Odrive::readAxisError()
+{
+  uint16_t axis_error;
+  std::string command_name_ = this->create_command(O_PM_AXIS_ERROR);
+  if (this->read(command_name_, axis_error) == 1)
+  {
+    ROS_ERROR("Could not retrieve axis error");
+    return ODRIVE_ERROR;
+  }
+
+  return axis_error;
+}
+
+uint16_t Odrive::readAxisMotorError()
+{
+  uint16_t axis_motor_error;
+  std::string command_name_ = this->create_command(O_PM_AXIS_MOTOR_ERROR);
+  if (this->read(command_name_, axis_motor_error) == 1)
+  {
+    ROS_ERROR("Could not retrieve axis motor error");
+    return ODRIVE_ERROR;
+  }
+
+  return axis_motor_error;
+}
+
+uint8_t Odrive::readAxisEncoderError()
+{
+  uint8_t axis_encoder_error;
+  std::string command_name_ = this->create_command(O_PM_AXIS_ENCODER_ERROR);
+  if (this->read(command_name_, axis_encoder_error) == 1)
+  {
+    ROS_ERROR("Could not retrieve axis encoder error");
+    return ODRIVE_ERROR;
+  }
+
+  return axis_encoder_error;
+}
+
+uint8_t Odrive::readAxisControllerError()
+{
+  uint8_t axis_controller_error;
+  std::string command_name_ = this->create_command(O_PM_AXIS_CONTROLLER_ERROR);
+  if (this->read(command_name_, axis_controller_error) == 1)
+  {
+    ROS_ERROR("Could not retrieve axis controller error");
+    return ODRIVE_ERROR;
+  }
+
+  return axis_controller_error;
+}
+
+float Odrive::readMotorControllerVoltage()
+{
+  float motor_controller_voltage;
+  std::string command_name_ = this->create_command(O_PM_ODRIVE_INPUT_VOLTAGE);
+  if (this->read(command_name_, motor_controller_voltage) == 1)
+  {
+    ROS_ERROR("Could not retrieve motor controller voltage");
+    return ODRIVE_ERROR;
+  }
+  return motor_controller_voltage;
+}
+
+float Odrive::readMotorCurrent()
+{
+  float motor_current;
+  std::string command_name_ = this->create_command(O_PM_ACTUAL_MOTOR_CURRENT);
+  if (this->read(command_name_, motor_current) == 1)
+  {
+    ROS_ERROR("Could not retrieve motor current");
+    return ODRIVE_ERROR;
+  }
+
+  return motor_current;
+}
+
+float Odrive::readMotorVoltage()
+{
+  float motor_voltage;
+  std::string command_name_ = this->create_command(O_PM_ACTUAL_MOTOR_VOLTAGE_D);
+  if (this->read(command_name_, motor_voltage) == 1)
+  {
+    ROS_ERROR("Could not retrieve motor voltage");
+    return ODRIVE_ERROR;
+  }
+
+  return motor_voltage;
+}
+
+int Odrive::readAngleCountsAbsolute()
+{
+  return 0;
+}
+
+double Odrive::readVelocityRadAbsolute()
+{
+  return 0;
+}
+
+int Odrive::readAngleCountsIncremental()
+{
+  float iu_position;
+  std::string command_name_ = this->create_command(O_PM_ENCODER_POSITION_UI);
+  if (this->read(command_name_, iu_position) == 1)
+  {
+    ROS_ERROR("Could not retrieve incremental position of the encoder");
+    return ODRIVE_ERROR
+  }
+  return iu_position;
+}
+
+double Odrive::readVelocityRadIncremental()
+{
+  float iu_velocity;
+  std::string command_name_ = this->create_command(O_PM_ENCODER_VELOCITY_UI);
+  if (this->read(command_name_, iu_velocity) == 1)
+  {
+    ROS_ERROR("Could not retrieve incremental velocity of the encoder");
+    return ODRIVE_ERROR
+  }
+
+  double angle_rad = iu_velocity * PI_2 / (std::pow(2, 12) * 101);
+  return angle_rad;
+}
+
+std::string Odrive::create_command(std::string command_name)
+{
+  if (command_name.at(0) == '.')
+  {
+    return this->axis_number + command_name;
+  }
+  return command_name;
+}
+
 template int Odrive::validateType(const odrive_json_object& json_object, int8_t&);
 template int Odrive::validateType(const odrive_json_object& json_object, int16_t&);
 template int Odrive::validateType(const odrive_json_object& json_object, int32_t&);

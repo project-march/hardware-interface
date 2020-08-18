@@ -9,7 +9,6 @@
 #include "odrive_enums.h"
 #include <march_hardware/motor_controller/actuation_mode.h>
 
-static constexpr double PI_2 = 2 * M_PI;
 static constexpr double MOTOR_KV = 100;
 static constexpr double CURRENT_TO_TORQUE_CONVERSION = 8.27;
 
@@ -60,7 +59,6 @@ public:
   }
 
 private:
-  std::string create_command(std::string command_name);
   int setState(uint8_t state);
   uint8_t getState();
 
@@ -69,6 +67,22 @@ private:
 
   ActuationMode mode_;
   std::string json_config_file_path_;
+
+  void readValues();
+
+  uint16_t axis_error;
+  uint16_t axis_motor_error;
+  uint8_t axis_encoder_error;
+  uint8_t axis_controller_error;
+
+  float motor_controller_voltage;
+  float motor_current;
+  float motor_voltage;
+
+  double angle_counts_absolute;
+  double velocity_rad_absolute;
+  double angle_counts_incremental;
+  double velocity_rad_incremental;
 };
 
 }  // namespace march

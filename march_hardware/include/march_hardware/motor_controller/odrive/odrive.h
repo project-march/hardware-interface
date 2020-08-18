@@ -22,6 +22,8 @@
 #define ODRIVE_OK 0;
 #define ODRIVE_ERROR 1;
 
+static constexpr double PI_2 = 2 * M_PI;
+
 namespace march
 {
 typedef struct odrive_json_object
@@ -74,6 +76,23 @@ public:
   int setConfigurations(const std::string& configuration_json_path);
 
   std::string axis_number;
+
+protected:
+  float readMotorControllerVoltage();
+  float readMotorCurrent();
+  float readMotorVoltage();
+
+  uint16_t readAxisError();
+  uint16_t readAxisMotorError();
+  uint8_t readAxisEncoderError();
+  uint8_t readAxisControllerError();
+
+  int readAngleCountsAbsolute();
+  double readVelocityRadAbsolute();
+
+  int readAngleCountsIncremental();
+  double readVelocityRadIncremental();
+  std::string create_command(std::string command_name);
 
 private:
   int json_string_read(const Json::Value& json_parameter_object);
