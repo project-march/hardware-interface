@@ -115,6 +115,8 @@ void OdriveMotor::actuateTorque(double target_torque_ampere)
   {
     ROS_ERROR("Could net set target torque; %f to the axis", target_torque_ampere);
   }
+
+  this->readValues();
 }
 
 MotorControllerStates& OdriveMotor::getStates()
@@ -140,94 +142,56 @@ MotorControllerStates& OdriveMotor::getStates()
   return states;
 }
 
+void OdriveMotor::readValues()
+{
+  this->axis_error = this->readAxisError();
+  this->axis_motor_error = this->readAxisMotorError();
+  this->axis_encoder_error = this->readAxisEncoderError();
+  this->axis_controller_error = this->readAxisControllerError();
+
+  this->motor_controller_voltage = this->readMotorControllerVoltage();
+  this->motor_current = this->readMotorCurrent();
+  this->motor_voltage = this->readMotorVoltage();
+
+  this->angle_counts_absolute = this->readAngleCountsAbsolute();
+  this->velocity_rad_absolute = this->readVelocityRadAbsolute();
+  this->angle_counts_incremental = this->readAngleCountsIncremental();
+  this->velocity_rad_incremental = this->readVelocityRadIncremental();
+}
+
 uint16_t OdriveMotor::getAxisError()
 {
-  uint16_t axis_error;
-  std::string command_name_ = this->create_command(O_PM_AXIS_ERROR);
-  if (this->read(command_name_, axis_error) == 1)
-  {
-    ROS_ERROR("Could not retrieve axis error");
-    return ODRIVE_ERROR;
-  }
-
-  return axis_error;
+  return this->axis_error;
 }
 
 uint16_t OdriveMotor::getAxisMotorError()
 {
-  uint16_t axis_motor_error;
-  std::string command_name_ = this->create_command(O_PM_AXIS_MOTOR_ERROR);
-  if (this->read(command_name_, axis_motor_error) == 1)
-  {
-    ROS_ERROR("Could not retrieve axis motor error");
-    return ODRIVE_ERROR;
-  }
-
-  return axis_motor_error;
+  return this->axis_motor_error;
 }
 
 uint8_t OdriveMotor::getAxisEncoderError()
 {
-  uint8_t axis_encoder_error;
-  std::string command_name_ = this->create_command(O_PM_AXIS_ENCODER_ERROR);
-  if (this->read(command_name_, axis_encoder_error) == 1)
-  {
-    ROS_ERROR("Could not retrieve axis encoder error");
-    return ODRIVE_ERROR;
-  }
-
-  return axis_encoder_error;
+  return this->axis_encoder_error;
 }
 
 uint8_t OdriveMotor::getAxisControllerError()
 {
-  uint8_t axis_controller_error;
-  std::string command_name_ = this->create_command(O_PM_AXIS_CONTROLLER_ERROR);
-  if (this->read(command_name_, axis_controller_error) == 1)
-  {
-    ROS_ERROR("Could not retrieve axis controller error");
-    return ODRIVE_ERROR;
-  }
-
-  return axis_controller_error;
+  return this->axis_controller_error;
 }
 
 float OdriveMotor::getMotorControllerVoltage()
 {
-  float motor_controller_voltage;
-  std::string command_name_ = this->create_command(O_PM_ODRIVE_INPUT_VOLTAGE);
-  if (this->read(command_name_, motor_controller_voltage) == 1)
-  {
-    ROS_ERROR("Could not retrieve motor controller voltage");
-    return ODRIVE_ERROR;
-  }
-  return motor_controller_voltage;
+  return this->motor_controller_voltage;
 }
 
 float OdriveMotor::getMotorCurrent()
 {
-  float motor_current;
-  std::string command_name_ = this->create_command(O_PM_ACTUAL_MOTOR_CURRENT);
-  if (this->read(command_name_, motor_current) == 1)
-  {
-    ROS_ERROR("Could not retrieve motor current");
-    return ODRIVE_ERROR;
-  }
-
-  return motor_current;
+  return this->motor_current;
 }
 
 float OdriveMotor::getMotorVoltage()
 {
-  float motor_voltage;
-  std::string command_name_ = this->create_command(O_PM_ACTUAL_MOTOR_VOLTAGE_D);
-  if (this->read(command_name_, motor_voltage) == 1)
-  {
-    ROS_ERROR("Could not retrieve motor voltage");
-    return ODRIVE_ERROR;
-  }
-
-  return motor_voltage;
+  return this->motor_voltage;
 }
 
 double OdriveMotor::getTorque()
@@ -237,17 +201,18 @@ double OdriveMotor::getTorque()
 
 int OdriveMotor::getAngleCountsAbsolute()
 {
-  return 0;
+  return this->angle_counts_absolute;
 }
 
 double OdriveMotor::getAngleRadAbsolute()
 {
-  return 0;
+  double angle_rad = this->getAngleCountsAbsolute() * PI_2 / (std::pow(2, 12) * 101);
+  return angle_rad;
 }
 
 double OdriveMotor::getVelocityRadAbsolute()
 {
-  return 0;
+  return this->velocity_rad_absolute;
 }
 
 bool OdriveMotor::getIncrementalMorePrecise() const
@@ -257,14 +222,7 @@ bool OdriveMotor::getIncrementalMorePrecise() const
 
 int OdriveMotor::getAngleCountsIncremental()
 {
-  float iu_position;
-  std::string command_name_ = this->create_command(O_PM_ENCODER_POSITION_UI);
-  if (this->read(command_name_, iu_position) == 1)
-  {
-    ROS_ERROR("Could not retrieve incremental position of the encoder");
-    return ODRIVE_ERROR
-  }
-  return iu_position;
+  return this->angle_counts_incremental;
 }
 
 double OdriveMotor::getAngleRadIncremental()
@@ -275,25 +233,7 @@ double OdriveMotor::getAngleRadIncremental()
 
 double OdriveMotor::getVelocityRadIncremental()
 {
-  float iu_velocity;
-  std::string command_name_ = this->create_command(O_PM_ENCODER_VELOCITY_UI);
-  if (this->read(command_name_, iu_velocity) == 1)
-  {
-    ROS_ERROR("Could not retrieve incremental velocity of the encoder");
-    return ODRIVE_ERROR
-  }
-
-  double angle_rad = iu_velocity * PI_2 / (std::pow(2, 12) * 101);
-  return angle_rad;
-}
-
-std::string OdriveMotor::create_command(std::string command_name)
-{
-  if (command_name.at(0) == '.')
-  {
-    return this->axis_number + command_name;
-  }
-  return command_name;
+  return this->velocity_rad_incremental;
 }
 
 int OdriveMotor::setState(uint8_t state)
