@@ -1,16 +1,16 @@
 [
     {
-        "name":"axis0.motor.config.current_lim",
+        "name":"axis1.motor.config.current_lim",
         "type":"float",
         "value":30.0
     },
     {
-        "name":"axis0.encoder.config.cpr",
+        "name":"axis1.encoder.config.cpr",
         "type":"int32",
         "value":4096
     },
     {
-        "name":"axis0.encoder.config.use_index",
+        "name":"axis1.encoder.config.use_index",
         "type":"bool",
         "value":1
     },
@@ -20,56 +20,52 @@
         "value":0.0
     },
     {
-        "name":"axis0.motor.config.pole_pairs",
+        "name":"axis1.motor.config.pole_pairs",
         "type":"int32",
         "value":21
     },
     {
-        "name":"axis0.motor.config.calibration_current",
+        "name":"axis1.motor.config.calibration_current",
         "type":"float",
         "value":10.0
     },
     {
-        "name":"axis0.controller.config.vel_limit",
+        "name":"axis1.controller.config.vel_limit",
         "type":"float",
         "value":200000.0
     },
     {
-        "name":"axis0.motor.config.current_control_bandwidth",
+        "name":"axis1.motor.config.current_control_bandwidth",
         "type":"float",
         "value":100.0
     },
 
     {
-        "name":"axis0.motor.config.motor_type",
+        "name":"axis1.motor.config.motor_type",
         "type":"uint8",
         "value":0
     },
     {
-        "name":"axis0.controller.config.vel_gain",
+        "name":"axis1.controller.config.vel_gain",
         "type":"float",
         "value":0.01
     },
     {
-        "name":"axis0.controller.config.vel_integrator_gain",
+        "name":"axis1.controller.config.vel_integrator_gain",
         "type":"float",
         "value":0.05
     },
     {
-        "name":"axis0.controller.config.control_mode",
+        "name":"axis1.controller.config.control_mode",
         "type":"uint8",
         "value":1
     },
     {
-        "name":"axis0.sensorless_estimator.config.pm_flux_linkage",
+        "name":"axis1.sensorless_estimator.config.pm_flux_linkage",
         "type":"float",
         "value":0.001944723
     },
-    {
-        "name":"axis0.config.watchdog_timeout",
-        "type":"float",
-        "value":0
-    },
+
     {
         "name":"axis1.config.watchdog_timeout",
         "type":"float",

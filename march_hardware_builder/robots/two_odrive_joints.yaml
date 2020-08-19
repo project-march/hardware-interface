@@ -3,26 +3,26 @@ march4:
   cycleTime: 4
   slaveTimeout: 50
   joints:
-#    - right_hip_fe:
-#        actuationMode: torque
-#        allowActuation: true
-#        odrive:
-#          serial_number: "0x2084387E304E"
-#          axis: "axis0"
-#          absoluteEncoder:
-#            resolution: 17
-#            minPositionIU: 2045
-#            maxPositionIU: 45632
-#          incrementalEncoder:
-#            resolution: 12
-#            transmission: 101
+    - right_hip_fe:
+        actuationMode: torque
+        allowActuation: true
+        odrive:
+          serial_number: "0x2084387E304E"
+          axis: "axis0"
+          absoluteEncoder:
+            resolution: 17
+            minPositionIU: 2045
+            maxPositionIU: 45632
+          incrementalEncoder:
+            resolution: 12
+            transmission: 101
 
     - right_knee:
         actuationMode: torque
         allowActuation: true
         odrive:
           serial_number: "0x2084387E304E"
-          axis: "axis0"
+          axis: "axis1"
           absoluteEncoder:
             resolution: 17
             minPositionIU: 41533

@@ -42,7 +42,7 @@ public:
     }
     else if (robot_name == "two_odrive_joints")
     {
-        this->value = two_odrive_joints;
+      this->value = two_odrive_joints;
     }
     else if (robot_name == "test_joint_linear")
     {
@@ -76,7 +76,7 @@ public:
     }
     else if (this->value == AllowedRobot::two_odrive_joints)
     {
-        return base_path.append("/robots/two_odrive_joints.yaml");
+      return base_path.append("/robots/two_odrive_joints.yaml");
     }
     else if (this->value == AllowedRobot::odrive_test_joint_rotational)
     {
@@ -125,6 +125,9 @@ public:
         break;
       case odrive_test_joint_rotational:
         out << "odrive_test_joint_rotational";
+        break;
+      case two_odrive_joints:
+        out << "two_odrive_joints";
         break;
       case pdb:
         out << "pdb";

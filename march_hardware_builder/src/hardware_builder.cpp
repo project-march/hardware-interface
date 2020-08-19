@@ -72,7 +72,7 @@ std::unique_ptr<march::MarchRobot> HardwareBuilder::createMarchRobot()
   auto pdo_interface = march::PdoInterfaceImpl::create();
   auto sdo_interface = march::SdoInterfaceImpl::create();
 
-  auto usb_master = march::UsbMaster();
+  march::UsbMaster usb_master = march::UsbMaster();
 
   std::vector<march::Joint> joints = this->createJoints(config["joints"], pdo_interface, sdo_interface, usb_master);
 
@@ -98,7 +98,7 @@ std::unique_ptr<march::MarchRobot> HardwareBuilder::createMarchRobot()
 march::Joint HardwareBuilder::createJoint(const YAML::Node& joint_config, const std::string& joint_name,
                                           const urdf::JointConstSharedPtr& urdf_joint,
                                           march::PdoInterfacePtr pdo_interface, march::SdoInterfacePtr sdo_interface,
-                                          march::UsbMaster usb_master)
+                                          march::UsbMaster& usb_master)
 {
   ROS_DEBUG("Starting creation of joint %s", joint_name.c_str());
   if (!urdf_joint)
@@ -152,7 +152,7 @@ march::Joint HardwareBuilder::createJoint(const YAML::Node& joint_config, const 
 std::unique_ptr<march::OdriveMotor> HardwareBuilder::createOdrive(const YAML::Node& odrive_config,
                                                                   march::ActuationMode mode,
                                                                   const urdf::JointConstSharedPtr& urdf_joint,
-                                                                  march::UsbMaster usb_master)
+                                                                  march::UsbMaster& usb_master)
 {
   if (!odrive_config || !urdf_joint)
   {
@@ -165,11 +165,25 @@ std::unique_ptr<march::OdriveMotor> HardwareBuilder::createOdrive(const YAML::No
   YAML::Node absolute_encoder_config = odrive_config["absoluteEncoder"];
   std::string axis = odrive_config["axis"].as<std::string>();
   std::string serial_number = odrive_config["serial_number"].as<std::string>();
-  std::string json_configuration_path = ros::package::getPath("march_hardware").append("/config/march_odrive.json");
+
+  std::string configuration_path =
+      ros::package::getPath("march_hardware").append("/config/" + urdf_joint->name + ".json");
+
+  std::ifstream file(configuration_path);
+
+  if (file.fail())
+  {
+    throw std::runtime_error("Could not open configuration file for the odrive");
+  }
+
+  if (file.is_open())
+  {
+    file.close();
+  }
 
   auto odrive_endpoint = usb_master.getSerialConnection(serial_number);
 
-  return std::make_unique<march::OdriveMotor>(axis, odrive_endpoint, mode, json_configuration_path);
+  return std::make_unique<march::OdriveMotor>(axis, odrive_endpoint, mode, configuration_path);
 }
 
 std::unique_ptr<march::IMotionCube> HardwareBuilder::createIMotionCube(const YAML::Node& imc_config,
@@ -329,7 +343,7 @@ void HardwareBuilder::initUrdf()
 std::vector<march::Joint> HardwareBuilder::createJoints(const YAML::Node& joints_config,
                                                         march::PdoInterfacePtr pdo_interface,
                                                         march::SdoInterfacePtr sdo_interface,
-                                                        march::UsbMaster usb_master) const
+                                                        march::UsbMaster& usb_master) const
 {
   std::vector<march::Joint> joints;
   for (const YAML::Node& joint_config : joints_config)
