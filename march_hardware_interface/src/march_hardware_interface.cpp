@@ -144,7 +144,7 @@ bool MarchHardwareInterface::init(ros::NodeHandle& nh, ros::NodeHandle& /* robot
                                                            &joint_temperature_variance_[i]);
     march_temperature_interface_.registerHandle(temperature_sensor_handle);
 
-    // Enable high voltage on the Motor controllers
+    // Prepare Motor Controllers for actuation
     if (joint.canActuate())
     {
       joint.prepareActuation();
