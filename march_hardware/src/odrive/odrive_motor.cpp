@@ -228,7 +228,7 @@ int OdriveMotor::getAngleCountsIncremental()
 
 double OdriveMotor::getAngleRadIncremental()
 {
-  double angle_rad = this->getAngleCountsIncremental() * PI_2 / (std::pow(2, 12) * 101 * -1);
+  double angle_rad = this->getAngleCountsIncremental() * PI_2 / (std::pow(2, 12) * 101);
   return angle_rad;
 }
 
