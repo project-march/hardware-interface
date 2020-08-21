@@ -48,7 +48,7 @@ public:
   double getAbsoluteRadPerBit() const;
   double getIncrementalRadPerBit() const;
   bool getIncrementalMorePrecise() const override;
-  int16_t getTorque() override;
+  double getTorque() override;
   int32_t getAngleIUAbsolute();
   int32_t getAngleIUIncremental();
   double getVelocityIUAbsolute();
@@ -71,13 +71,13 @@ public:
 
   void setControlWord(uint16_t control_word);
   virtual void actuateRad(double target_rad) override;
-  virtual void actuateTorque(int16_t target_torque) override;
+  virtual void actuateTorque(double target_torque) override;
 
   bool initialize(int cycle_time) override;
   void goToTargetState(IMotionCubeTargetState target_state);
   virtual void prepareActuation() override;
 
-  uint16_t getSlaveIndex() const override;
+  int getSlaveIndex() const override;
   virtual void reset() override;
 
   /** @brief Override comparison operator */
@@ -97,7 +97,9 @@ public:
   constexpr static double MAX_TARGET_DIFFERENCE = 0.393;
   // This value is slightly larger than the current limit of the
   // linear joints defined in the URDF.
-  const static int16_t MAX_TARGET_TORQUE = 23500;
+  constexpr static double IPEAK = 40;
+  // See CoE manual page 222
+  constexpr static double AMPERE_TO_IU_FACTOR = 65520;
 
   // Watchdog base time = 1 / 25 MHz * (2498 + 2) = 0.0001 seconds=100 µs
   static const uint16_t WATCHDOG_DIVIDER = 2498;
@@ -111,6 +113,7 @@ protected:
 
 private:
   void actuateIU(int32_t target_iu);
+  int16_t ampereToTorqueIU(double ampere);
 
   void mapMisoPDOs(SdoSlaveInterface& sdo);
   void mapMosiPDOs(SdoSlaveInterface& sdo);

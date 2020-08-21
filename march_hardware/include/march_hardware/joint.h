@@ -50,7 +50,7 @@ public:
   void prepareActuation();
 
   void actuateRad(double target_position);
-  void actuateTorque(int16_t target_torque);
+  void actuateTorque(double target_torque);
   void readEncoders(const ros::Duration& elapsed_time);
 
   double getPosition() const;
@@ -58,11 +58,7 @@ public:
   double getVoltageVelocity() const;
   double getIncrementalPosition() const;
   double getAbsolutePosition() const;
-  int16_t getTorque();
-  int32_t getAngleIUAbsolute();
-  int32_t getAngleIUIncremental();
-  double getVelocityIUAbsolute();
-  double getVelocityIUIncremental();
+  double getTorque();
   float getTemperature();
   MotorControllerStates& getMotorControllerStates();
 

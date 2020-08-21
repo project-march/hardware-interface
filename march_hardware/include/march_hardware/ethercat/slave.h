@@ -31,7 +31,7 @@ public:
 
   ~Slave() noexcept override = default;
 
-  uint16_t getSlaveIndex() const
+  int getSlaveIndex() const
   {
     return this->slave_index_;
   }

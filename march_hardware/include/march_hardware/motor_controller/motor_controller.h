@@ -15,7 +15,7 @@ public:
   virtual double getAngleRadIncremental() = 0;
   virtual double getVelocityRadAbsolute() = 0;
   virtual double getVelocityRadIncremental() = 0;
-  virtual int16_t getTorque() = 0;
+  virtual double getTorque() = 0;
 
   virtual ActuationMode getActuationMode() const = 0;
 
@@ -23,7 +23,7 @@ public:
    * Getter for the slave index.
    * @return slave index if the motor controller is an ethercat slave, else -1
    */
-  virtual uint16_t getSlaveIndex() const = 0;
+  virtual int getSlaveIndex() const = 0;
 
   virtual float getMotorCurrent() = 0;
   virtual float getMotorControllerVoltage() = 0;
@@ -36,7 +36,7 @@ public:
   virtual bool getIncrementalMorePrecise() const = 0;
 
   virtual void actuateRad(double target_rad) = 0;
-  virtual void actuateTorque(int16_t target_torque) = 0;
+  virtual void actuateTorque(double target_torque_ampere) = 0;
 
   virtual void prepareActuation() = 0;
   virtual bool initialize(int cycle_time) = 0;

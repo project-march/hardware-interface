@@ -231,7 +231,7 @@ void MarchHardwareInterface::write(const ros::Time& /* time */, const ros::Durat
   for (size_t i = 0; i < num_joints_; i++)
   {
     // Enlarge joint_effort_command because ROS control limits the pid values to a certain maximum
-    joint_effort_command_[i] = joint_effort_command_[i] * 1000.0;
+    joint_effort_command_[i] = joint_effort_command_[i];
     if (std::abs(joint_last_effort_command_[i] - joint_effort_command_[i]) > MAX_EFFORT_CHANGE)
     {
       joint_effort_command_[i] =
@@ -277,7 +277,7 @@ void MarchHardwareInterface::write(const ros::Time& /* time */, const ros::Durat
       }
       else if (joint.getActuationMode() == march::ActuationMode::torque)
       {
-        joint.actuateTorque(std::round(joint_effort_command_[i]));
+        joint.actuateTorque(joint_effort_command_[i]);
       }
     }
   }

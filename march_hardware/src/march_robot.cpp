@@ -48,17 +48,17 @@ void MarchRobot::startEtherCAT(bool reset_motor_controllers)
     return;
   }
 
-  bool config_write_reset = ethercatMaster.start(this->jointList);
+  bool config_overwritten = ethercatMaster.start(this->jointList);
 
-  if (reset_motor_controllers || config_write_reset)
+  if (reset_motor_controllers || config_overwritten)
   {
     ROS_DEBUG("Resetting all motor controllers due to either: reset arg: %d or downloading of configuration file: %d",
-              reset_motor_controllers, config_write_reset);
+              reset_motor_controllers, config_overwritten);
     resetMotorControllers();
 
     ROS_INFO("Restarting the EtherCAT Master");
     ethercatMaster.stop();
-    config_write_reset = ethercatMaster.start(this->jointList);
+    config_overwritten = ethercatMaster.start(this->jointList);
   }
 }
 
