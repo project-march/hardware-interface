@@ -45,21 +45,21 @@ public:
 
   void resetMotorControllers();
 
-  void startCommunication(bool reset_motor_controllers);
+  void startEtherCAT(bool reset_motor_controllers);
 
-  void stopCommunication();
+  void stopEtherCAT();
 
   int getMaxSlaveIndex();
 
   bool hasValidSlaves();
 
-  bool isCommunicationOperational();
+  bool isEthercatOperational();
 
-  std::exception_ptr getLastCommunicationException() const noexcept;
+  std::exception_ptr getLastEthercatException() const noexcept;
 
-  void waitForUpdate();
+  void waitForPdo();
 
-  int getCycleTime() const;
+  int getEthercatCycleTime() const;
 
   Joint& getJoint(::std::string jointName);
 

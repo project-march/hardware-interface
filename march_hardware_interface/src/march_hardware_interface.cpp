@@ -48,8 +48,8 @@ bool MarchHardwareInterface::init(ros::NodeHandle& nh, ros::NodeHandle& /* robot
 
   this->reserveMemory();
 
-  // Start communication cycle in the hardware
-  this->march_robot_->startCommunication(this->reset_motor_controllers_);
+  // Start ethercat cycle in the hardware
+  this->march_robot_->startEtherCAT(this->reset_motor_controllers_);
 
   for (size_t i = 0; i < num_joints_; ++i)
   {
@@ -144,7 +144,7 @@ bool MarchHardwareInterface::init(ros::NodeHandle& nh, ros::NodeHandle& /* robot
                                                            &joint_temperature_variance_[i]);
     march_temperature_interface_.registerHandle(temperature_sensor_handle);
 
-    // Enable high voltage on the Motor controllers
+    // Prepare Motor Controllers for actuations
     if (joint.canActuate())
     {
       joint.prepareActuation();
@@ -178,7 +178,7 @@ bool MarchHardwareInterface::init(ros::NodeHandle& nh, ros::NodeHandle& /* robot
 
 void MarchHardwareInterface::validate()
 {
-  const auto last_exception = this->march_robot_->getLastCommunicationException();
+  const auto last_exception = this->march_robot_->getLastEthercatException();
   if (last_exception)
   {
     std::rethrow_exception(last_exception);
@@ -195,14 +195,14 @@ void MarchHardwareInterface::validate()
   }
   if (fault_state)
   {
-    this->march_robot_->stopCommunication();
+    this->march_robot_->stopEtherCAT();
     throw std::runtime_error("One or more motor controllers are in fault state");
   }
 }
 
-void MarchHardwareInterface::waitForUpdate()
+void MarchHardwareInterface::waitForPdo()
 {
-  this->march_robot_->waitForUpdate();
+  this->march_robot_->waitForPdo();
 }
 
 void MarchHardwareInterface::read(const ros::Time& /* time */, const ros::Duration& elapsed_time)
@@ -290,9 +290,9 @@ void MarchHardwareInterface::write(const ros::Time& /* time */, const ros::Durat
   }
 }
 
-int MarchHardwareInterface::getCycleTime() const
+int MarchHardwareInterface::getEthercatCycleTime() const
 {
-  return this->march_robot_->getCycleTime();
+  return this->march_robot_->getEthercatCycleTime();
 }
 
 void MarchHardwareInterface::uploadJointNames(ros::NodeHandle& nh) const

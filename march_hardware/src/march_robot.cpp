@@ -14,26 +14,26 @@
 
 namespace march
 {
-MarchRobot::MarchRobot(::std::vector<Joint> jointList, urdf::Model urdf, ::std::string ifName, int cycleTime,
-                       int slaveTimeout)
+MarchRobot::MarchRobot(::std::vector<Joint> jointList, urdf::Model urdf, ::std::string ifName, int ecatCycleTime,
+                       int ecatSlaveTimeout)
   : jointList(std::move(jointList))
   , urdf_(std::move(urdf))
-  , ethercatMaster(ifName, this->getMaxSlaveIndex(), cycleTime, slaveTimeout)
+  , ethercatMaster(ifName, this->getMaxSlaveIndex(), ecatCycleTime, ecatSlaveTimeout)
   , pdb_(nullptr)
 {
 }
 
 MarchRobot::MarchRobot(::std::vector<Joint> jointList, urdf::Model urdf,
                        std::unique_ptr<PowerDistributionBoard> powerDistributionBoard, ::std::string ifName,
-                       int cycleTime, int slaveTimeout)
+                       int ecatCycleTime, int ecatSlaveTimeout)
   : jointList(std::move(jointList))
   , urdf_(std::move(urdf))
-  , ethercatMaster(ifName, this->getMaxSlaveIndex(), cycleTime, slaveTimeout)
+  , ethercatMaster(ifName, this->getMaxSlaveIndex(), ecatCycleTime, ecatSlaveTimeout)
   , pdb_(std::move(powerDistributionBoard))
 {
 }
 
-void MarchRobot::startCommunication(bool reset_motor_controllers)
+void MarchRobot::startEtherCAT(bool reset_motor_controllers)
 {
   if (!hasValidSlaves())
   {
@@ -42,31 +42,31 @@ void MarchRobot::startCommunication(bool reset_motor_controllers)
 
   ROS_INFO("Slave configuration is non-conflicting");
 
-  if (this->isCommunicationOperational())
+  if (ethercatMaster.isOperational())
   {
-    ROS_WARN("Trying to start Communication while it is already active.");
+    ROS_WARN("Trying to start EtherCAT while it is already active.");
     return;
   }
 
-  bool sw_reset = ethercatMaster.start(this->jointList);
+  bool config_write_reset = ethercatMaster.start(this->jointList);
 
-  if (reset_motor_controllers || sw_reset)
+  if (reset_motor_controllers || config_write_reset)
   {
-    ROS_DEBUG("Resetting all MotorControllers due to either: reset arg: %d or downloading of .sw fie: %d",
-              reset_motor_controllers, sw_reset);
+    ROS_DEBUG("Resetting all motor controllers due to either: reset arg: %d or downloading of configuration file: %d",
+              reset_motor_controllers, config_write_reset);
     resetMotorControllers();
 
     ROS_INFO("Restarting the EtherCAT Master");
     ethercatMaster.stop();
-    sw_reset = ethercatMaster.start(this->jointList);
+    config_write_reset = ethercatMaster.start(this->jointList);
   }
 }
 
-void MarchRobot::stopCommunication()
+void MarchRobot::stopEtherCAT()
 {
-  if (!this->isCommunicationOperational())
+  if (!ethercatMaster.isOperational())
   {
-    ROS_WARN("Trying to stop Communication while it is not active.");
+    ROS_WARN("Trying to stop EtherCAT while it is not active.");
     return;
   }
 
@@ -152,29 +152,29 @@ bool MarchRobot::hasValidSlaves()
   return isUnique;
 }
 
-bool MarchRobot::isCommunicationOperational()
+bool MarchRobot::isEthercatOperational()
 {
   return ethercatMaster.isOperational();
 }
 
-std::exception_ptr MarchRobot::getLastCommunicationException() const noexcept
+std::exception_ptr MarchRobot::getLastEthercatException() const noexcept
 {
   return this->ethercatMaster.getLastException();
 }
 
-void MarchRobot::waitForUpdate()
+void MarchRobot::waitForPdo()
 {
   this->ethercatMaster.waitForPdo();
 }
 
-int MarchRobot::getCycleTime() const
+int MarchRobot::getEthercatCycleTime() const
 {
   return this->ethercatMaster.getCycleTime();
 }
 
 Joint& MarchRobot::getJoint(::std::string jointName)
 {
-  if (!this->isCommunicationOperational())
+  if (!ethercatMaster.isOperational())
   {
     ROS_WARN("Trying to access joints while ethercat is not operational. This "
              "may lead to incorrect sensor data.");
@@ -192,7 +192,7 @@ Joint& MarchRobot::getJoint(::std::string jointName)
 
 Joint& MarchRobot::getJoint(size_t index)
 {
-  if (!this->isCommunicationOperational())
+  if (!ethercatMaster.isOperational())
   {
     ROS_WARN("Trying to access joints while ethercat is not operational. This "
              "may lead to incorrect sensor data.");
@@ -207,7 +207,7 @@ size_t MarchRobot::size() const
 
 MarchRobot::iterator MarchRobot::begin()
 {
-  if (!this->isCommunicationOperational())
+  if (!ethercatMaster.isOperational())
   {
     ROS_WARN("Trying to access joints while ethercat is not operational. This "
              "may lead to incorrect sensor data.");
@@ -232,7 +232,7 @@ PowerDistributionBoard* MarchRobot::getPowerDistributionBoard() const
 
 MarchRobot::~MarchRobot()
 {
-  stopCommunication();
+  stopEtherCAT();
 }
 
 const urdf::Model& MarchRobot::getUrdf() const

@@ -1,7 +1,7 @@
 testsetup:
   ifName: enp2s0
-  cycleTime: 4
-  slaveTimeout: 50
+  ecatCycleTime: 4
+  ecatSlaveTimeout: 50
   joints:
     - rotational_joint:
         actuationMode: torque
