@@ -438,17 +438,17 @@ void MarchHardwareInterface::updateMotorControllerStates()
   for (size_t i = 0; i < num_joints_; i++)
   {
     march::Joint& joint = march_robot_->getJoint(i);
-    march::MotorControllerStates& motor_controller_state = joint.getMotorControllerStates();
+    std::unique_ptr<march::MotorControllerStates> motor_controller_state = joint.getMotorControllerStates();
     motor_controller_state_pub_->msg_.header.stamp = ros::Time::now();
     motor_controller_state_pub_->msg_.joint_names[i] = joint.getName();
-    motor_controller_state_pub_->msg_.motor_current[i] = motor_controller_state.motorCurrent;
-    motor_controller_state_pub_->msg_.controller_voltage[i] = motor_controller_state.controllerVoltage;
-    motor_controller_state_pub_->msg_.motor_voltage[i] = motor_controller_state.motorVoltage;
-    motor_controller_state_pub_->msg_.absolute_encoder_value[i] = motor_controller_state.absoluteEncoderValue;
-    motor_controller_state_pub_->msg_.incremental_encoder_value[i] = motor_controller_state.incrementalEncoderValue;
-    motor_controller_state_pub_->msg_.absolute_velocity[i] = motor_controller_state.absoluteVelocity;
-    motor_controller_state_pub_->msg_.incremental_velocity[i] = motor_controller_state.incrementalVelocity;
-    motor_controller_state_pub_->msg_.error_status[i] = motor_controller_state.getErrorStatus();
+    motor_controller_state_pub_->msg_.motor_current[i] = motor_controller_state->motor_current;
+    motor_controller_state_pub_->msg_.controller_voltage[i] = motor_controller_state->controller_voltage;
+    motor_controller_state_pub_->msg_.motor_voltage[i] = motor_controller_state->motor_voltage;
+    motor_controller_state_pub_->msg_.absolute_encoder_value[i] = motor_controller_state->absolute_encoder_value;
+    motor_controller_state_pub_->msg_.incremental_encoder_value[i] = motor_controller_state->incremental_encoder_value;
+    motor_controller_state_pub_->msg_.absolute_velocity[i] = motor_controller_state->absolute_velocity;
+    motor_controller_state_pub_->msg_.incremental_velocity[i] = motor_controller_state->incremental_velocity;
+    motor_controller_state_pub_->msg_.error_status[i] = motor_controller_state->getErrorStatus();
   }
 
   motor_controller_state_pub_->unlockAndPublish();
@@ -457,11 +457,11 @@ void MarchHardwareInterface::updateMotorControllerStates()
 bool MarchHardwareInterface::motorControllerStateCheck(size_t joint_index)
 {
   march::Joint& joint = march_robot_->getJoint(joint_index);
-  march::MotorControllerStates& controller_states = joint.getMotorControllerStates();
-  if (!controller_states.checkState())
+  std::unique_ptr<march::MotorControllerStates> controller_states = joint.getMotorControllerStates();
+  if (!controller_states->checkState())
   {
     std::string error_msg =
-        "Motor controller of joint " + joint.getName() + " is in " + controller_states.getErrorStatus();
+        "Motor controller of joint " + joint.getName() + " is in " + controller_states->getErrorStatus();
     throw std::runtime_error(error_msg);
     return false;
   }

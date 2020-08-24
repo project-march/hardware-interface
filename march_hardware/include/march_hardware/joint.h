@@ -60,7 +60,7 @@ public:
   double getAbsolutePosition() const;
   double getTorque();
   float getTemperature();
-  MotorControllerStates& getMotorControllerStates();
+  std::unique_ptr<MotorControllerStates> getMotorControllerStates();
 
   std::string getName() const;
   int getTemperatureGESSlaveIndex() const;

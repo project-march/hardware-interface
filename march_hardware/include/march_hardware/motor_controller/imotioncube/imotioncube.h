@@ -67,7 +67,7 @@ public:
   virtual float getMotorControllerVoltage() override;
   virtual float getMotorVoltage() override;
 
-  MotorControllerStates& getStates() override;
+  std::unique_ptr<MotorControllerStates> getStates() override;
 
   void setControlWord(uint16_t control_word);
   virtual void actuateRad(double target_rad) override;

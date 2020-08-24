@@ -48,7 +48,7 @@ public:
    * @return A MotorControllerState object containing all data read from the motor controller at every communication
    * cycle.
    */
-  virtual MotorControllerStates& getStates() = 0;
+  virtual std::unique_ptr<MotorControllerStates> getStates() = 0;
 
   virtual ~MotorController() noexcept = default;
 };

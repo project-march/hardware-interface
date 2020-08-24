@@ -20,7 +20,7 @@ public:
 
   MOCK_CONST_METHOD0(getSlaveIndex, int());
   MOCK_CONST_METHOD0(getIncrementalMorePrecise, bool());
-  MOCK_METHOD0(getStates, march::MotorControllerStates&());
+  MOCK_METHOD0(getStates, std::unique_ptr<march::MotorControllerStates>());
 
   MOCK_METHOD0(getAngleRadIncremental, double());
   MOCK_METHOD0(getAngleRadAbsolute, double());

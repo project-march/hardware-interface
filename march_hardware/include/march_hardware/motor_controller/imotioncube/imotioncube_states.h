@@ -13,29 +13,29 @@ struct IMotionCubeStates : public MotorControllerStates
 public:
   IMotionCubeStates() = default;
 
-  uint16_t statusWord;
-  std::string motionError;
-  std::string detailedError;
-  std::string secondDetailedError;
+  uint16_t status_word;
+  std::string motion_error;
+  std::string detailed_error;
+  std::string second_detailed_error;
   IMCStateOfOperation state;
-  std::string detailedErrorDescription;
-  std::string motionErrorDescription;
-  std::string secondDetailedErrorDescription;
+  std::string detailed_error_description;
+  std::string motion_error_description;
+  std::string second_detailed_error_description;
 
-  virtual bool checkState()
+  bool checkState() override
   {
     return !(this->state == march::IMCStateOfOperation::FAULT);
   }
 
-  virtual std::string getErrorStatus()
+  std::string getErrorStatus() override
   {
     std::ostringstream error_stream;
-    std::string state = IMCStateOfOperation(this->statusWord).getString().c_str();
+    std::string state = IMCStateOfOperation(this->status_word).getString();
 
-    error_stream << "State: " << state << "\nMotion Error: " << this->motionErrorDescription << " ("
-                 << this->motionError << ")\nDetailed Error: " << this->detailedErrorDescription << " ("
-                 << this->detailedError << ")\nSecond Detailed Error: " << this->secondDetailedErrorDescription << " ("
-                 << this->secondDetailedError << ")";
+    error_stream << "State: " << state << "\nMotion Error: " << this->motion_error_description << " ("
+                 << this->motion_error << ")\nDetailed Error: " << this->detailed_error_description << " ("
+                 << this->detailed_error << ")\nSecond Detailed Error: " << this->second_detailed_error_description
+                 << " (" << this->second_detailed_error << ")";
     return error_stream.str();
   }
 };

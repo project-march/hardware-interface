@@ -11,13 +11,13 @@ struct MotorControllerStates
 public:
   MotorControllerStates() = default;
 
-  float motorCurrent;
-  float controllerVoltage;
-  float motorVoltage;
-  int absoluteEncoderValue;
-  int incrementalEncoderValue;
-  double absoluteVelocity;
-  double incrementalVelocity;
+  float motor_current;
+  float controller_voltage;
+  float motor_voltage;
+  int absolute_encoder_value;
+  int incremental_encoder_value;
+  double absolute_velocity;
+  double incremental_velocity;
 
   /**
    * Check whether the motor controller is in an error state
