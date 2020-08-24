@@ -336,33 +336,34 @@ void IMotionCube::setControlWord(uint16_t control_word)
   this->write16(this->mosi_byte_offsets_.at(IMCObjectName::ControlWord), control_word_ui);
 }
 
-MotorControllerStates& IMotionCube::getStates()
+std::unique_ptr<MotorControllerStates> IMotionCube::getStates()
 {
-  static IMotionCubeStates states;
+  std::unique_ptr<IMotionCubeStates> states(new IMotionCubeStates);
 
   // Common states
-  states.motorCurrent = this->getMotorCurrent();
-  states.controllerVoltage = this->getMotorControllerVoltage();
-  states.motorVoltage = this->getMotorVoltage();
+  states->motor_current = this->getMotorCurrent();
+  states->controller_voltage = this->getMotorControllerVoltage();
+  states->motor_voltage = this->getMotorVoltage();
 
-  states.absoluteEncoderValue = this->getAngleIUAbsolute();
-  states.incrementalEncoderValue = this->getAngleIUIncremental();
-  states.absoluteVelocity = this->getVelocityIUAbsolute();
-  states.incrementalVelocity = this->getVelocityIUIncremental();
+  states->absolute_encoder_value = this->getAngleIUAbsolute();
+  states->incremental_encoder_value = this->getAngleIUIncremental();
+  states->absolute_velocity = this->getVelocityIUAbsolute();
+  states->incremental_velocity = this->getVelocityIUIncremental();
 
-  states.statusWord = this->getStatusWord();
-  std::bitset<16> motionErrorBits = this->getMotionError();
-  states.motionError = motionErrorBits.to_string();
-  std::bitset<16> detailedErrorBits = this->getDetailedError();
-  states.detailedError = detailedErrorBits.to_string();
-  std::bitset<16> secondDetailedErrorBits = this->getSecondDetailedError();
-  states.secondDetailedError = secondDetailedErrorBits.to_string();
+  states->status_word = this->getStatusWord();
+  std::bitset<16> motion_error_bits = this->getMotionError();
+  states->motion_error = motion_error_bits.to_string();
+  std::bitset<16> detailed_error_bits = this->getDetailedError();
+  states->detailed_error = detailed_error_bits.to_string();
+  std::bitset<16> second_detailed_error_bits = this->getSecondDetailedError();
+  states->second_detailed_error = second_detailed_error_bits.to_string();
 
-  states.state = IMCStateOfOperation(this->getStatusWord());
+  states->state = IMCStateOfOperation(this->getStatusWord());
 
-  states.motionErrorDescription = error::parseError(this->getMotionError(), error::ErrorRegisters::MOTION_ERROR);
-  states.detailedErrorDescription = error::parseError(this->getDetailedError(), error::ErrorRegisters::DETAILED_ERROR);
-  states.secondDetailedErrorDescription =
+  states->motion_error_description = error::parseError(this->getMotionError(), error::ErrorRegisters::MOTION_ERROR);
+  states->detailed_error_description =
+      error::parseError(this->getDetailedError(), error::ErrorRegisters::DETAILED_ERROR);
+  states->second_detailed_error_description =
       error::parseError(this->getSecondDetailedError(), error::ErrorRegisters::SECOND_DETAILED_ERROR);
 
   return states;
