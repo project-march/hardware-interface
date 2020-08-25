@@ -71,8 +71,8 @@ std::unique_ptr<march::MarchRobot> HardwareBuilder::createMarchRobot()
 
   ROS_INFO_STREAM("Robot config:\n" << config);
   YAML::Node pdb_config = config["powerDistributionBoard"];
-  auto pdb = HardwareBuilder::createPowerDistributionBoard(pdb_config, pdo_interface, sdo_interface);
-  return std::make_unique<march::MarchRobot>(std::move(joints), this->urdf_, std::move(pdb), if_name, cycle_time,
+  auto pdb = this->createPowerDistributionBoard(pdb_config, pdo_interface, sdo_interface);
+  return std::make_unique<march::MarchRobot>(std::move(joints), this->urdf_, std::move(pdb), if_name, this->slave_list_, cycle_time,
                                              slave_timeout);
 }
 
@@ -106,18 +106,18 @@ march::Joint HardwareBuilder::createJoint(const YAML::Node& joint_config, const 
     mode = march::ActuationMode(joint_config["actuationMode"].as<std::string>());
   }
 
-  std::unique_ptr<march::MotorController> controller;
+  std::shared_ptr<march::MotorController> controller;
   if (joint_config["imotioncube"])
   {
     controller =
-        HardwareBuilder::createIMotionCube(joint_config["imotioncube"], mode, urdf_joint, pdo_interface, sdo_interface);
+        this->createIMotionCube(joint_config["imotioncube"], mode, urdf_joint, pdo_interface, sdo_interface);
   }
   if (!controller)
   {
     ROS_FATAL("Joint %s does not have a configuration for a motor controller", joint_name.c_str());
   }
 
-  auto ges = HardwareBuilder::createTemperatureGES(joint_config["temperatureges"], pdo_interface, sdo_interface);
+  auto ges = this->createTemperatureGES(joint_config["temperatureges"], pdo_interface, sdo_interface);
   if (!ges)
   {
     ROS_WARN("Joint %s does not have a configuration for a TemperatureGes", joint_name.c_str());
@@ -125,7 +125,7 @@ march::Joint HardwareBuilder::createJoint(const YAML::Node& joint_config, const 
   return { joint_name, net_number, allow_actuation, std::move(controller), std::move(ges) };
 }
 
-std::unique_ptr<march::IMotionCube> HardwareBuilder::createIMotionCube(const YAML::Node& imc_config,
+std::shared_ptr<march::IMotionCube> HardwareBuilder::createIMotionCube(const YAML::Node& imc_config,
                                                                        march::ActuationMode mode,
                                                                        const urdf::JointConstSharedPtr& urdf_joint,
                                                                        march::PdoInterfacePtr pdo_interface,
@@ -145,10 +145,14 @@ std::unique_ptr<march::IMotionCube> HardwareBuilder::createIMotionCube(const YAM
   std::ifstream imc_setup_data;
   imc_setup_data.open(ros::package::getPath("march_ems_projects").append("/sw_files/" + urdf_joint->name + ".sw"));
   std::string setup = convertSWFileToString(imc_setup_data);
-  return std::make_unique<march::IMotionCube>(
-      march::Slave(slave_index, pdo_interface, sdo_interface),
-      HardwareBuilder::createAbsoluteEncoder(absolute_encoder_config, urdf_joint),
-      HardwareBuilder::createIncrementalEncoder(incremental_encoder_config), setup, mode);
+
+    std::shared_ptr<march::IMotionCube> imc = std::make_unique<march::IMotionCube>(
+            march::Slave(slave_index, pdo_interface, sdo_interface),
+            this->createAbsoluteEncoder(absolute_encoder_config, urdf_joint),
+            this->createIncrementalEncoder(incremental_encoder_config), setup, mode);
+
+  this->slave_list_.push_back(imc);
+  return imc;
 }
 
 std::unique_ptr<march::AbsoluteEncoder> HardwareBuilder::createAbsoluteEncoder(
@@ -200,7 +204,7 @@ HardwareBuilder::createIncrementalEncoder(const YAML::Node& incremental_encoder_
   return std::make_unique<march::IncrementalEncoder>(resolution, transmission);
 }
 
-std::unique_ptr<march::TemperatureGES> HardwareBuilder::createTemperatureGES(const YAML::Node& temperature_ges_config,
+std::shared_ptr<march::TemperatureGES> HardwareBuilder::createTemperatureGES(const YAML::Node& temperature_ges_config,
                                                                              march::PdoInterfacePtr pdo_interface,
                                                                              march::SdoInterfacePtr sdo_interface)
 {
@@ -214,24 +218,27 @@ std::unique_ptr<march::TemperatureGES> HardwareBuilder::createTemperatureGES(con
 
   const auto slave_index = temperature_ges_config["slaveIndex"].as<int>();
   const auto byte_offset = temperature_ges_config["byteOffset"].as<int>();
-  return std::make_unique<march::TemperatureGES>(march::Slave(slave_index, pdo_interface, sdo_interface), byte_offset);
+
+  std::shared_ptr<march::TemperatureGES> ges = std::make_unique<march::TemperatureGES>(march::Slave(slave_index, pdo_interface, sdo_interface), byte_offset);
+  this->slave_list_.push_back(ges);
+  return ges;
 }
 
-std::unique_ptr<march::PowerDistributionBoard> HardwareBuilder::createPowerDistributionBoard(
-    const YAML::Node& pdb, march::PdoInterfacePtr pdo_interface, march::SdoInterfacePtr sdo_interface)
+std::shared_ptr<march::PowerDistributionBoard> HardwareBuilder::createPowerDistributionBoard(
+    const YAML::Node& pdb_config, march::PdoInterfacePtr pdo_interface, march::SdoInterfacePtr sdo_interface)
 {
-  if (!pdb)
+  if (!pdb_config)
   {
     return nullptr;
   }
 
-  HardwareBuilder::validateRequiredKeysExist(pdb, HardwareBuilder::POWER_DISTRIBUTION_BOARD_REQUIRED_KEYS,
+  HardwareBuilder::validateRequiredKeysExist(pdb_config, HardwareBuilder::POWER_DISTRIBUTION_BOARD_REQUIRED_KEYS,
                                              "powerdistributionboard");
 
-  const auto slave_index = pdb["slaveIndex"].as<int>();
-  YAML::Node net_monitor_byte_offsets = pdb["netMonitorByteOffsets"];
-  YAML::Node net_driver_byte_offsets = pdb["netDriverByteOffsets"];
-  YAML::Node boot_shutdown_byte_offsets = pdb["bootShutdownOffsets"];
+  const auto slave_index = pdb_config["slaveIndex"].as<int>();
+  YAML::Node net_monitor_byte_offsets = pdb_config["netMonitorByteOffsets"];
+  YAML::Node net_driver_byte_offsets = pdb_config["netDriverByteOffsets"];
+  YAML::Node boot_shutdown_byte_offsets = pdb_config["bootShutdownOffsets"];
 
   NetMonitorOffsets net_monitor_offsets = NetMonitorOffsets(
       net_monitor_byte_offsets["powerDistributionBoardCurrent"].as<int>(),
@@ -250,9 +257,12 @@ std::unique_ptr<march::PowerDistributionBoard> HardwareBuilder::createPowerDistr
       boot_shutdown_byte_offsets["masterOk"].as<int>(), boot_shutdown_byte_offsets["shutdown"].as<int>(),
       boot_shutdown_byte_offsets["shutdownAllowed"].as<int>());
 
-  return std::make_unique<march::PowerDistributionBoard>(march::Slave(slave_index, pdo_interface, sdo_interface),
-                                                         net_monitor_offsets, net_driver_offsets,
-                                                         boot_shutdown_offsets);
+    std::shared_ptr<march::PowerDistributionBoard> pdb = std::make_unique<march::PowerDistributionBoard>(march::Slave(slave_index, pdo_interface, sdo_interface),
+                                                       net_monitor_offsets, net_driver_offsets,
+                                                       boot_shutdown_offsets);
+    this->slave_list_.push_back(pdb);
+
+  return pdb;
 }
 
 void HardwareBuilder::validateRequiredKeysExist(const YAML::Node& config, const std::vector<std::string>& key_list,
@@ -281,7 +291,7 @@ void HardwareBuilder::initUrdf()
 
 std::vector<march::Joint> HardwareBuilder::createJoints(const YAML::Node& joints_config,
                                                         march::PdoInterfacePtr pdo_interface,
-                                                        march::SdoInterfacePtr sdo_interface) const
+                                                        march::SdoInterfacePtr sdo_interface)
 {
   std::vector<march::Joint> joints;
   for (const YAML::Node& joint_config : joints_config)
@@ -293,7 +303,7 @@ std::vector<march::Joint> HardwareBuilder::createJoints(const YAML::Node& joints
       ROS_WARN("Joint %s is fixed in the URDF, but defined in the robot yaml", joint_name.c_str());
     }
     joints.push_back(
-        HardwareBuilder::createJoint(joint_config[joint_name], joint_name, urdf_joint, pdo_interface, sdo_interface));
+        std::move(createJoint(joint_config[joint_name], joint_name, urdf_joint, pdo_interface, sdo_interface)));
   }
 
   for (const auto& urdf_joint : this->urdf_.joints_)

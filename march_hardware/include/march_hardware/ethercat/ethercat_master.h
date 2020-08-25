@@ -24,7 +24,7 @@ namespace march
 class EthercatMaster
 {
 public:
-  EthercatMaster(std::string ifname, int max_slave_index, std::vector<Slave> slave_list, int cycle_time, int slave_timeout);
+  EthercatMaster(std::string ifname, std::vector<std::shared_ptr<Slave>>, int cycle_time, int slave_timeout);
   ~EthercatMaster();
 
   /* Delete copy constructor/assignment since the member thread can not be copied */
@@ -44,6 +44,11 @@ public:
    * Returns the cycle time in milliseconds.
    */
   int getCycleTime() const;
+
+    /**
+     * Returns the largest slave index.
+     */
+    int getMaxSlaveIndex();
 
   /**
    * Initializes the ethercat train and starts a thread for the loop.
@@ -109,11 +114,10 @@ private:
    */
   void setThreadPriority(int priority);
 
-
-  std::vector<Slave> slave_list_;
   std::atomic<bool> is_operational_;
 
   const std::string ifname_;
+  std::vector<std::shared_ptr<Slave>> slave_list_;
   const int max_slave_index_;
   const int cycle_time_ms_;
 

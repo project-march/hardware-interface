@@ -26,17 +26,17 @@ public:
   /**
    * Initializes a Joint with motor controller and without temperature slave.
    */
-  Joint(std::string name, int net_number, bool allow_actuation, std::unique_ptr<MotorController> controller);
+  Joint(std::string name, int net_number, bool allow_actuation, std::shared_ptr<MotorController> controller);
 
   /**
    * Initializes a Joint with motor controller and temperature slave.
    */
-  Joint(std::string name, int net_number, bool allow_actuation, std::unique_ptr<MotorController> controller,
-        std::unique_ptr<TemperatureGES> temperature_ges);
+  Joint(std::string name, int net_number, bool allow_actuation, std::shared_ptr<MotorController> controller,
+        std::shared_ptr<TemperatureGES> temperature_ges);
 
   virtual ~Joint() noexcept = default;
 
-  /* Delete copy constructor/assignment since the unique_ptr cannot be copied */
+  /* Delete copy constructor/assignment since the shared_ptr cannot be copied */
   Joint(const Joint&) = delete;
   Joint& operator=(const Joint&) = delete;
 
@@ -128,8 +128,8 @@ private:
   double absolute_position_ = 0.0;
   double velocity_ = 0.0;
 
-  std::unique_ptr<MotorController> controller_ = nullptr;
-  std::unique_ptr<TemperatureGES> temperature_ges_ = nullptr;
+  std::shared_ptr<MotorController> controller_ = nullptr;
+  std::shared_ptr<TemperatureGES> temperature_ges_ = nullptr;
 };
 
 }  // namespace march

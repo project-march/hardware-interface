@@ -18,7 +18,7 @@ Joint::Joint(std::string name, int net_number) : name_(std::move(name)), net_num
 {
 }
 
-Joint::Joint(std::string name, int net_number, bool allow_actuation, std::unique_ptr<MotorController> controller)
+Joint::Joint(std::string name, int net_number, bool allow_actuation, std::shared_ptr<MotorController> controller)
   : name_(std::move(name))
   , net_number_(net_number)
   , allow_actuation_(allow_actuation)
@@ -26,8 +26,8 @@ Joint::Joint(std::string name, int net_number, bool allow_actuation, std::unique
 {
 }
 
-Joint::Joint(std::string name, int net_number, bool allow_actuation, std::unique_ptr<MotorController> controller,
-             std::unique_ptr<TemperatureGES> temperature_ges)
+Joint::Joint(std::string name, int net_number, bool allow_actuation, std::shared_ptr<MotorController> controller,
+             std::shared_ptr<TemperatureGES> temperature_ges)
   : name_(std::move(name))
   , net_number_(net_number)
   , allow_actuation_(allow_actuation)

@@ -14,21 +14,21 @@
 
 namespace march
 {
-MarchRobot::MarchRobot(::std::vector<Joint> jointList, urdf::Model urdf, ::std::string ifName, int ecatCycleTime,
+MarchRobot::MarchRobot(::std::vector<Joint> jointList, urdf::Model urdf, ::std::string ifName, std::vector<std::shared_ptr<Slave>> slave_list, int ecatCycleTime,
                        int ecatSlaveTimeout)
   : jointList(std::move(jointList))
   , urdf_(std::move(urdf))
-  , ethercatMaster(ifName, this->getMaxSlaveIndex(), this->getSlaveList(), ecatCycleTime, ecatSlaveTimeout)
+  , ethercatMaster(ifName, slave_list, ecatCycleTime, ecatSlaveTimeout)
   , pdb_(nullptr)
 {
 }
 
 MarchRobot::MarchRobot(::std::vector<Joint> jointList, urdf::Model urdf,
-                       std::unique_ptr<PowerDistributionBoard> powerDistributionBoard, ::std::string ifName,
+                       std::shared_ptr<PowerDistributionBoard> powerDistributionBoard, ::std::string ifName, std::vector<std::shared_ptr<Slave>> slave_list,
                        int ecatCycleTime, int ecatSlaveTimeout)
   : jointList(std::move(jointList))
   , urdf_(std::move(urdf))
-  , ethercatMaster(ifName, this->getMaxSlaveIndex(), ecatCycleTime, ecatSlaveTimeout)
+  , ethercatMaster(ifName, slave_list, ecatCycleTime, ecatSlaveTimeout)
   , pdb_(std::move(powerDistributionBoard))
 {
 }
@@ -79,28 +79,6 @@ void MarchRobot::resetMotorControllers()
   {
     joint.resetMotorController();
   }
-}
-
-int MarchRobot::getMaxSlaveIndex()
-{
-  int maxSlaveIndex = -1;
-
-  for (Joint& joint : jointList)
-  {
-    int temperatureSlaveIndex = joint.getTemperatureGESSlaveIndex();
-    if (temperatureSlaveIndex > maxSlaveIndex)
-    {
-      maxSlaveIndex = temperatureSlaveIndex;
-    }
-
-    int motorControllerSlaveIndex = joint.getMotorControllerSlaveIndex() > -1;
-
-    if (motorControllerSlaveIndex > maxSlaveIndex)
-    {
-      maxSlaveIndex = motorControllerSlaveIndex;
-    }
-  }
-  return maxSlaveIndex;
 }
 
 bool MarchRobot::hasValidSlaves()
