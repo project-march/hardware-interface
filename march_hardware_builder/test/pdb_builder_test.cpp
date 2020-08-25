@@ -12,6 +12,8 @@ protected:
   std::string base_path;
   march::PdoInterfacePtr pdo_interface;
   march::SdoInterfacePtr sdo_interface;
+  AllowedRobot robot;
+  HardwareBuilder builder = HardwareBuilder(robot);
 
   void SetUp() override
   {
@@ -32,7 +34,7 @@ TEST_F(PowerDistributionBoardBuilderTest, ValidPowerDistributionBoard)
   YAML::Node config = YAML::LoadFile(fullPath);
 
   auto createdPowerDistributionBoard =
-      HardwareBuilder::createPowerDistributionBoard(config, this->pdo_interface, this->sdo_interface);
+      this->builder.createPowerDistributionBoard(config, this->pdo_interface, this->sdo_interface);
   NetMonitorOffsets netMonitoringOffsets(5, 9, 13, 17, 3, 2, 1, 4);
   NetDriverOffsets netDriverOffsets(4, 3, 2);
   BootShutdownOffsets bootShutdownOffsets(0, 0, 1);
@@ -47,14 +49,14 @@ TEST_F(PowerDistributionBoardBuilderTest, NoConfig)
 {
   YAML::Node config;
   ASSERT_EQ(nullptr,
-            HardwareBuilder::createPowerDistributionBoard(config["pdb"], this->pdo_interface, this->sdo_interface));
+            this->builder.createPowerDistributionBoard(config["pdb"], this->pdo_interface, this->sdo_interface));
 }
 
 TEST_F(PowerDistributionBoardBuilderTest, MissingSlaveIndex)
 {
   std::string fullPath = this->fullPath("/power_distribution_board_missing_slave_index.yaml");
   YAML::Node config = YAML::LoadFile(fullPath);
-  ASSERT_THROW(HardwareBuilder::createPowerDistributionBoard(config, this->pdo_interface, this->sdo_interface),
+  ASSERT_THROW(this->builder.createPowerDistributionBoard(config, this->pdo_interface, this->sdo_interface),
                MissingKeyException);
 }
 
@@ -62,7 +64,7 @@ TEST_F(PowerDistributionBoardBuilderTest, MissingHighVoltageStateIndex)
 {
   std::string fullPath = this->fullPath("/power_distribution_board_missing_high_voltage_state_index.yaml");
   YAML::Node config = YAML::LoadFile(fullPath);
-  ASSERT_THROW(HardwareBuilder::createPowerDistributionBoard(config, this->pdo_interface, this->sdo_interface),
+  ASSERT_THROW(this->builder.createPowerDistributionBoard(config, this->pdo_interface, this->sdo_interface),
                MissingKeyException);
 }
 
@@ -70,6 +72,6 @@ TEST_F(PowerDistributionBoardBuilderTest, NegativeOffset)
 {
   std::string fullPath = this->fullPath("/power_distribution_board_negative_offset.yaml");
   YAML::Node config = YAML::LoadFile(fullPath);
-  ASSERT_THROW(HardwareBuilder::createPowerDistributionBoard(config, this->pdo_interface, this->sdo_interface),
+  ASSERT_THROW(this->builder.createPowerDistributionBoard(config, this->pdo_interface, this->sdo_interface),
                std::runtime_error);
 }

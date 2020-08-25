@@ -20,6 +20,8 @@ protected:
   urdf::JointSharedPtr joint;
   march::PdoInterfacePtr pdo_interface;
   march::SdoInterfacePtr sdo_interface;
+    AllowedRobot robot;
+    HardwareBuilder builder = HardwareBuilder(robot);
 
   void SetUp() override
   {
@@ -47,7 +49,7 @@ TEST_F(JointBuilderTest, ValidJointHip)
 
   const std::string name = "test_joint_hip";
   march::Joint created =
-      HardwareBuilder::createJoint(config, name, this->joint, this->pdo_interface, this->sdo_interface);
+      this->builder.createJoint(config, name, this->joint, this->pdo_interface, this->sdo_interface);
 
   auto absolute_encoder = std::make_unique<march::AbsoluteEncoder>(
       16, 22134, 43436, this->joint->limits->lower, this->joint->limits->upper, this->joint->safety->soft_lower_limit,
@@ -71,7 +73,7 @@ TEST_F(JointBuilderTest, ValidNotActuated)
   this->joint->safety->soft_upper_limit = 1.9;
 
   march::Joint created =
-      HardwareBuilder::createJoint(config, "test_joint_hip", this->joint, this->pdo_interface, this->sdo_interface);
+      this->builder.createJoint(config, "test_joint_hip", this->joint, this->pdo_interface, this->sdo_interface);
 
   auto absolute_encoder = std::make_unique<march::AbsoluteEncoder>(
       16, 22134, 43436, this->joint->limits->lower, this->joint->limits->upper, this->joint->safety->soft_lower_limit,
@@ -90,7 +92,7 @@ TEST_F(JointBuilderTest, NoActuate)
 {
   YAML::Node config = this->loadTestYaml("/joint_no_actuate.yaml");
 
-  ASSERT_THROW(HardwareBuilder::createJoint(config, "test_joint_no_actuate", this->joint, this->pdo_interface,
+  ASSERT_THROW(this->builder.createJoint(config, "test_joint_no_actuate", this->joint, this->pdo_interface,
                                             this->sdo_interface),
                MissingKeyException);
 }
@@ -98,7 +100,7 @@ TEST_F(JointBuilderTest, NoActuate)
 TEST_F(JointBuilderTest, NoIMotionCube)
 {
   YAML::Node config = this->loadTestYaml("/joint_no_imotioncube.yaml");
-  march::Joint joint = HardwareBuilder::createJoint(config, "test_joint_no_imotioncube", this->joint,
+  march::Joint joint = this->builder.createJoint(config, "test_joint_no_imotioncube", this->joint,
                                                     this->pdo_interface, this->sdo_interface);
 
   ASSERT_FALSE(joint.hasMotorController());
@@ -112,7 +114,7 @@ TEST_F(JointBuilderTest, NoTemperatureGES)
   this->joint->safety->soft_lower_limit = 0.1;
   this->joint->safety->soft_upper_limit = 0.15;
 
-  ASSERT_NO_THROW(HardwareBuilder::createJoint(config, "test_joint_no_temperature_ges", this->joint,
+  ASSERT_NO_THROW(this->builder.createJoint(config, "test_joint_no_temperature_ges", this->joint,
                                                this->pdo_interface, this->sdo_interface));
 }
 
@@ -125,7 +127,7 @@ TEST_F(JointBuilderTest, ValidActuationMode)
   this->joint->safety->soft_upper_limit = 1.9;
 
   march::Joint created =
-      HardwareBuilder::createJoint(config, "test_joint_hip", this->joint, this->pdo_interface, this->sdo_interface);
+      this->builder.createJoint(config, "test_joint_hip", this->joint, this->pdo_interface, this->sdo_interface);
 
   march::Joint expected("test_joint_hip", -1, false,
                         std::make_unique<march::IMotionCube>(
@@ -142,13 +144,13 @@ TEST_F(JointBuilderTest, EmptyJoint)
 {
   YAML::Node config;
   ASSERT_THROW(
-      HardwareBuilder::createJoint(config, "test_joint_empty", this->joint, this->pdo_interface, this->sdo_interface),
+      this->builder.createJoint(config, "test_joint_empty", this->joint, this->pdo_interface, this->sdo_interface),
       MissingKeyException);
 }
 
 TEST_F(JointBuilderTest, NoUrdfJoint)
 {
   YAML::Node config = this->loadTestYaml("/joint_correct.yaml");
-  ASSERT_THROW(HardwareBuilder::createJoint(config, "test", nullptr, this->pdo_interface, this->sdo_interface),
+  ASSERT_THROW(this->builder.createJoint(config, "test", nullptr, this->pdo_interface, this->sdo_interface),
                march::error::HardwareException);
 }
