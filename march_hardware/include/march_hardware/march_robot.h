@@ -51,8 +51,6 @@ public:
 
   int getMaxSlaveIndex();
 
-  bool hasValidSlaves();
-
   bool isEthercatOperational();
 
   std::exception_ptr getLastEthercatException() const noexcept;

@@ -65,9 +65,39 @@ std::exception_ptr EthercatMaster::getLastException() const noexcept
 
 bool EthercatMaster::start()
 {
+  if (!this->hasValidSlaves())
+  {
+    throw error::HardwareException(error::ErrorType::INVALID_SLAVE_CONFIGURATION);
+  }
+  ROS_INFO("Slave configuration is non-conflicting");
+
   this->last_exception_ = nullptr;
   this->ethercatMasterInitiation();
   return this->ethercatSlaveInitiation();
+}
+
+bool EthercatMaster::hasValidSlaves()
+{
+  ::std::vector<int> slaveIndices;
+  for (auto slave : this->slave_list_)
+  {
+    slaveIndices.push_back(slave->getSlaveIndex());
+  }
+
+  if (slaveIndices.size() == 1)
+  {
+    ROS_INFO("Found configuration for 1 slave.");
+    return true;
+  }
+
+  ROS_INFO("Found configuration for %lu slaves.", slaveIndices.size());
+
+  // Sort the indices and check for duplicates.
+  // If there are no duplicates, the configuration is valid.
+  ::std::sort(slaveIndices.begin(), slaveIndices.end());
+  auto it = ::std::unique(slaveIndices.begin(), slaveIndices.end());
+  bool isUnique = (it == slaveIndices.end());
+  return isUnique;
 }
 
 void EthercatMaster::ethercatMasterInitiation()

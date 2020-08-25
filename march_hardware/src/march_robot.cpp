@@ -35,13 +35,6 @@ MarchRobot::MarchRobot(::std::vector<Joint> jointList, urdf::Model urdf,
 
 void MarchRobot::startEtherCAT(bool reset_motor_controllers)
 {
-  if (!hasValidSlaves())
-  {
-    throw error::HardwareException(error::ErrorType::INVALID_SLAVE_CONFIGURATION);
-  }
-
-  ROS_INFO("Slave configuration is non-conflicting");
-
   if (ethercatMaster.isOperational())
   {
     ROS_WARN("Trying to start EtherCAT while it is already active.");
@@ -79,55 +72,6 @@ void MarchRobot::resetMotorControllers()
   {
     joint.resetMotorController();
   }
-}
-
-bool MarchRobot::hasValidSlaves()
-{
-  ::std::vector<int> motorControllerIndices;
-  ::std::vector<int> temperatureSlaveIndices;
-
-  for (auto& joint : jointList)
-  {
-    if (joint.hasTemperatureGES())
-    {
-      int temperatureSlaveIndex = joint.getTemperatureGESSlaveIndex();
-      temperatureSlaveIndices.push_back(temperatureSlaveIndex);
-    }
-
-    if (joint.getMotorControllerSlaveIndex() > -1)
-    {
-      int motorControllerSlaveIndex = joint.getMotorControllerSlaveIndex();
-      motorControllerIndices.push_back(motorControllerSlaveIndex);
-    }
-  }
-  // Multiple temperature sensors may be connected to the same slave.
-  // Remove duplicate temperatureSlaveIndices so they don't trigger as
-  // duplicates later.
-  sort(temperatureSlaveIndices.begin(), temperatureSlaveIndices.end());
-  temperatureSlaveIndices.erase(unique(temperatureSlaveIndices.begin(), temperatureSlaveIndices.end()),
-                                temperatureSlaveIndices.end());
-
-  // Merge the slave indices
-  ::std::vector<int> slaveIndices;
-
-  slaveIndices.reserve(motorControllerIndices.size() + temperatureSlaveIndices.size());
-  slaveIndices.insert(slaveIndices.end(), motorControllerIndices.begin(), motorControllerIndices.end());
-  slaveIndices.insert(slaveIndices.end(), temperatureSlaveIndices.begin(), temperatureSlaveIndices.end());
-
-  if (slaveIndices.size() == 1)
-  {
-    ROS_INFO("Found configuration for 1 slave.");
-    return true;
-  }
-
-  ROS_INFO("Found configuration for %lu slaves.", slaveIndices.size());
-
-  // Sort the indices and check for duplicates.
-  // If there are no duplicates, the configuration is valid.
-  ::std::sort(slaveIndices.begin(), slaveIndices.end());
-  auto it = ::std::unique(slaveIndices.begin(), slaveIndices.end());
-  bool isUnique = (it == slaveIndices.end());
-  return isUnique;
 }
 
 bool MarchRobot::isEthercatOperational()

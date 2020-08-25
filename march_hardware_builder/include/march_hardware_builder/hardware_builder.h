@@ -111,6 +111,7 @@ private:
   YAML::Node robot_config_;
   urdf::Model urdf_;
   bool init_urdf_ = true;
+  std::vector<std::shared_ptr<march::TemperatureGES>> ges_list_;
   std::vector<std::shared_ptr<march::Slave>> slave_list_;
 };
 

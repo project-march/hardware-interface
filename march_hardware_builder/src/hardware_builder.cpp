@@ -217,10 +217,18 @@ std::shared_ptr<march::TemperatureGES> HardwareBuilder::createTemperatureGES(con
 
   const auto slave_index = temperature_ges_config["slaveIndex"].as<int>();
   const auto byte_offset = temperature_ges_config["byteOffset"].as<int>();
+  for (auto ges : this->ges_list_)
+  {
+    if (ges->getSlaveIndex() == slave_index)
+    {
+      return ges;
+    }
+  }
 
   std::shared_ptr<march::TemperatureGES> ges =
       std::make_unique<march::TemperatureGES>(march::Slave(slave_index, pdo_interface, sdo_interface), byte_offset);
   this->slave_list_.push_back(ges);
+  this->ges_list_.push_back(ges);
   return ges;
 }
 

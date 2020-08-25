@@ -50,6 +50,8 @@ public:
    */
   int getMaxSlaveIndex();
 
+  bool hasValidSlaves();
+
   /**
    * Initializes the ethercat train and starts a thread for the loop.
    * @throws HardwareException If not the configured amount of slaves was found
