@@ -19,12 +19,6 @@ public:
 
   virtual ActuationMode getActuationMode() const = 0;
 
-  /**
-   * Getter for the slave index.
-   * @return slave index if the motor controller is an ethercat slave, else -1
-   */
-  virtual int getSlaveIndex() const = 0;
-
   virtual float getMotorCurrent() = 0;
   virtual float getMotorControllerVoltage() = 0;
   virtual float getMotorVoltage() = 0;

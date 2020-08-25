@@ -76,7 +76,6 @@ public:
   void goToTargetState(IMotionCubeTargetState target_state);
   virtual void prepareActuation() override;
 
-  int getSlaveIndex() const override;
   virtual void reset() override;
   bool hasWatchdog() override;
 

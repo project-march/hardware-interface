@@ -202,11 +202,6 @@ void IMotionCube::actuateTorque(double target_torque_ampere)
   this->write16(target_torque_location, target_torque_struct);
 }
 
-int IMotionCube::getSlaveIndex() const
-{
-  return this->Slave::getSlaveIndex();
-}
-
 double IMotionCube::getAngleRadAbsolute()
 {
   if (!IMotionCubeTargetState::SWITCHED_ON.isReached(this->getStatusWord()) &&

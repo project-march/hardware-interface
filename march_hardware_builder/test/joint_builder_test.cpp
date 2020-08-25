@@ -48,19 +48,9 @@ TEST_F(JointBuilderTest, ValidJointHip)
   this->joint->safety->soft_upper_limit = 1.9;
 
   const std::string name = "test_joint_hip";
-  march::Joint created = this->builder.createJoint(config, name, this->joint, this->pdo_interface, this->sdo_interface);
+  march::Joint joint = this->builder.createJoint(config, name, this->joint, this->pdo_interface, this->sdo_interface);
 
-  auto absolute_encoder = std::make_unique<march::AbsoluteEncoder>(
-      16, 22134, 43436, this->joint->limits->lower, this->joint->limits->upper, this->joint->safety->soft_lower_limit,
-      this->joint->safety->soft_upper_limit);
-  auto incremental_encoder = std::make_unique<march::IncrementalEncoder>(12, 50.0);
-  auto imc = std::make_unique<march::IMotionCube>(march::Slave(2, this->pdo_interface, this->sdo_interface),
-                                                  std::move(absolute_encoder), std::move(incremental_encoder),
-                                                  march::ActuationMode::unknown);
-  auto ges = std::make_unique<march::TemperatureGES>(march::Slave(1, this->pdo_interface, this->sdo_interface), 2);
-  march::Joint expected(name, -1, true, std::move(imc), std::move(ges));
-
-  ASSERT_EQ(expected, created);
+  ASSERT_TRUE(joint.hasMotorController());
 }
 
 TEST_F(JointBuilderTest, ValidNotActuated)
@@ -71,20 +61,10 @@ TEST_F(JointBuilderTest, ValidNotActuated)
   this->joint->safety->soft_lower_limit = 0.1;
   this->joint->safety->soft_upper_limit = 1.9;
 
-  march::Joint created =
+  march::Joint joint =
       this->builder.createJoint(config, "test_joint_hip", this->joint, this->pdo_interface, this->sdo_interface);
 
-  auto absolute_encoder = std::make_unique<march::AbsoluteEncoder>(
-      16, 22134, 43436, this->joint->limits->lower, this->joint->limits->upper, this->joint->safety->soft_lower_limit,
-      this->joint->safety->soft_upper_limit);
-  auto incremental_encoder = std::make_unique<march::IncrementalEncoder>(12, 50.0);
-  auto imc = std::make_unique<march::IMotionCube>(march::Slave(2, this->pdo_interface, this->sdo_interface),
-                                                  std::move(absolute_encoder), std::move(incremental_encoder),
-                                                  march::ActuationMode::unknown);
-  auto ges = std::make_unique<march::TemperatureGES>(march::Slave(1, this->pdo_interface, this->sdo_interface), 2);
-  march::Joint expected("test_joint_hip", -1, false, std::move(imc), std::move(ges));
-
-  ASSERT_EQ(expected, created);
+  ASSERT_TRUE(joint.hasMotorController());
 }
 
 TEST_F(JointBuilderTest, NoActuate)
@@ -125,18 +105,10 @@ TEST_F(JointBuilderTest, ValidActuationMode)
   this->joint->safety->soft_lower_limit = 0.1;
   this->joint->safety->soft_upper_limit = 1.9;
 
-  march::Joint created =
+  march::Joint joint =
       this->builder.createJoint(config, "test_joint_hip", this->joint, this->pdo_interface, this->sdo_interface);
 
-  march::Joint expected("test_joint_hip", -1, false,
-                        std::make_unique<march::IMotionCube>(
-                            march::Slave(1, this->pdo_interface, this->sdo_interface),
-                            std::make_unique<march::AbsoluteEncoder>(
-                                16, 22134, 43436, this->joint->limits->lower, this->joint->limits->upper,
-                                this->joint->safety->soft_lower_limit, this->joint->safety->soft_upper_limit),
-                            std::make_unique<march::IncrementalEncoder>(12, 50.0), march::ActuationMode::position));
-
-  ASSERT_EQ(expected, created);
+  ASSERT_TRUE(joint.hasMotorController());
 }
 
 TEST_F(JointBuilderTest, EmptyJoint)

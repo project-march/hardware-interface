@@ -1,8 +1,6 @@
 // Copyright 2019 Project March.
-#include "march_hardware/ethercat/slave.h"
 #include "march_hardware/joint.h"
 #include "march_hardware/error/hardware_exception.h"
-#include "march_hardware/error/motion_error.h"
 
 #include <ros/ros.h>
 
@@ -163,20 +161,6 @@ std::unique_ptr<MotorControllerStates> Joint::getMotorControllerStates()
 void Joint::setAllowActuation(bool allow_actuation)
 {
   this->allow_actuation_ = allow_actuation;
-}
-
-int Joint::getTemperatureGESSlaveIndex() const
-{
-  if (this->hasTemperatureGES())
-  {
-    return this->temperature_ges_->getSlaveIndex();
-  }
-  return -1;
-}
-
-int Joint::getMotorControllerSlaveIndex() const
-{
-  return this->controller_->getSlaveIndex();
 }
 
 int Joint::getNetNumber() const

@@ -42,7 +42,7 @@ int EthercatMaster::getCycleTime() const
 
 int EthercatMaster::getMaxSlaveIndex()
 {
-  int max_slave_index = -1;
+  uint16_t max_slave_index = 0;
 
   for (std::shared_ptr<Slave> slave : this->slave_list_)
   {

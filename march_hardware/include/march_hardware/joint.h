@@ -62,8 +62,6 @@ public:
   std::unique_ptr<MotorControllerStates> getMotorControllerStates();
 
   std::string getName() const;
-  int getTemperatureGESSlaveIndex() const;
-  int getMotorControllerSlaveIndex() const;
   int getNetNumber() const;
 
   ActuationMode getActuationMode() const;
@@ -73,42 +71,6 @@ public:
   bool canActuate() const;
   bool receivedDataUpdate();
   void setAllowActuation(bool allow_actuation);
-
-  /** @brief Override comparison operator */
-  friend bool operator==(const Joint& lhs, const Joint& rhs)
-  {
-    return lhs.name_ == rhs.name_ &&
-           ((lhs.controller_ && rhs.controller_ &&
-             lhs.controller_->getSlaveIndex() == rhs.controller_->getSlaveIndex()) ||
-            (!lhs.controller_ && !rhs.controller_)) &&
-           ((lhs.temperature_ges_ && rhs.temperature_ges_ && *lhs.temperature_ges_ == *rhs.temperature_ges_) ||
-            (!lhs.temperature_ges_ && !rhs.temperature_ges_)) &&
-           lhs.allow_actuation_ == rhs.allow_actuation_ &&
-           lhs.getActuationMode().getValue() == rhs.getActuationMode().getValue();
-  }
-
-  friend bool operator!=(const Joint& lhs, const Joint& rhs)
-  {
-    return !(lhs == rhs);
-  }
-  /** @brief Override stream operator for clean printing */
-  friend ::std::ostream& operator<<(std::ostream& os, const Joint& joint)
-  {
-    os << "name: " << joint.name_ << ", "
-       << "ActuationMode: " << joint.getActuationMode().toString() << ", "
-       << "allowActuation: " << joint.allow_actuation_ << ", "
-       << "imotioncube slave index: " << joint.getMotorControllerSlaveIndex() << ", temperatureges: ";
-    if (joint.temperature_ges_)
-    {
-      os << *joint.temperature_ges_;
-    }
-    else
-    {
-      os << "none";
-    }
-
-    return os;
-  }
 
 private:
   const std::string name_;

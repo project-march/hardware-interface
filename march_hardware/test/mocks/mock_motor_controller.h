@@ -18,7 +18,6 @@ public:
   MOCK_METHOD0(prepareActuation, void());
   MOCK_CONST_METHOD0(getActuationMode, march::ActuationMode());
 
-  MOCK_CONST_METHOD0(getSlaveIndex, int());
   MOCK_CONST_METHOD0(getIncrementalMorePrecise, bool());
   MOCK_METHOD0(getStates, std::unique_ptr<march::MotorControllerStates>());
 
@@ -35,6 +34,5 @@ public:
   MOCK_METHOD1(actuateRad, void(double));
   MOCK_METHOD1(actuateTorque, void(double));
 
-  MOCK_METHOD1(initialize, bool(int cycle_time));
   MOCK_METHOD0(reset, void());
 };
