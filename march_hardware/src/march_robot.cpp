@@ -18,7 +18,7 @@ MarchRobot::MarchRobot(::std::vector<Joint> jointList, urdf::Model urdf, ::std::
                        int ecatSlaveTimeout)
   : jointList(std::move(jointList))
   , urdf_(std::move(urdf))
-  , ethercatMaster(ifName, this->getMaxSlaveIndex(), ecatCycleTime, ecatSlaveTimeout)
+  , ethercatMaster(ifName, this->getMaxSlaveIndex(), this->getSlaveList(), ecatCycleTime, ecatSlaveTimeout)
   , pdb_(nullptr)
 {
 }

@@ -24,7 +24,7 @@ namespace march
 class EthercatMaster
 {
 public:
-  EthercatMaster(std::string ifname, int max_slave_index, int cycle_time, int slave_timeout);
+  EthercatMaster(std::string ifname, int max_slave_index, std::vector<Slave> slave_list, int cycle_time, int slave_timeout);
   ~EthercatMaster();
 
   /* Delete copy constructor/assignment since the member thread can not be copied */
@@ -109,6 +109,8 @@ private:
    */
   void setThreadPriority(int priority);
 
+
+  std::vector<Slave> slave_list_;
   std::atomic<bool> is_operational_;
 
   const std::string ifname_;
