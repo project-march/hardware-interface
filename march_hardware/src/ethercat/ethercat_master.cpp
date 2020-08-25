@@ -63,11 +63,11 @@ std::exception_ptr EthercatMaster::getLastException() const noexcept
   return this->last_exception_;
 }
 
-bool EthercatMaster::start(std::vector<Joint>& joints)
+bool EthercatMaster::start()
 {
   this->last_exception_ = nullptr;
   this->ethercatMasterInitiation();
-  return this->ethercatSlaveInitiation(joints);
+  return this->ethercatSlaveInitiation();
 }
 
 void EthercatMaster::ethercatMasterInitiation()
@@ -100,19 +100,19 @@ int setSlaveWatchdogTimer(uint16 slave)
   return 1;
 }
 
-bool EthercatMaster::ethercatSlaveInitiation(std::vector<Joint>& joints)
+bool EthercatMaster::ethercatSlaveInitiation()
 {
   ROS_INFO("Request pre-operational state for all slaves");
   bool reset = false;
   ec_statecheck(0, EC_STATE_PRE_OP, EC_TIMEOUTSTATE * 4);
 
-  for (Joint& joint : joints)
+  for (std::shared_ptr<Slave> slave : this->slave_list_)
   {
-    if (joint.getMotorControllerSlaveIndex() > 0)
+    reset |= slave->initSdo(this->cycle_time_ms_);
+    if (slave->hasWatchdog())
     {
-      ec_slave[joint.getMotorControllerSlaveIndex()].PO2SOconfig = setSlaveWatchdogTimer;
+      ec_slave[slave->getSlaveIndex()].PO2SOconfig = setSlaveWatchdogTimer;
     }
-    reset |= joint.initialize(this->cycle_time_ms_);
   }
 
   ec_config_map(&this->io_map_);

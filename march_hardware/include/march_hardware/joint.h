@@ -46,7 +46,6 @@ public:
   Joint(Joint&&) = default;
   Joint& operator=(Joint&&) = delete;
 
-  bool initialize(int cycle_time);
   void prepareActuation();
 
   void actuateRad(double target_position);

@@ -48,7 +48,7 @@ void MarchRobot::startEtherCAT(bool reset_motor_controllers)
     return;
   }
 
-  bool config_overwritten = ethercatMaster.start(this->jointList);
+  bool config_overwritten = ethercatMaster.start();
 
   if (reset_motor_controllers || config_overwritten)
   {
@@ -58,7 +58,7 @@ void MarchRobot::startEtherCAT(bool reset_motor_controllers)
 
     ROS_INFO("Restarting the EtherCAT Master");
     ethercatMaster.stop();
-    config_overwritten = ethercatMaster.start(this->jointList);
+    config_overwritten = ethercatMaster.start();
   }
 }
 

@@ -48,6 +48,11 @@ public:
     this->reset(sdo_slave_interface);
   }
 
+  virtual bool hasWatchdog()
+  {
+    return false;
+  }
+
 protected:
   virtual bool initSdo(SdoSlaveInterface& /* sdo */, int /* cycle_time */)
   {

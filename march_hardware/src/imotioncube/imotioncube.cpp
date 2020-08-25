@@ -52,11 +52,6 @@ bool IMotionCube::initSdo(SdoSlaveInterface& sdo, int cycle_time)
   return this->writeInitialSettings(sdo, cycle_time);
 }
 
-bool IMotionCube::initialize(int cycle_time)
-{
-  return this->Slave::initSdo(cycle_time);
-}
-
 // Map Process Data Object (PDO) for by sending SDOs to the IMC
 // Master In, Slave Out
 void IMotionCube::mapMisoPDOs(SdoSlaveInterface& sdo)
@@ -550,6 +545,11 @@ void IMotionCube::downloadSetupToDrive(SdoSlaveInterface& sdo)
     throw error::HardwareException(error::ErrorType::WRITING_INITIAL_SETTINGS_FAILED,
                                    "Failed writing .sw file to IMC of slave %d", this->getSlaveIndex());
   }
+}
+
+bool IMotionCube::hasWatchdog()
+{
+  return true;
 }
 
 ActuationMode IMotionCube::getActuationMode() const

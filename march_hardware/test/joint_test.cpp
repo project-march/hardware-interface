@@ -27,15 +27,6 @@ protected:
   std::unique_ptr<MockTemperatureGES> temperature_ges;
 };
 
-TEST_F(JointTest, InitializeWithoutTemperatureGes)
-{
-  const int expected_cycle = 3;
-  EXPECT_CALL(*this->motor_controller, initialize(expected_cycle)).Times(1);
-
-  march::Joint joint("test", 0, false, std::move(this->motor_controller));
-  ASSERT_NO_THROW(joint.initialize(expected_cycle));
-}
-
 TEST_F(JointTest, AllowActuation)
 {
   march::Joint joint("test", 0, true, std::move(this->motor_controller));

@@ -36,17 +36,6 @@ Joint::Joint(std::string name, int net_number, bool allow_actuation, std::shared
 {
 }
 
-bool Joint::initialize(int cycle_time)
-{
-  bool reset = false;
-  reset |= this->controller_->initialize(cycle_time);
-  if (this->hasTemperatureGES())
-  {
-    reset |= this->temperature_ges_->initSdo(cycle_time);
-  }
-  return reset;
-}
-
 void Joint::prepareActuation()
 {
   if (!this->canActuate())

@@ -73,12 +73,12 @@ public:
   virtual void actuateRad(double target_rad) override;
   virtual void actuateTorque(double target_torque_ampere) override;
 
-  bool initialize(int cycle_time) override;
   void goToTargetState(IMotionCubeTargetState target_state);
   virtual void prepareActuation() override;
 
   int getSlaveIndex() const override;
   virtual void reset() override;
+  bool hasWatchdog() override;
 
   /** @brief Override comparison operator */
   friend bool operator==(const IMotionCube& lhs, const IMotionCube& rhs)

@@ -39,7 +39,6 @@ public:
   virtual void actuateTorque(double target_torque_ampere) = 0;
 
   virtual void prepareActuation() = 0;
-  virtual bool initialize(int cycle_time) = 0;
   virtual void reset() = 0;
 
   /**
