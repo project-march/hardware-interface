@@ -14,8 +14,8 @@
 
 namespace march
 {
-MarchRobot::MarchRobot(::std::vector<Joint> jointList, urdf::Model urdf, ::std::string ifName, std::vector<std::shared_ptr<Slave>> slave_list, int ecatCycleTime,
-                       int ecatSlaveTimeout)
+MarchRobot::MarchRobot(::std::vector<Joint> jointList, urdf::Model urdf, ::std::string ifName,
+                       std::vector<std::shared_ptr<Slave>> slave_list, int ecatCycleTime, int ecatSlaveTimeout)
   : jointList(std::move(jointList))
   , urdf_(std::move(urdf))
   , ethercatMaster(ifName, slave_list, ecatCycleTime, ecatSlaveTimeout)
@@ -24,8 +24,8 @@ MarchRobot::MarchRobot(::std::vector<Joint> jointList, urdf::Model urdf, ::std::
 }
 
 MarchRobot::MarchRobot(::std::vector<Joint> jointList, urdf::Model urdf,
-                       std::shared_ptr<PowerDistributionBoard> powerDistributionBoard, ::std::string ifName, std::vector<std::shared_ptr<Slave>> slave_list,
-                       int ecatCycleTime, int ecatSlaveTimeout)
+                       std::shared_ptr<PowerDistributionBoard> powerDistributionBoard, ::std::string ifName,
+                       std::vector<std::shared_ptr<Slave>> slave_list, int ecatCycleTime, int ecatSlaveTimeout)
   : jointList(std::move(jointList))
   , urdf_(std::move(urdf))
   , ethercatMaster(ifName, slave_list, ecatCycleTime, ecatSlaveTimeout)

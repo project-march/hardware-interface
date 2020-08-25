@@ -14,7 +14,8 @@
 
 namespace march
 {
-EthercatMaster::EthercatMaster(std::string ifname, std::vector<std::shared_ptr<Slave>> slave_list, int cycle_time, int slave_timeout)
+EthercatMaster::EthercatMaster(std::string ifname, std::vector<std::shared_ptr<Slave>> slave_list, int cycle_time,
+                               int slave_timeout)
   : is_operational_(false)
   , ifname_(std::move(ifname))
   , slave_list_(slave_list)
@@ -39,16 +40,16 @@ int EthercatMaster::getCycleTime() const
   return this->cycle_time_ms_;
 }
 
-    int EthercatMaster::getMaxSlaveIndex()
-    {
-        int max_slave_index = -1;
+int EthercatMaster::getMaxSlaveIndex()
+{
+  int max_slave_index = -1;
 
-        for (std::shared_ptr<Slave> slave : this->slave_list_)
-        {
-            max_slave_index = std::max(max_slave_index, slave->getSlaveIndex());
-        }
-        return max_slave_index;
-    }
+  for (std::shared_ptr<Slave> slave : this->slave_list_)
+  {
+    max_slave_index = std::max(max_slave_index, slave->getSlaveIndex());
+  }
+  return max_slave_index;
+}
 
 void EthercatMaster::waitForPdo()
 {

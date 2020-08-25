@@ -15,8 +15,8 @@ class AbsoluteEncoderBuilderTest : public ::testing::Test
 protected:
   std::string base_path;
   urdf::JointSharedPtr joint;
-    AllowedRobot robot;
-    HardwareBuilder builder = HardwareBuilder(robot);
+  AllowedRobot robot;
+  HardwareBuilder builder = HardwareBuilder(robot);
 
   void SetUp() override
   {

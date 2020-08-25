@@ -72,8 +72,8 @@ std::unique_ptr<march::MarchRobot> HardwareBuilder::createMarchRobot()
   ROS_INFO_STREAM("Robot config:\n" << config);
   YAML::Node pdb_config = config["powerDistributionBoard"];
   auto pdb = this->createPowerDistributionBoard(pdb_config, pdo_interface, sdo_interface);
-  return std::make_unique<march::MarchRobot>(std::move(joints), this->urdf_, std::move(pdb), if_name, this->slave_list_, cycle_time,
-                                             slave_timeout);
+  return std::make_unique<march::MarchRobot>(std::move(joints), this->urdf_, std::move(pdb), if_name, this->slave_list_,
+                                             cycle_time, slave_timeout);
 }
 
 march::Joint HardwareBuilder::createJoint(const YAML::Node& joint_config, const std::string& joint_name,
@@ -109,8 +109,7 @@ march::Joint HardwareBuilder::createJoint(const YAML::Node& joint_config, const 
   std::shared_ptr<march::MotorController> controller;
   if (joint_config["imotioncube"])
   {
-    controller =
-        this->createIMotionCube(joint_config["imotioncube"], mode, urdf_joint, pdo_interface, sdo_interface);
+    controller = this->createIMotionCube(joint_config["imotioncube"], mode, urdf_joint, pdo_interface, sdo_interface);
   }
   if (!controller)
   {
@@ -146,10 +145,10 @@ std::shared_ptr<march::IMotionCube> HardwareBuilder::createIMotionCube(const YAM
   imc_setup_data.open(ros::package::getPath("march_ems_projects").append("/sw_files/" + urdf_joint->name + ".sw"));
   std::string setup = convertSWFileToString(imc_setup_data);
 
-    std::shared_ptr<march::IMotionCube> imc = std::make_unique<march::IMotionCube>(
-            march::Slave(slave_index, pdo_interface, sdo_interface),
-            this->createAbsoluteEncoder(absolute_encoder_config, urdf_joint),
-            this->createIncrementalEncoder(incremental_encoder_config), setup, mode);
+  std::shared_ptr<march::IMotionCube> imc =
+      std::make_unique<march::IMotionCube>(march::Slave(slave_index, pdo_interface, sdo_interface),
+                                           this->createAbsoluteEncoder(absolute_encoder_config, urdf_joint),
+                                           this->createIncrementalEncoder(incremental_encoder_config), setup, mode);
 
   this->slave_list_.push_back(imc);
   return imc;
@@ -219,7 +218,8 @@ std::shared_ptr<march::TemperatureGES> HardwareBuilder::createTemperatureGES(con
   const auto slave_index = temperature_ges_config["slaveIndex"].as<int>();
   const auto byte_offset = temperature_ges_config["byteOffset"].as<int>();
 
-  std::shared_ptr<march::TemperatureGES> ges = std::make_unique<march::TemperatureGES>(march::Slave(slave_index, pdo_interface, sdo_interface), byte_offset);
+  std::shared_ptr<march::TemperatureGES> ges =
+      std::make_unique<march::TemperatureGES>(march::Slave(slave_index, pdo_interface, sdo_interface), byte_offset);
   this->slave_list_.push_back(ges);
   return ges;
 }
@@ -257,10 +257,10 @@ std::shared_ptr<march::PowerDistributionBoard> HardwareBuilder::createPowerDistr
       boot_shutdown_byte_offsets["masterOk"].as<int>(), boot_shutdown_byte_offsets["shutdown"].as<int>(),
       boot_shutdown_byte_offsets["shutdownAllowed"].as<int>());
 
-    std::shared_ptr<march::PowerDistributionBoard> pdb = std::make_unique<march::PowerDistributionBoard>(march::Slave(slave_index, pdo_interface, sdo_interface),
-                                                       net_monitor_offsets, net_driver_offsets,
-                                                       boot_shutdown_offsets);
-    this->slave_list_.push_back(pdb);
+  std::shared_ptr<march::PowerDistributionBoard> pdb =
+      std::make_unique<march::PowerDistributionBoard>(march::Slave(slave_index, pdo_interface, sdo_interface),
+                                                      net_monitor_offsets, net_driver_offsets, boot_shutdown_offsets);
+  this->slave_list_.push_back(pdb);
 
   return pdb;
 }

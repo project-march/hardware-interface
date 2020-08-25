@@ -45,10 +45,10 @@ public:
    */
   int getCycleTime() const;
 
-    /**
-     * Returns the largest slave index.
-     */
-    int getMaxSlaveIndex();
+  /**
+   * Returns the largest slave index.
+   */
+  int getMaxSlaveIndex();
 
   /**
    * Initializes the ethercat train and starts a thread for the loop.

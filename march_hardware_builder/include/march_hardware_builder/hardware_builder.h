@@ -68,19 +68,19 @@ public:
                                         const std::string& object_name);
 
   march::Joint createJoint(const YAML::Node& joint_config, const std::string& joint_name,
-                                  const urdf::JointConstSharedPtr& urdf_joint, march::PdoInterfacePtr pdo_interface,
-                                  march::SdoInterfacePtr sdo_interface);
+                           const urdf::JointConstSharedPtr& urdf_joint, march::PdoInterfacePtr pdo_interface,
+                           march::SdoInterfacePtr sdo_interface);
   static std::unique_ptr<march::AbsoluteEncoder> createAbsoluteEncoder(const YAML::Node& absolute_encoder_config,
                                                                        const urdf::JointConstSharedPtr& urdf_joint);
   static std::unique_ptr<march::IncrementalEncoder>
   createIncrementalEncoder(const YAML::Node& incremental_encoder_config);
   std::shared_ptr<march::IMotionCube> createIMotionCube(const YAML::Node& imc_config, march::ActuationMode mode,
-                                                               const urdf::JointConstSharedPtr& urdf_joint,
-                                                               march::PdoInterfacePtr pdo_interface,
-                                                               march::SdoInterfacePtr sdo_interface);
+                                                        const urdf::JointConstSharedPtr& urdf_joint,
+                                                        march::PdoInterfacePtr pdo_interface,
+                                                        march::SdoInterfacePtr sdo_interface);
   std::shared_ptr<march::TemperatureGES> createTemperatureGES(const YAML::Node& temperature_ges_config,
-                                                                     march::PdoInterfacePtr pdo_interface,
-                                                                     march::SdoInterfacePtr sdo_interface);
+                                                              march::PdoInterfacePtr pdo_interface,
+                                                              march::SdoInterfacePtr sdo_interface);
   std::shared_ptr<march::PowerDistributionBoard>
   createPowerDistributionBoard(const YAML::Node& power_distribution_board_config, march::PdoInterfacePtr pdo_interface,
                                march::SdoInterfacePtr sdo_interface);

@@ -26,12 +26,12 @@ private:
 public:
   using iterator = std::vector<Joint>::iterator;
 
-  MarchRobot(::std::vector<Joint> jointList, urdf::Model urdf, ::std::string ifName, std::vector<std::shared_ptr<Slave>> slave_list, int ecatCycleTime,
-             int ecatSlaveTimeout);
+  MarchRobot(::std::vector<Joint> jointList, urdf::Model urdf, ::std::string ifName,
+             std::vector<std::shared_ptr<Slave>> slave_list, int ecatCycleTime, int ecatSlaveTimeout);
 
   MarchRobot(::std::vector<Joint> jointList, urdf::Model urdf,
-             std::shared_ptr<PowerDistributionBoard> powerDistributionBoard, ::std::string ifName, std::vector<std::shared_ptr<Slave>> slave_list, int ecatCycleTime,
-             int ecatSlaveTimeout);
+             std::shared_ptr<PowerDistributionBoard> powerDistributionBoard, ::std::string ifName,
+             std::vector<std::shared_ptr<Slave>> slave_list, int ecatCycleTime, int ecatSlaveTimeout);
 
   ~MarchRobot();
 
