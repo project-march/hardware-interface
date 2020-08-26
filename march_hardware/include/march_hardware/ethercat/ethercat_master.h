@@ -56,7 +56,7 @@ public:
    * Initializes the ethercat train and starts a thread for the loop.
    * @throws HardwareException If not the configured amount of slaves was found
    *                           or they did not all reach operational state
-   * @returns true if one of the slaves requires reseting ethercat, false otherwise
+   * @returns true if one of the slaves requires resetting ethercat, false otherwise
    */
   bool start();
 
@@ -75,6 +75,8 @@ private:
 
   /**
    * Configures the found slaves to operational state.
+   *
+   * @returns true if one of the slaves requires resetting ethercat, false otherwise
    */
   bool ethercatSlaveInitiation();
 
