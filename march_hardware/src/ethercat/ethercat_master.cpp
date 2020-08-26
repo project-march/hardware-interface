@@ -14,10 +14,12 @@
 
 namespace march
 {
-EthercatMaster::EthercatMaster(std::string ifname, int max_slave_index, int cycle_time, int slave_timeout)
+EthercatMaster::EthercatMaster(std::string ifname, std::vector<std::shared_ptr<Slave>> slave_list, int cycle_time,
+                               int slave_timeout)
   : is_operational_(false)
   , ifname_(std::move(ifname))
-  , max_slave_index_(max_slave_index)
+  , slave_list_(slave_list)
+  , max_slave_index_(this->getMaxSlaveIndex())
   , cycle_time_ms_(cycle_time)
   , slave_watchdog_timeout_(slave_timeout)
 {
@@ -38,6 +40,17 @@ int EthercatMaster::getCycleTime() const
   return this->cycle_time_ms_;
 }
 
+int EthercatMaster::getMaxSlaveIndex()
+{
+  uint16_t max_slave_index = 0;
+
+  for (std::shared_ptr<Slave> slave : this->slave_list_)
+  {
+    max_slave_index = std::max(max_slave_index, slave->getSlaveIndex());
+  }
+  return max_slave_index;
+}
+
 void EthercatMaster::waitForPdo()
 {
   std::unique_lock<std::mutex> lock(this->wait_on_pdo_condition_mutex_);
@@ -50,11 +63,41 @@ std::exception_ptr EthercatMaster::getLastException() const noexcept
   return this->last_exception_;
 }
 
-bool EthercatMaster::start(std::vector<Joint>& joints)
+bool EthercatMaster::start()
 {
+  if (!this->hasValidSlaves())
+  {
+    throw error::HardwareException(error::ErrorType::INVALID_SLAVE_CONFIGURATION);
+  }
+  ROS_INFO("Slave configuration is non-conflicting");
+
   this->last_exception_ = nullptr;
   this->ethercatMasterInitiation();
-  return this->ethercatSlaveInitiation(joints);
+  return this->ethercatSlaveInitiation();
+}
+
+bool EthercatMaster::hasValidSlaves()
+{
+  ::std::vector<int> slaveIndices;
+  for (auto slave : this->slave_list_)
+  {
+    slaveIndices.push_back(slave->getSlaveIndex());
+  }
+
+  if (slaveIndices.size() == 1)
+  {
+    ROS_INFO("Found configuration for 1 slave.");
+    return true;
+  }
+
+  ROS_INFO("Found configuration for %lu slaves.", slaveIndices.size());
+
+  // Sort the indices and check for duplicates.
+  // If there are no duplicates, the configuration is valid.
+  ::std::sort(slaveIndices.begin(), slaveIndices.end());
+  auto it = ::std::unique(slaveIndices.begin(), slaveIndices.end());
+  bool isUnique = (it == slaveIndices.end());
+  return isUnique;
 }
 
 void EthercatMaster::ethercatMasterInitiation()
@@ -87,19 +130,19 @@ int setSlaveWatchdogTimer(uint16 slave)
   return 1;
 }
 
-bool EthercatMaster::ethercatSlaveInitiation(std::vector<Joint>& joints)
+bool EthercatMaster::ethercatSlaveInitiation()
 {
   ROS_INFO("Request pre-operational state for all slaves");
   bool reset = false;
   ec_statecheck(0, EC_STATE_PRE_OP, EC_TIMEOUTSTATE * 4);
 
-  for (Joint& joint : joints)
+  for (std::shared_ptr<Slave> slave : this->slave_list_)
   {
-    if (joint.hasIMotionCube())
+    reset |= slave->initSdo(this->cycle_time_ms_);
+    if (slave->hasWatchdog())
     {
-      ec_slave[joint.getIMotionCubeSlaveIndex()].PO2SOconfig = setSlaveWatchdogTimer;
+      ec_slave[slave->getSlaveIndex()].PO2SOconfig = setSlaveWatchdogTimer;
     }
-    reset |= joint.initialize(this->cycle_time_ms_);
   }
 
   ec_config_map(&this->io_map_);

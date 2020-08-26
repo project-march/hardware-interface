@@ -14,51 +14,44 @@
 
 namespace march
 {
-MarchRobot::MarchRobot(::std::vector<Joint> jointList, urdf::Model urdf, ::std::string ifName, int ecatCycleTime,
-                       int ecatSlaveTimeout)
+MarchRobot::MarchRobot(::std::vector<Joint> jointList, urdf::Model urdf, ::std::string ifName,
+                       std::vector<std::shared_ptr<Slave>> slave_list, int ecatCycleTime, int ecatSlaveTimeout)
   : jointList(std::move(jointList))
   , urdf_(std::move(urdf))
-  , ethercatMaster(ifName, this->getMaxSlaveIndex(), ecatCycleTime, ecatSlaveTimeout)
+  , ethercatMaster(ifName, slave_list, ecatCycleTime, ecatSlaveTimeout)
   , pdb_(nullptr)
 {
 }
 
 MarchRobot::MarchRobot(::std::vector<Joint> jointList, urdf::Model urdf,
-                       std::unique_ptr<PowerDistributionBoard> powerDistributionBoard, ::std::string ifName,
-                       int ecatCycleTime, int ecatSlaveTimeout)
+                       std::shared_ptr<PowerDistributionBoard> powerDistributionBoard, ::std::string ifName,
+                       std::vector<std::shared_ptr<Slave>> slave_list, int ecatCycleTime, int ecatSlaveTimeout)
   : jointList(std::move(jointList))
   , urdf_(std::move(urdf))
-  , ethercatMaster(ifName, this->getMaxSlaveIndex(), ecatCycleTime, ecatSlaveTimeout)
+  , ethercatMaster(ifName, slave_list, ecatCycleTime, ecatSlaveTimeout)
   , pdb_(std::move(powerDistributionBoard))
 {
 }
 
-void MarchRobot::startEtherCAT(bool reset_imc)
+void MarchRobot::startEtherCAT(bool reset_motor_controllers)
 {
-  if (!hasValidSlaves())
-  {
-    throw error::HardwareException(error::ErrorType::INVALID_SLAVE_CONFIGURATION);
-  }
-
-  ROS_INFO("Slave configuration is non-conflicting");
-
   if (ethercatMaster.isOperational())
   {
     ROS_WARN("Trying to start EtherCAT while it is already active.");
     return;
   }
 
-  bool sw_reset = ethercatMaster.start(this->jointList);
+  bool config_overwritten = ethercatMaster.start();
 
-  if (reset_imc || sw_reset)
+  if (reset_motor_controllers || config_overwritten)
   {
-    ROS_DEBUG("Resetting all IMotionCubes due to either: reset arg: %d or downloading of .sw fie: %d", reset_imc,
-              sw_reset);
-    resetIMotionCubes();
+    ROS_DEBUG("Resetting all motor controllers due to either: reset arg: %d or downloading of configuration file: %d",
+              reset_motor_controllers, config_overwritten);
+    resetMotorControllers();
 
     ROS_INFO("Restarting the EtherCAT Master");
     ethercatMaster.stop();
-    sw_reset = ethercatMaster.start(this->jointList);
+    config_overwritten = ethercatMaster.start();
   }
 }
 
@@ -73,83 +66,12 @@ void MarchRobot::stopEtherCAT()
   ethercatMaster.stop();
 }
 
-void MarchRobot::resetIMotionCubes()
+void MarchRobot::resetMotorControllers()
 {
   for (auto& joint : jointList)
   {
-    joint.resetIMotionCube();
+    joint.resetMotorController();
   }
-}
-
-int MarchRobot::getMaxSlaveIndex()
-{
-  int maxSlaveIndex = -1;
-
-  for (Joint& joint : jointList)
-  {
-    int temperatureSlaveIndex = joint.getTemperatureGESSlaveIndex();
-    if (temperatureSlaveIndex > maxSlaveIndex)
-    {
-      maxSlaveIndex = temperatureSlaveIndex;
-    }
-
-    int iMotionCubeSlaveIndex = joint.getIMotionCubeSlaveIndex();
-
-    if (iMotionCubeSlaveIndex > maxSlaveIndex)
-    {
-      maxSlaveIndex = iMotionCubeSlaveIndex;
-    }
-  }
-  return maxSlaveIndex;
-}
-
-bool MarchRobot::hasValidSlaves()
-{
-  ::std::vector<int> iMotionCubeIndices;
-  ::std::vector<int> temperatureSlaveIndices;
-
-  for (auto& joint : jointList)
-  {
-    if (joint.hasTemperatureGES())
-    {
-      int temperatureSlaveIndex = joint.getTemperatureGESSlaveIndex();
-      temperatureSlaveIndices.push_back(temperatureSlaveIndex);
-    }
-
-    if (joint.hasIMotionCube())
-    {
-      int iMotionCubeSlaveIndex = joint.getIMotionCubeSlaveIndex();
-      iMotionCubeIndices.push_back(iMotionCubeSlaveIndex);
-    }
-  }
-  // Multiple temperature sensors may be connected to the same slave.
-  // Remove duplicate temperatureSlaveIndices so they don't trigger as
-  // duplicates later.
-  sort(temperatureSlaveIndices.begin(), temperatureSlaveIndices.end());
-  temperatureSlaveIndices.erase(unique(temperatureSlaveIndices.begin(), temperatureSlaveIndices.end()),
-                                temperatureSlaveIndices.end());
-
-  // Merge the slave indices
-  ::std::vector<int> slaveIndices;
-
-  slaveIndices.reserve(iMotionCubeIndices.size() + temperatureSlaveIndices.size());
-  slaveIndices.insert(slaveIndices.end(), iMotionCubeIndices.begin(), iMotionCubeIndices.end());
-  slaveIndices.insert(slaveIndices.end(), temperatureSlaveIndices.begin(), temperatureSlaveIndices.end());
-
-  if (slaveIndices.size() == 1)
-  {
-    ROS_INFO("Found configuration for 1 slave.");
-    return true;
-  }
-
-  ROS_INFO("Found configuration for %lu slaves.", slaveIndices.size());
-
-  // Sort the indices and check for duplicates.
-  // If there are no duplicates, the configuration is valid.
-  ::std::sort(slaveIndices.begin(), slaveIndices.end());
-  auto it = ::std::unique(slaveIndices.begin(), slaveIndices.end());
-  bool isUnique = (it == slaveIndices.end());
-  return isUnique;
 }
 
 bool MarchRobot::isEthercatOperational()

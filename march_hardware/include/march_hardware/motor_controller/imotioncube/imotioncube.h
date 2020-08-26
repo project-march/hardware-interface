@@ -2,12 +2,13 @@
 
 #ifndef MARCH_HARDWARE_IMOTIONCUBE_H
 #define MARCH_HARDWARE_IMOTIONCUBE_H
-#include "actuation_mode.h"
+#include "march_hardware/motor_controller/actuation_mode.h"
 #include "march_hardware/ethercat/pdo_map.h"
 #include "march_hardware/ethercat/pdo_types.h"
 #include "march_hardware/ethercat/sdo_interface.h"
 #include "march_hardware/ethercat/slave.h"
-#include "imotioncube_state.h"
+#include "march_hardware/motor_controller/motor_controller.h"
+#include "march_hardware/motor_controller/motor_controller_states.h"
 #include "imotioncube_target_state.h"
 #include "march_hardware/encoder/absolute_encoder.h"
 #include "march_hardware/encoder/incremental_encoder.h"
@@ -18,7 +19,7 @@
 
 namespace march
 {
-class IMotionCube : public Slave
+class IMotionCube : public MotorController, public Slave
 {
 public:
   /**
@@ -36,42 +37,47 @@ public:
               std::unique_ptr<IncrementalEncoder> incremental_encoder, std::string& sw_stream,
               ActuationMode actuation_mode);
 
-  ~IMotionCube() noexcept override = default;
+  virtual ~IMotionCube() noexcept override = default;
 
   /* Delete copy constructor/assignment since the unique_ptrs cannot be copied */
   IMotionCube(const IMotionCube&) = delete;
   IMotionCube& operator=(const IMotionCube&) = delete;
 
-  virtual double getAngleRadAbsolute();
-  virtual double getAngleRadIncremental();
+  virtual double getAngleRadAbsolute() override;
+  virtual double getAngleRadIncremental() override;
   double getAbsoluteRadPerBit() const;
   double getIncrementalRadPerBit() const;
-  int16_t getTorque();
+  bool getIncrementalMorePrecise() const override;
+  double getTorque() override;
   int32_t getAngleIUAbsolute();
   int32_t getAngleIUIncremental();
   double getVelocityIUAbsolute();
   double getVelocityIUIncremental();
-  virtual double getVelocityRadAbsolute();
-  virtual double getVelocityRadIncremental();
+  virtual double getVelocityRadAbsolute() override;
+  virtual double getVelocityRadIncremental() override;
 
   uint16_t getStatusWord();
   uint16_t getMotionError();
   uint16_t getDetailedError();
   uint16_t getSecondDetailedError();
 
-  ActuationMode getActuationMode() const;
+  ActuationMode getActuationMode() const override;
 
-  virtual float getMotorCurrent();
-  virtual float getIMCVoltage();
-  virtual float getMotorVoltage();
+  virtual float getMotorCurrent() override;
+  virtual float getMotorControllerVoltage() override;
+  virtual float getMotorVoltage() override;
+
+  std::unique_ptr<MotorControllerStates> getStates() override;
 
   void setControlWord(uint16_t control_word);
-
-  virtual void actuateRad(double target_rad);
-  virtual void actuateTorque(int16_t target_torque);
+  virtual void actuateRad(double target_rad) override;
+  virtual void actuateTorque(double target_torque_ampere) override;
 
   void goToTargetState(IMotionCubeTargetState target_state);
-  virtual void goToOperationEnabled();
+  virtual void prepareActuation() override;
+
+  virtual void reset() override;
+  bool hasWatchdog() override;
 
   /** @brief Override comparison operator */
   friend bool operator==(const IMotionCube& lhs, const IMotionCube& rhs)
@@ -90,7 +96,9 @@ public:
   constexpr static double MAX_TARGET_DIFFERENCE = 0.393;
   // This value is slightly larger than the current limit of the
   // linear joints defined in the URDF.
-  const static int16_t MAX_TARGET_TORQUE = 23500;
+  constexpr static double IPEAK = 40;
+  // See CoE manual page 222
+  constexpr static double AMPERE_TO_IU_FACTOR = 65520;
 
   // Watchdog base time = 1 / 25 MHz * (2498 + 2) = 0.0001 seconds=100 µs
   static const uint16_t WATCHDOG_DIVIDER = 2498;
@@ -104,6 +112,7 @@ protected:
 
 private:
   void actuateIU(int32_t target_iu);
+  int16_t ampereToTorqueIU(double ampere);
 
   void mapMisoPDOs(SdoSlaveInterface& sdo);
   void mapMosiPDOs(SdoSlaveInterface& sdo);

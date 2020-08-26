@@ -10,12 +10,13 @@
 #include <urdf/model.h>
 #include <yaml-cpp/yaml.h>
 
-#include <march_hardware/imotioncube/actuation_mode.h>
+#include <march_hardware/motor_controller/actuation_mode.h>
 #include <march_hardware/encoder/absolute_encoder.h>
 #include <march_hardware/encoder/incremental_encoder.h>
 #include <march_hardware/ethercat/pdo_interface.h>
 #include <march_hardware/ethercat/sdo_interface.h>
-#include <march_hardware/imotioncube/imotioncube.h>
+#include <march_hardware/ethercat/slave.h>
+#include <march_hardware/motor_controller/imotioncube/imotioncube.h>
 #include <march_hardware/joint.h>
 #include <march_hardware/march_robot.h>
 #include <march_hardware/power/power_distribution_board.h>
@@ -66,21 +67,21 @@ public:
   static void validateRequiredKeysExist(const YAML::Node& config, const std::vector<std::string>& key_list,
                                         const std::string& object_name);
 
-  static march::Joint createJoint(const YAML::Node& joint_config, const std::string& joint_name,
-                                  const urdf::JointConstSharedPtr& urdf_joint, march::PdoInterfacePtr pdo_interface,
-                                  march::SdoInterfacePtr sdo_interface);
+  march::Joint createJoint(const YAML::Node& joint_config, const std::string& joint_name,
+                           const urdf::JointConstSharedPtr& urdf_joint, march::PdoInterfacePtr pdo_interface,
+                           march::SdoInterfacePtr sdo_interface);
   static std::unique_ptr<march::AbsoluteEncoder> createAbsoluteEncoder(const YAML::Node& absolute_encoder_config,
                                                                        const urdf::JointConstSharedPtr& urdf_joint);
   static std::unique_ptr<march::IncrementalEncoder>
   createIncrementalEncoder(const YAML::Node& incremental_encoder_config);
-  static std::unique_ptr<march::IMotionCube> createIMotionCube(const YAML::Node& imc_config, march::ActuationMode mode,
-                                                               const urdf::JointConstSharedPtr& urdf_joint,
-                                                               march::PdoInterfacePtr pdo_interface,
-                                                               march::SdoInterfacePtr sdo_interface);
-  static std::unique_ptr<march::TemperatureGES> createTemperatureGES(const YAML::Node& temperature_ges_config,
-                                                                     march::PdoInterfacePtr pdo_interface,
-                                                                     march::SdoInterfacePtr sdo_interface);
-  static std::unique_ptr<march::PowerDistributionBoard>
+  std::shared_ptr<march::IMotionCube> createIMotionCube(const YAML::Node& imc_config, march::ActuationMode mode,
+                                                        const urdf::JointConstSharedPtr& urdf_joint,
+                                                        march::PdoInterfacePtr pdo_interface,
+                                                        march::SdoInterfacePtr sdo_interface);
+  std::shared_ptr<march::TemperatureGES> createTemperatureGES(const YAML::Node& temperature_ges_config,
+                                                              march::PdoInterfacePtr pdo_interface,
+                                                              march::SdoInterfacePtr sdo_interface);
+  std::shared_ptr<march::PowerDistributionBoard>
   createPowerDistributionBoard(const YAML::Node& power_distribution_board_config, march::PdoInterfacePtr pdo_interface,
                                march::SdoInterfacePtr sdo_interface);
 
@@ -105,11 +106,13 @@ private:
    * @return list of created joints
    */
   std::vector<march::Joint> createJoints(const YAML::Node& joints_config, march::PdoInterfacePtr pdo_interface,
-                                         march::SdoInterfacePtr sdo_interface) const;
+                                         march::SdoInterfacePtr sdo_interface);
 
   YAML::Node robot_config_;
   urdf::Model urdf_;
   bool init_urdf_ = true;
+  std::vector<std::shared_ptr<march::TemperatureGES>> ges_list_;
+  std::vector<std::shared_ptr<march::Slave>> slave_list_;
 };
 
 /**

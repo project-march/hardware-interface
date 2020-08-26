@@ -21,17 +21,17 @@ private:
   ::std::vector<Joint> jointList;
   urdf::Model urdf_;
   EthercatMaster ethercatMaster;
-  std::unique_ptr<PowerDistributionBoard> pdb_;
+  std::shared_ptr<PowerDistributionBoard> pdb_;
 
 public:
   using iterator = std::vector<Joint>::iterator;
 
-  MarchRobot(::std::vector<Joint> jointList, urdf::Model urdf, ::std::string ifName, int ecatCycleTime,
-             int ecatSlaveTimeout);
+  MarchRobot(::std::vector<Joint> jointList, urdf::Model urdf, ::std::string ifName,
+             std::vector<std::shared_ptr<Slave>> slave_list, int ecatCycleTime, int ecatSlaveTimeout);
 
   MarchRobot(::std::vector<Joint> jointList, urdf::Model urdf,
-             std::unique_ptr<PowerDistributionBoard> powerDistributionBoard, ::std::string ifName, int ecatCycleTime,
-             int ecatSlaveTimeout);
+             std::shared_ptr<PowerDistributionBoard> powerDistributionBoard, ::std::string ifName,
+             std::vector<std::shared_ptr<Slave>> slave_list, int ecatCycleTime, int ecatSlaveTimeout);
 
   ~MarchRobot();
 
@@ -43,15 +43,13 @@ public:
   MarchRobot(MarchRobot&&) = delete;
   MarchRobot& operator=(MarchRobot&&) = delete;
 
-  void resetIMotionCubes();
+  void resetMotorControllers();
 
-  void startEtherCAT(bool reset_imc);
+  void startEtherCAT(bool reset_motor_controllers);
 
   void stopEtherCAT();
 
   int getMaxSlaveIndex();
-
-  bool hasValidSlaves();
 
   bool isEthercatOperational();
 
@@ -74,35 +72,6 @@ public:
   PowerDistributionBoard* getPowerDistributionBoard() const;
 
   const urdf::Model& getUrdf() const;
-
-  /** @brief Override comparison operator */
-  friend bool operator==(const MarchRobot& lhs, const MarchRobot& rhs)
-  {
-    if (lhs.jointList.size() != rhs.jointList.size())
-    {
-      return false;
-    }
-    for (unsigned int i = 0; i < lhs.jointList.size(); i++)
-    {
-      const march::Joint& lhsJoint = lhs.jointList.at(i);
-      const march::Joint& rhsJoint = rhs.jointList.at(i);
-      if (lhsJoint != rhsJoint)
-      {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  /** @brief Override stream operator for clean printing */
-  friend ::std::ostream& operator<<(std::ostream& os, const MarchRobot& marchRobot)
-  {
-    for (unsigned int i = 0; i < marchRobot.jointList.size(); i++)
-    {
-      os << marchRobot.jointList.at(i) << "\n";
-    }
-    return os;
-  }
 };
 }  // namespace march
 #endif  // MARCH_HARDWARE_MARCH_ROBOT_H

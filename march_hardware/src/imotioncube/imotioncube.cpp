@@ -1,5 +1,6 @@
 // Copyright 2018 Project March.
-#include "march_hardware/imotioncube/imotioncube.h"
+#include "march_hardware/motor_controller/imotioncube/imotioncube.h"
+#include "march_hardware/motor_controller/imotioncube/imotioncube_states.h"
 #include "march_hardware/error/hardware_exception.h"
 #include "march_hardware/error/motion_error.h"
 #include "march_hardware/ethercat/pdo_types.h"
@@ -178,19 +179,20 @@ void IMotionCube::actuateIU(int32_t target_iu)
   this->write32(target_position_location, target_position);
 }
 
-void IMotionCube::actuateTorque(int16_t target_torque)
+void IMotionCube::actuateTorque(double target_torque_ampere)
 {
+  if (target_torque_ampere >= IPEAK)
+  {
+    throw error::HardwareException(error::ErrorType::TARGET_TORQUE_EXCEEDS_MAX_TORQUE,
+                                   "Target torque of %dA exceeds max torque of %dA", target_torque_ampere, IPEAK);
+  }
+  int16_t target_torque = ampereToTorqueIU(target_torque_ampere);
+
   if (this->actuation_mode_ != ActuationMode::torque)
   {
     throw error::HardwareException(error::ErrorType::INVALID_ACTUATION_MODE,
                                    "trying to actuate torque, while actuation mode is %s",
                                    this->actuation_mode_.toString().c_str());
-  }
-
-  if (target_torque >= MAX_TARGET_TORQUE)
-  {
-    throw error::HardwareException(error::ErrorType::TARGET_TORQUE_EXCEEDS_MAX_TORQUE,
-                                   "Target torque of %d exceeds max torque of %d", target_torque, MAX_TARGET_TORQUE);
   }
 
   bit16 target_torque_struct = { .i = target_torque };
@@ -220,6 +222,11 @@ double IMotionCube::getAngleRadIncremental()
   return this->incremental_encoder_->getAngleRad(*this, this->miso_byte_offsets_.at(IMCObjectName::MotorPosition));
 }
 
+bool IMotionCube::getIncrementalMorePrecise() const
+{
+  return this->incremental_encoder_->getRadPerBit() < this->absolute_encoder_->getRadPerBit();
+}
+
 double IMotionCube::getAbsoluteRadPerBit() const
 {
   return this->absolute_encoder_->getRadPerBit();
@@ -230,7 +237,7 @@ double IMotionCube::getIncrementalRadPerBit() const
   return this->incremental_encoder_->getRadPerBit();
 }
 
-int16_t IMotionCube::getTorque()
+double IMotionCube::getTorque()
 {
   bit16 return_byte = this->read16(this->miso_byte_offsets_.at(IMCObjectName::ActualTorque));
   return return_byte.i;
@@ -296,7 +303,7 @@ float IMotionCube::getMotorCurrent()
          static_cast<float>(motor_current_iu);  // Conversion to Amp, see Technosoft CoE programming manual
 }
 
-float IMotionCube::getIMCVoltage()
+float IMotionCube::getMotorControllerVoltage()
 {
   // maximum measurable DC voltage found in EMS Setup/Drive info button
   const float V_DC_MAX_MEASURABLE = 102.3;
@@ -319,6 +326,39 @@ void IMotionCube::setControlWord(uint16_t control_word)
   this->write16(this->mosi_byte_offsets_.at(IMCObjectName::ControlWord), control_word_ui);
 }
 
+std::unique_ptr<MotorControllerStates> IMotionCube::getStates()
+{
+  std::unique_ptr<IMotionCubeStates> states = std::make_unique<IMotionCubeStates>();
+
+  // Common states
+  states->motor_current = this->getMotorCurrent();
+  states->controller_voltage = this->getMotorControllerVoltage();
+  states->motor_voltage = this->getMotorVoltage();
+
+  states->absolute_encoder_value = this->getAngleIUAbsolute();
+  states->incremental_encoder_value = this->getAngleIUIncremental();
+  states->absolute_velocity = this->getVelocityIUAbsolute();
+  states->incremental_velocity = this->getVelocityIUIncremental();
+
+  states->status_word = this->getStatusWord();
+  std::bitset<16> motion_error_bits = this->getMotionError();
+  states->motion_error = motion_error_bits.to_string();
+  std::bitset<16> detailed_error_bits = this->getDetailedError();
+  states->detailed_error = detailed_error_bits.to_string();
+  std::bitset<16> second_detailed_error_bits = this->getSecondDetailedError();
+  states->second_detailed_error = second_detailed_error_bits.to_string();
+
+  states->state = IMCStateOfOperation(this->getStatusWord());
+
+  states->motion_error_description = error::parseError(this->getMotionError(), error::ErrorRegisters::MOTION_ERROR);
+  states->detailed_error_description =
+      error::parseError(this->getDetailedError(), error::ErrorRegisters::DETAILED_ERROR);
+  states->second_detailed_error_description =
+      error::parseError(this->getSecondDetailedError(), error::ErrorRegisters::SECOND_DETAILED_ERROR);
+
+  return states;
+}
+
 void IMotionCube::goToTargetState(IMotionCubeTargetState target_state)
 {
   ROS_DEBUG("\tTry to go to '%s'", target_state.getDescription().c_str());
@@ -328,7 +368,7 @@ void IMotionCube::goToTargetState(IMotionCubeTargetState target_state)
     ROS_INFO_DELAYED_THROTTLE(5, "\tWaiting for '%s': %s", target_state.getDescription().c_str(),
                               std::bitset<16>(this->getStatusWord()).to_string().c_str());
     if (target_state.getState() == IMotionCubeTargetState::OPERATION_ENABLED.getState() &&
-        IMCState(this->getStatusWord()) == IMCState::FAULT)
+        IMCStateOfOperation(this->getStatusWord()) == IMCStateOfOperation::FAULT)
     {
       ROS_FATAL("IMotionCube went to fault state while attempting to go to '%s'. Shutting down.",
                 target_state.getDescription().c_str());
@@ -346,7 +386,7 @@ void IMotionCube::goToTargetState(IMotionCubeTargetState target_state)
   ROS_DEBUG("\tReached '%s'!", target_state.getDescription().c_str());
 }
 
-void IMotionCube::goToOperationEnabled()
+void IMotionCube::prepareActuation()
 {
   if (this->actuation_mode_ == ActuationMode::unknown)
   {
@@ -394,6 +434,11 @@ void IMotionCube::reset(SdoSlaveInterface& sdo)
   this->setControlWord(0);
   ROS_DEBUG("Slave: %d, Try to reset IMC", this->getSlaveIndex());
   sdo.write<uint16_t>(0x2080, 0, 1);
+}
+
+void IMotionCube::reset()
+{
+  return this->Slave::reset();
 }
 
 uint16_t IMotionCube::computeSWCheckSum(uint16_t& start_address, uint16_t& end_address)
@@ -497,8 +542,19 @@ void IMotionCube::downloadSetupToDrive(SdoSlaveInterface& sdo)
   }
 }
 
+bool IMotionCube::hasWatchdog()
+{
+  return true;
+}
+
 ActuationMode IMotionCube::getActuationMode() const
 {
   return this->actuation_mode_;
+}
+
+int16_t IMotionCube::ampereToTorqueIU(double ampere)
+{
+  // See CoE manual page 222
+  return AMPERE_TO_IU_FACTOR * ampere / (2 * IPEAK);
 }
 }  // namespace march

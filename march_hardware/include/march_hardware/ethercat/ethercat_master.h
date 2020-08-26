@@ -24,7 +24,7 @@ namespace march
 class EthercatMaster
 {
 public:
-  EthercatMaster(std::string ifname, int max_slave_index, int cycle_time, int slave_timeout);
+  EthercatMaster(std::string ifname, std::vector<std::shared_ptr<Slave>>, int cycle_time, int slave_timeout);
   ~EthercatMaster();
 
   /* Delete copy constructor/assignment since the member thread can not be copied */
@@ -46,11 +46,19 @@ public:
   int getCycleTime() const;
 
   /**
+   * Returns the largest slave index.
+   */
+  int getMaxSlaveIndex();
+
+  bool hasValidSlaves();
+
+  /**
    * Initializes the ethercat train and starts a thread for the loop.
    * @throws HardwareException If not the configured amount of slaves was found
    *                           or they did not all reach operational state
+   * @returns true if one of the slaves requires resetting ethercat, false otherwise
    */
-  bool start(std::vector<Joint>& joints);
+  bool start();
 
   /**
    * Stops the ethercat loop and joins the thread.
@@ -67,8 +75,10 @@ private:
 
   /**
    * Configures the found slaves to operational state.
+   *
+   * @returns true if one of the slaves requires resetting ethercat, false otherwise
    */
-  bool ethercatSlaveInitiation(std::vector<Joint>& joints);
+  bool ethercatSlaveInitiation();
 
   /**
    * The ethercat train PDO loop. If the working counter is lower than
@@ -112,6 +122,7 @@ private:
   std::atomic<bool> is_operational_;
 
   const std::string ifname_;
+  std::vector<std::shared_ptr<Slave>> slave_list_;
   const int max_slave_index_;
   const int cycle_time_ms_;
 

@@ -53,10 +53,13 @@ add_library(${PROJECT_NAME}
     include/${PROJECT_NAME}/ethercat/pdo_types.h
     include/${PROJECT_NAME}/ethercat/sdo_interface.h
     include/${PROJECT_NAME}/ethercat/slave.h
-    include/${PROJECT_NAME}/imotioncube/actuation_mode.h
-    include/${PROJECT_NAME}/imotioncube/imotioncube.h
-    include/${PROJECT_NAME}/imotioncube/imotioncube_state.h
-    include/${PROJECT_NAME}/imotioncube/imotioncube_target_state.h
+    include/${PROJECT_NAME}/motor_controller/actuation_mode.h
+    include/${PROJECT_NAME}/motor_controller/imotioncube/imotioncube.h
+    include/${PROJECT_NAME}/motor_controller/imotioncube/imotioncube_states.h
+    include/${PROJECT_NAME}/motor_controller/imotioncube/imotioncube_state_of_operation.h
+    include/${PROJECT_NAME}/motor_controller/imotioncube/imotioncube_target_state.h
+    include/${PROJECT_NAME}/motor_controller/motor_controller.h
+    include/${PROJECT_NAME}/motor_controller/motor_controller_states.h
     include/${PROJECT_NAME}/joint.h
     include/${PROJECT_NAME}/march_robot.h
     include/${PROJECT_NAME}/power/boot_shutdown_offsets.h
@@ -123,7 +126,7 @@ if(CATKIN_ENABLE_TESTING)
         test/joint_test.cpp
         test/mocks/mock_absolute_encoder.h
         test/mocks/mock_encoder.h
-        test/mocks/mock_imotioncube.h
+        test/mocks/mock_motor_controller.h
         test/mocks/mock_incremental_encoder.h
         test/mocks/mock_joint.h
         test/mocks/mock_pdo_interface.h

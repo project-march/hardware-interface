@@ -21,7 +21,7 @@
 #include <march_hardware/march_robot.h>
 #include <march_hardware_builder/hardware_builder.h>
 #include <march_shared_resources/AfterLimitJointCommand.h>
-#include <march_shared_resources/ImcState.h>
+#include <march_shared_resources/MotorControllerState.h>
 
 template <typename T>
 using RtPublisherPtr = std::unique_ptr<realtime_tools::RealtimePublisher<T>>;
@@ -34,7 +34,7 @@ using RtPublisherPtr = std::unique_ptr<realtime_tools::RealtimePublisher<T>>;
 class MarchHardwareInterface : public hardware_interface::RobotHW
 {
 public:
-  MarchHardwareInterface(std::unique_ptr<march::MarchRobot> robot, bool reset_imc);
+  MarchHardwareInterface(std::unique_ptr<march::MarchRobot> robot, bool reset_motor_controllers);
 
   /**
    * @brief Initialize the HardwareInterface by registering position interfaces
@@ -84,14 +84,14 @@ private:
   void updateHighVoltageEnable();
   void updatePowerDistributionBoard();
   void updateAfterLimitJointCommand();
-  void updateIMotionCubeState();
+  void updateMotorControllerStates();
   void outsideLimitsCheck(size_t joint_index);
-  bool iMotionCubeStateCheck(size_t joint_index);
+  bool motorControllerStateCheck(size_t joint_index);
   static void getSoftJointLimitsError(const std::string& name, const urdf::JointConstSharedPtr& urdf_joint,
                                       joint_limits_interface::SoftJointLimits& error_soft_limits);
 
-  /* Limit of the change in effort command over one cycle, can be overridden by safety controller */
-  static constexpr double MAX_EFFORT_CHANGE = 5000;
+  /* Limit of the change in effort (ampere) command over one cycle, can be overridden by safety controller */
+  static constexpr double MAX_EFFORT_CHANGE = 6;
 
   /* March hardware */
   std::unique_ptr<march::MarchRobot> march_robot_;
@@ -130,13 +130,13 @@ private:
   PowerNetOnOffCommand power_net_on_off_command_;
   bool master_shutdown_allowed_command_ = false;
   bool enable_high_voltage_command_ = true;
-  bool reset_imc_ = false;
+  bool reset_motor_controllers_ = false;
 
   bool has_actuated_ = false;
 
   /* Real time safe publishers */
   RtPublisherPtr<march_shared_resources::AfterLimitJointCommand> after_limit_joint_command_pub_;
-  RtPublisherPtr<march_shared_resources::ImcState> imc_state_pub_;
+  RtPublisherPtr<march_shared_resources::MotorControllerState> motor_controller_state_pub_;
 };
 
 #endif  // MARCH_HARDWARE_INTERFACE_MARCH_HARDWARE_INTERFACE_H
