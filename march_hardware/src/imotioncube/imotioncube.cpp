@@ -328,7 +328,7 @@ void IMotionCube::setControlWord(uint16_t control_word)
 
 std::unique_ptr<MotorControllerStates> IMotionCube::getStates()
 {
-  std::unique_ptr<IMotionCubeStates> states(new IMotionCubeStates);
+  std::unique_ptr<IMotionCubeStates> states = std::make_unique<IMotionCubeStates>();
 
   // Common states
   states->motor_current = this->getMotorCurrent();

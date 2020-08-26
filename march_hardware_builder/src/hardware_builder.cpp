@@ -146,7 +146,7 @@ std::shared_ptr<march::IMotionCube> HardwareBuilder::createIMotionCube(const YAM
   std::string setup = convertSWFileToString(imc_setup_data);
 
   std::shared_ptr<march::IMotionCube> imc =
-      std::make_unique<march::IMotionCube>(march::Slave(slave_index, pdo_interface, sdo_interface),
+      std::make_shared<march::IMotionCube>(march::Slave(slave_index, pdo_interface, sdo_interface),
                                            this->createAbsoluteEncoder(absolute_encoder_config, urdf_joint),
                                            this->createIncrementalEncoder(incremental_encoder_config), setup, mode);
 
@@ -226,7 +226,7 @@ std::shared_ptr<march::TemperatureGES> HardwareBuilder::createTemperatureGES(con
   }
 
   std::shared_ptr<march::TemperatureGES> ges =
-      std::make_unique<march::TemperatureGES>(march::Slave(slave_index, pdo_interface, sdo_interface), byte_offset);
+      std::make_shared<march::TemperatureGES>(march::Slave(slave_index, pdo_interface, sdo_interface), byte_offset);
   this->slave_list_.push_back(ges);
   this->ges_list_.push_back(ges);
   return ges;
@@ -266,7 +266,7 @@ std::shared_ptr<march::PowerDistributionBoard> HardwareBuilder::createPowerDistr
       boot_shutdown_byte_offsets["shutdownAllowed"].as<int>());
 
   std::shared_ptr<march::PowerDistributionBoard> pdb =
-      std::make_unique<march::PowerDistributionBoard>(march::Slave(slave_index, pdo_interface, sdo_interface),
+      std::make_shared<march::PowerDistributionBoard>(march::Slave(slave_index, pdo_interface, sdo_interface),
                                                       net_monitor_offsets, net_driver_offsets, boot_shutdown_offsets);
   this->slave_list_.push_back(pdb);
 
