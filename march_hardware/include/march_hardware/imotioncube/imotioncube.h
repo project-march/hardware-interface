@@ -57,6 +57,7 @@ public:
   uint16_t getStatusWord();
   uint16_t getMotionError();
   uint16_t getDetailedError();
+  uint16_t getSecondDetailedError();
 
   ActuationMode getActuationMode() const;
 
@@ -120,7 +121,7 @@ private:
    * @param end_address the found end address of the setup in the .sw file
    * @return the computed checksum in the .sw file
    */
-  uint32_t computeSWCheckSum(int& start_address, int& end_address);
+  uint16_t computeSWCheckSum(uint16_t& start_address, uint16_t& end_address);
   /**
    * Compares the checksum of the .sw file and the setup on the drive. If both are equal 1 is returned.
    * This method makes use of the computeSWCheckSum(int&, int&) method. The start and end addresses are used in

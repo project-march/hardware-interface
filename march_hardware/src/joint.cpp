@@ -131,6 +131,18 @@ double Joint::getVelocity() const
   return this->velocity_;
 }
 
+double Joint::getVoltageVelocity() const
+{
+  // For the underlying calculations, see:
+  // https://en.wikipedia.org/wiki/Motor_constants#Motor_velocity_constant,_back_EMF_constant
+  // https://www.motioncontroltips.com/faq-whats-relationship-voltage-dc-motor-output-speed/
+  const double resistance = 0.05;
+  const double velocity_constant = 355;
+  const double rpm_to_rad = M_PI / 30;
+  const double electric_constant = velocity_constant * rpm_to_rad;
+  return (this->imc_->getMotorVoltage() + this->imc_->getMotorCurrent() * resistance) / electric_constant;
+}
+
 double Joint::getIncrementalPosition() const
 {
   return this->incremental_position_;
@@ -217,14 +229,20 @@ IMotionCubeState Joint::getIMotionCubeState()
 
   std::bitset<16> statusWordBits = this->imc_->getStatusWord();
   states.statusWord = statusWordBits.to_string();
-  std::bitset<16> detailedErrorBits = this->imc_->getDetailedError();
-  states.detailedError = detailedErrorBits.to_string();
   std::bitset<16> motionErrorBits = this->imc_->getMotionError();
   states.motionError = motionErrorBits.to_string();
+  std::bitset<16> detailedErrorBits = this->imc_->getDetailedError();
+  states.detailedError = detailedErrorBits.to_string();
+  std::bitset<16> secondDetailedErrorBits = this->imc_->getSecondDetailedError();
+  states.secondDetailedError = secondDetailedErrorBits.to_string();
 
   states.state = IMCState(this->imc_->getStatusWord());
-  states.detailedErrorDescription = error::parseDetailedError(this->imc_->getDetailedError());
-  states.motionErrorDescription = error::parseMotionError(this->imc_->getMotionError());
+
+  states.motionErrorDescription = error::parseError(this->imc_->getMotionError(), error::ErrorRegisters::MOTION_ERROR);
+  states.detailedErrorDescription =
+      error::parseError(this->imc_->getDetailedError(), error::ErrorRegisters::DETAILED_ERROR);
+  states.secondDetailedErrorDescription =
+      error::parseError(this->imc_->getSecondDetailedError(), error::ErrorRegisters::SECOND_DETAILED_ERROR);
 
   states.motorCurrent = this->imc_->getMotorCurrent();
   states.IMCVoltage = this->imc_->getIMCVoltage();
