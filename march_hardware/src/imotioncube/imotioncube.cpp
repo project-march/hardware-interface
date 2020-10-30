@@ -206,7 +206,7 @@ double IMotionCube::getAngleRadAbsolute()
       !IMotionCubeTargetState::OPERATION_ENABLED.isReached(this->getStatusWord()))
   {
     ROS_WARN_THROTTLE(10, "Invalid use of absolute encoders, you're not in the correct state.");
-    ROS_ERROR(this->getSlaveIndex());
+    ROS_ERROR("Slave %d", this->getSlaveIndex());
   }
   return this->absolute_encoder_->getAngleRad(*this, this->miso_byte_offsets_.at(IMCObjectName::ActualPosition));
 }
@@ -217,7 +217,7 @@ double IMotionCube::getAngleRadIncremental()
       !IMotionCubeTargetState::OPERATION_ENABLED.isReached(this->getStatusWord()))
   {
     ROS_WARN_THROTTLE(10, "Invalid use of incremental encoders, you're not in the correct state.");
-	  ROS_ERROR(this->getSlaveIndex());
+	  ROS_ERROR("Slave %d", this->getSlaveIndex());
   }
   return this->incremental_encoder_->getAngleRad(*this, this->miso_byte_offsets_.at(IMCObjectName::MotorPosition));
 }
