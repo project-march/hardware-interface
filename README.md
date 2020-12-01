@@ -1,3 +1,5 @@
+This repository has been archived. A recent version can be found on https://gitlab.com/project-march.
+
 # Hardware Interface
 The hardware interface of the MARCH exoskeleton. This includes EtherCAT master and uses the SOEM library.
 
